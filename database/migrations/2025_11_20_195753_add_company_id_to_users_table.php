@@ -12,8 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('company_id')->nullable()->after('id')->constrained()->onDelete('cascade');
-            $table->string('role')->default('member')->after('company_id'); // owner, admin, member
+            // Only add company_id if it doesn't exist
+            if (!Schema::hasColumn('users', 'company_id')) {
+                $table->foreignId('company_id')->nullable()->after('id')->constrained()->onDelete('cascade');
+            } else {
+                // Add foreign key constraint to existing column
+                $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+            }
+            
+            // Only add role if it doesn't exist
+            if (!Schema::hasColumn('users', 'role')) {
+                $table->string('role')->default('member')->after('company_id');
+            }
         });
     }
 
