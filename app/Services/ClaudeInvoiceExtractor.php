@@ -20,7 +20,7 @@ class ClaudeInvoiceExtractor
             throw new Exception('Anthropic API key is not configured.');
         }
 
-        $this->client = Client::factory()->withApiKey($apiKey)->make();
+        $this->client = new Client($apiKey);
         $this->model = config('services.anthropic.model', 'claude-3-5-sonnet-latest');
     }
 
@@ -46,54 +46,52 @@ class ClaudeInvoiceExtractor
 
         try {
             if ($mimeType === 'application/pdf') {
-                $response = $this->client->messages()->create([
-                    'model' => $this->model,
-                    'max_tokens' => 4096,
-                    'messages' => [
-                        [
-                            'role' => 'user',
-                            'content' => [
-                                [
-                                    'type' => 'document',
-                                    'source' => [
-                                        'type' => 'base64',
-                                        'media_type' => $mimeType,
-                                        'data' => $imageData,
-                                    ],
+                $messages = [
+                    [
+                        'role' => 'user',
+                        'content' => [
+                            [
+                                'type' => 'document',
+                                'source' => [
+                                    'type' => 'base64',
+                                    'media_type' => $mimeType,
+                                    'data' => $imageData,
                                 ],
-                                [
-                                    'type' => 'text',
-                                    'text' => $prompt,
-                                ],
+                            ],
+                            [
+                                'type' => 'text',
+                                'text' => $prompt,
                             ],
                         ],
                     ],
-                ]);
+                ];
             } else {
-                $response = $this->client->messages()->create([
-                    'model' => $this->model,
-                    'max_tokens' => 4096,
-                    'messages' => [
-                        [
-                            'role' => 'user',
-                            'content' => [
-                                [
-                                    'type' => 'image',
-                                    'source' => [
-                                        'type' => 'base64',
-                                        'media_type' => $mimeType,
-                                        'data' => $imageData,
-                                    ],
+                $messages = [
+                    [
+                        'role' => 'user',
+                        'content' => [
+                            [
+                                'type' => 'image',
+                                'source' => [
+                                    'type' => 'base64',
+                                    'media_type' => $mimeType,
+                                    'data' => $imageData,
                                 ],
-                                [
-                                    'type' => 'text',
-                                    'text' => $prompt,
-                                ],
+                            ],
+                            [
+                                'type' => 'text',
+                                'text' => $prompt,
                             ],
                         ],
                     ],
-                ]);
+                ];
             }
+
+            $response = $this->client->messages->create(
+                maxTokens: 4096,
+                messages: $messages,
+                model: $this->model
+            );
 
             $rawResponse = $response->content[0]->text ?? '';
 

@@ -1,52 +1,161 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('register') }}">
+@extends('adminlte::auth.auth-page', ['auth_type' => 'register'])
+
+@section('adminlte_css_pre')
+    <link rel="stylesheet" href="{{ asset('vendor/icheck-bootstrap/icheck-bootstrap.min.css') }}">
+@stop
+
+@php
+    $login_url = View::getSection('login_url') ?? config('adminlte.login_url', 'login');
+    $register_url = View::getSection('register_url') ?? config('adminlte.register_url', 'register');
+
+    if (config('adminlte.use_route_url', false)) {
+        $login_url = $login_url ? route($login_url) : '';
+        $register_url = $register_url ? route($register_url) : '';
+    } else {
+        $login_url = $login_url ? url($login_url) : '';
+        $register_url = $register_url ? url($register_url) : '';
+    }
+@endphp
+
+@section('auth_header', __('adminlte::adminlte.register_message'))
+
+@section('auth_body')
+    <form action="{{ $register_url }}" method="post">
         @csrf
 
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
+        {{-- Company name field --}}
+        <div class="input-group mb-3">
+            <input type="text" name="company_name" class="form-control @error('company_name') is-invalid @enderror"
+                   value="{{ old('company_name') }}" placeholder="Company Name" autofocus>
+
+            <div class="input-group-append">
+                <div class="input-group-text">
+                    <span class="fas fa-building {{ config('adminlte.classes_auth_icon', '') }}"></span>
+                </div>
+            </div>
+
+            @error('company_name')
+                <span class="invalid-feedback" role="alert">
+                    <strong>{{ $message }}</strong>
+                </span>
+            @enderror
         </div>
 
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        {{-- Name field --}}
+        <div class="input-group mb-3">
+            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
+                   value="{{ old('name') }}" placeholder="{{ __('adminlte::adminlte.full_name') }}">
+
+            <div class="input-group-append">
+                <div class="input-group-text">
+                    <span class="fas fa-user {{ config('adminlte.classes_auth_icon', '') }}"></span>
+                </div>
+            </div>
+
+            @error('name')
+                <span class="invalid-feedback" role="alert">
+                    <strong>{{ $message }}</strong>
+                </span>
+            @enderror
         </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+        {{-- Email field --}}
+        <div class="input-group mb-3">
+            <input type="email" name="email" class="form-control @error('email') is-invalid @enderror"
+                   value="{{ old('email') }}" placeholder="{{ __('adminlte::adminlte.email') }}">
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
+            <div class="input-group-append">
+                <div class="input-group-text">
+                    <span class="fas fa-envelope {{ config('adminlte.classes_auth_icon', '') }}"></span>
+                </div>
+            </div>
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+            @error('email')
+                <span class="invalid-feedback" role="alert">
+                    <strong>{{ $message }}</strong>
+                </span>
+            @enderror
         </div>
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+        {{-- Password field --}}
+        <div class="input-group mb-3">
+            <input type="password" name="password" class="form-control @error('password') is-invalid @enderror"
+                   placeholder="{{ __('adminlte::adminlte.password') }}">
 
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
+            <div class="input-group-append">
+                <div class="input-group-text">
+                    <span class="fas fa-lock {{ config('adminlte.classes_auth_icon', '') }}"></span>
+                </div>
+            </div>
 
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+            @error('password')
+                <span class="invalid-feedback" role="alert">
+                    <strong>{{ $message }}</strong>
+                </span>
+            @enderror
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
-            </a>
+        {{-- Confirm password field --}}
+        <div class="input-group mb-3">
+            <input type="password" name="password_confirmation"
+                   class="form-control @error('password_confirmation') is-invalid @enderror"
+                   placeholder="{{ __('adminlte::adminlte.retype_password') }}">
 
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
+            <div class="input-group-append">
+                <div class="input-group-text">
+                    <span class="fas fa-lock {{ config('adminlte.classes_auth_icon', '') }}"></span>
+                </div>
+            </div>
+
+            @error('password_confirmation')
+                <span class="invalid-feedback" role="alert">
+                    <strong>{{ $message }}</strong>
+                </span>
+            @enderror
         </div>
+
+        {{-- Plan selection field --}}
+        @php
+            $plans = \App\Models\Plan::active()->ordered()->get();
+            $selectedPlan = old('plan_id') ?? request('plan');
+        @endphp
+
+        @if($plans->isNotEmpty())
+            <div class="form-group mb-3">
+                <label class="mb-2">Select Your Plan</label>
+                @foreach($plans as $plan)
+                    <div class="custom-control custom-radio mb-2">
+                        <input type="radio" id="plan_{{ $plan->id }}" name="plan_id"
+                               class="custom-control-input @error('plan_id') is-invalid @enderror"
+                               value="{{ $plan->id }}"
+                               {{ ($selectedPlan == $plan->slug || $selectedPlan == $plan->id || (!$selectedPlan && $plan->isProfessional())) ? 'checked' : '' }}>
+                        <label class="custom-control-label" for="plan_{{ $plan->id }}">
+                            <strong>{{ $plan->name }}</strong> - {{ $plan->formatted_price }}/mo
+                            <small class="text-muted d-block">{{ number_format($plan->invoice_limit) }} invoices/month</small>
+                        </label>
+                    </div>
+                @endforeach
+                @error('plan_id')
+                    <span class="invalid-feedback d-block" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
+                @enderror
+            </div>
+        @endif
+
+        {{-- Register button --}}
+        <button type="submit" class="btn btn-block {{ config('adminlte.classes_auth_btn', 'btn-flat btn-primary') }}">
+            <span class="fas fa-user-plus"></span>
+            Continue to Payment
+        </button>
+
     </form>
-</x-guest-layout>
+@stop
+
+@section('auth_footer')
+    <p class="my-0">
+        <a href="{{ $login_url }}">
+            {{ __('adminlte::adminlte.i_already_have_a_membership') }}
+        </a>
+    </p>
+@stop

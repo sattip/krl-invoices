@@ -8,8 +8,11 @@
     "require": {
         "php": "^8.2",
         "anthropic-ai/sdk": "^0.3.0",
+        "jeroennoten/laravel-adminlte": "^3.15",
         "laravel/framework": "^12.0",
-        "laravel/tinker": "^2.10.1"
+        "laravel/sanctum": "^4.0",
+        "laravel/tinker": "^2.10.1",
+        "stripe/stripe-php": "^19.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -26,7 +29,10 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

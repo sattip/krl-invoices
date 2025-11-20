@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToCompany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,13 +10,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Invoice extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToCompany;
 
     /**
      * The attributes that are mass assignable.
      */
     protected $fillable = [
         'user_id',
+        'company_id',
         'invoice_number',
         'invoice_date',
         'issuer_name',
