@@ -7,6 +7,7 @@ use App\Models\Plan;
 use App\Models\StripeSettings;
 use App\Services\StripeService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class StripeConnectController extends Controller
 {
@@ -24,6 +25,94 @@ class StripeConnectController extends Controller
         }
 
         return view('admin.stripe.setup', compact('settings', 'connectionStatus'));
+    }
+
+    /**
+     * Redirect to Stripe Connect OAuth.
+     */
+    public function connect()
+    {
+        $clientId = config('services.stripe.client_id');
+        
+        if (!$clientId) {
+            return redirect()->route('admin.stripe.setup')
+                ->with('error', 'Stripe Client ID is not configured. Please add STRIPE_CLIENT_ID to your .env file.');
+        }
+
+        $params = http_build_query([
+            'response_type' => 'code',
+            'client_id' => $clientId,
+            'scope' => 'read_write',
+            'redirect_uri' => route('admin.stripe.callback'),
+        ]);
+
+        return redirect("https://connect.stripe.com/oauth/authorize?{$params}");
+    }
+
+    /**
+     * Handle OAuth callback from Stripe.
+     */
+    public function callback(Request $request)
+    {
+        if ($request->has('error')) {
+            return redirect()->route('admin.stripe.setup')
+                ->with('error', $request->error_description ?? 'Authorization was cancelled or failed.');
+        }
+
+        $code = $request->code;
+        if (!$code) {
+            return redirect()->route('admin.stripe.setup')
+                ->with('error', 'No authorization code received from Stripe.');
+        }
+
+        // Exchange code for access token
+        $response = Http::asForm()->post('https://connect.stripe.com/oauth/token', [
+            'client_secret' => config('services.stripe.secret'),
+            'code' => $code,
+            'grant_type' => 'authorization_code',
+        ]);
+
+        if (!$response->successful()) {
+            $error = $response->json('error_description') ?? 'Failed to connect to Stripe.';
+            return redirect()->route('admin.stripe.setup')
+                ->with('error', $error);
+        }
+
+        $data = $response->json();
+
+        // Save credentials
+        $settings = StripeSettings::getInstance();
+        $settings->update([
+            'stripe_publishable_key' => $data['stripe_publishable_key'] ?? null,
+            'stripe_access_token' => $data['access_token'] ?? null,
+            'stripe_refresh_token' => $data['refresh_token'] ?? null,
+            'stripe_user_id' => $data['stripe_user_id'] ?? null,
+            'livemode' => isset($data['livemode']) ? ($data['livemode'] ? 'live' : 'test') : null,
+            'is_connected' => true,
+        ]);
+
+        // If we got an access token, use it as the secret key
+        if (!empty($data['access_token'])) {
+            $settings->update([
+                'stripe_secret_key' => $data['access_token'],
+            ]);
+        }
+
+        // Test connection and get account details
+        $stripeService = new StripeService();
+        $testResult = $stripeService->testConnection();
+
+        if ($testResult['success']) {
+            $settings->update([
+                'account_details' => [
+                    'account_id' => $testResult['account_id'] ?? $data['stripe_user_id'],
+                    'business_name' => $testResult['business_name'] ?? null,
+                ],
+            ]);
+        }
+
+        return redirect()->route('admin.stripe.setup')
+            ->with('success', 'Stripe connected successfully via OAuth!');
     }
 
     /**
@@ -90,6 +179,10 @@ class StripeConnectController extends Controller
             'stripe_publishable_key' => null,
             'stripe_secret_key' => null,
             'stripe_webhook_secret' => null,
+            'stripe_access_token' => null,
+            'stripe_refresh_token' => null,
+            'stripe_user_id' => null,
+            'livemode' => null,
             'is_connected' => false,
             'account_details' => null,
         ]);

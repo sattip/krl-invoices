@@ -83,6 +83,8 @@ Route::middleware(['auth', 'super_admin'])->prefix('admin')->name('admin.')->gro
 
     // Stripe settings
     Route::get('/stripe/setup', [StripeConnectController::class, 'setup'])->name('stripe.setup');
+    Route::get('/stripe/connect', [StripeConnectController::class, 'connect'])->name('stripe.connect');
+    Route::get('/stripe/callback', [StripeConnectController::class, 'callback'])->name('stripe.callback');
     Route::post('/stripe/save-credentials', [StripeConnectController::class, 'saveCredentials'])->name('stripe.save-credentials');
     Route::post('/stripe/test', [StripeConnectController::class, 'testConnection'])->name('stripe.test');
     Route::delete('/stripe/disconnect', [StripeConnectController::class, 'disconnect'])->name('stripe.disconnect');

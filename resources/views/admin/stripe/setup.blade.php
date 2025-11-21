@@ -49,6 +49,11 @@
                                 @if(isset($connectionStatus['account_id']))
                                     <br><small class="text-muted">{{ $connectionStatus['account_id'] }}</small>
                                 @endif
+                                @if($settings->livemode)
+                                    <br><span class="badge badge-{{ $settings->livemode === 'live' ? 'success' : 'warning' }}">
+                                        {{ ucfirst($settings->livemode) }} Mode
+                                    </span>
+                                @endif
                             </div>
                         </div>
                     @else
@@ -56,11 +61,37 @@
                             <span class="badge badge-danger p-2 mr-3">
                                 <i class="fas fa-times"></i> Not Connected
                             </span>
-                            <span class="text-muted">Enter your Stripe API credentials below to connect.</span>
+                            <span class="text-muted">Connect your Stripe account to start accepting payments.</span>
                         </div>
                     @endif
                 </div>
             </div>
+
+            <!-- Quick Connect with OAuth -->
+            @if(!$settings->isConfigured())
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-bolt mr-2"></i>
+                            Quick Connect
+                        </h3>
+                    </div>
+                    <div class="card-body text-center py-4">
+                        <p class="mb-3">Connect your Stripe account with one click:</p>
+                        <a href="{{ route('admin.stripe.connect') }}" class="btn btn-lg btn-primary">
+                            <i class="fab fa-stripe mr-2"></i>
+                            Connect with Stripe
+                        </a>
+                        <p class="text-muted mt-3 mb-0">
+                            <small>You'll be redirected to Stripe to authorize the connection</small>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="text-center my-3">
+                    <span class="text-muted">— or enter your API keys manually —</span>
+                </div>
+            @endif
 
             <!-- Credentials Form -->
             <div class="card">
@@ -156,12 +187,18 @@
                     <h3 class="card-title">Setup Guide</h3>
                 </div>
                 <div class="card-body">
-                    <ol class="pl-3">
+                    <h6 class="font-weight-bold">Option 1: Quick Connect</h6>
+                    <p class="text-muted small">Click "Connect with Stripe" to automatically configure your account.</p>
+                    
+                    <hr>
+                    
+                    <h6 class="font-weight-bold">Option 2: Manual Setup</h6>
+                    <ol class="pl-3 small">
                         <li class="mb-2">Go to <a href="https://dashboard.stripe.com/apikeys" target="_blank">Stripe Dashboard</a></li>
-                        <li class="mb-2">Copy your API keys (use Test keys for testing)</li>
-                        <li class="mb-2">Paste the keys in the form and save</li>
+                        <li class="mb-2">Copy your API keys</li>
+                        <li class="mb-2">Paste the keys and save</li>
                         <li class="mb-2">Set up the webhook endpoint</li>
-                        <li class="mb-2">Configure your plans with Stripe Price IDs</li>
+                        <li class="mb-2">Configure your plans</li>
                     </ol>
                 </div>
             </div>

@@ -35,6 +35,11 @@ return [
         ],
     ],
 
+    'stripe' => [
+        'client_id' => env('STRIPE_CLIENT_ID'),
+        'secret' => env('STRIPE_SECRET'),
+    ],
+
     'anthropic' => [
         'api_key' => env('ANTHROPIC_API_KEY'),
         'model' => env('CLAUDE_MODEL', 'claude-3-5-sonnet-latest'),

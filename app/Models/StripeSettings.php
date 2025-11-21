@@ -15,6 +15,10 @@ class StripeSettings extends Model
         'stripe_publishable_key',
         'stripe_secret_key',
         'stripe_webhook_secret',
+        'stripe_user_id',
+        'stripe_access_token',
+        'stripe_refresh_token',
+        'livemode',
         'is_connected',
         'account_details',
     ];
@@ -30,6 +34,8 @@ class StripeSettings extends Model
     protected $hidden = [
         'stripe_secret_key',
         'stripe_webhook_secret',
+        'stripe_access_token',
+        'stripe_refresh_token',
     ];
 
     /**
@@ -88,6 +94,62 @@ class StripeSettings extends Model
         } catch (\Exception $e) {
             return null;
         }
+    }
+
+    /**
+     * Encrypt and set the access token.
+     */
+    public function setStripeAccessTokenAttribute(?string $value): void
+    {
+        $this->attributes['stripe_access_token'] = $value ? Crypt::encryptString($value) : null;
+    }
+
+    /**
+     * Decrypt and get the access token.
+     */
+    public function getStripeAccessTokenAttribute(?string $value): ?string
+    {
+        if (!$value) {
+            return null;
+        }
+
+        try {
+            return Crypt::decryptString($value);
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Encrypt and set the refresh token.
+     */
+    public function setStripeRefreshTokenAttribute(?string $value): void
+    {
+        $this->attributes['stripe_refresh_token'] = $value ? Crypt::encryptString($value) : null;
+    }
+
+    /**
+     * Decrypt and get the refresh token.
+     */
+    public function getStripeRefreshTokenAttribute(?string $value): ?string
+    {
+        if (!$value) {
+            return null;
+        }
+
+        try {
+            return Crypt::decryptString($value);
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Check if connected via OAuth.
+     */
+    public function isOAuthConnected(): bool
+    {
+        return !empty($this->stripe_user_id) && !empty($this->stripe_access_token);
     }
 
     /**
