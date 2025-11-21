@@ -92,4 +92,20 @@ class User extends Authenticatable
             'is_super_admin' => 'boolean',
         ];
     }
+
+    /**
+     * Send the password reset notification.
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new \App\Notifications\Auth\ResetPasswordNotification($token));
+    }
+
+    /**
+     * Send the email verification notification.
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new \App\Notifications\Auth\VerifyEmailNotification);
+    }
 }
