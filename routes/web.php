@@ -10,6 +10,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
+use App\Http\Controllers\WhatsAppSettingsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -45,6 +46,12 @@ Route::middleware('auth')->group(function () {
     // Company settings (for regular users)
     Route::get('/company/settings', [CompanyController::class, 'settings'])->name('company.settings');
     Route::put('/company/settings', [CompanyController::class, 'updateSettings'])->name('company.settings.update');
+    // WhatsApp settings
+    Route::get("/company/whatsapp", [WhatsAppSettingsController::class, "index"])->name("company.whatsapp");
+    Route::put("/company/whatsapp", [WhatsAppSettingsController::class, "update"])->name("company.whatsapp.update");
+    Route::post("/company/whatsapp/test", [WhatsAppSettingsController::class, "testConnection"])->name("company.whatsapp.test");
+    Route::post("/company/whatsapp/send-test", [WhatsAppSettingsController::class, "sendTestMessage"])->name("company.whatsapp.send-test");
+
 
     // Billing routes
     Route::get('/billing', [BillingController::class, 'index'])->name('billing.index');

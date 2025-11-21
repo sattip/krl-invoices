@@ -351,6 +351,11 @@ return [
             'icon' => 'fas fa-fw fa-building',
         ],
         [
+            'text' => 'WhatsApp Settings',
+            'route' => 'company.whatsapp',
+            'icon' => 'fab fa-fw fa-whatsapp',
+        ],
+        [
             'text' => 'Profile',
             'route' => 'profile.edit',
             'icon' => 'fas fa-fw fa-user',
