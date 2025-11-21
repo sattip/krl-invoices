@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CompanyWizardController;
 use App\Http\Controllers\Admin\StripeConnectController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ApiTokenController;
@@ -70,10 +71,20 @@ Route::middleware(['auth', 'super_admin'])->prefix('admin')->name('admin.')->gro
     Route::get('/companies', [CompanyController::class, 'index'])->name('companies.index');
     Route::get('/companies/create', [CompanyController::class, 'create'])->name('companies.create');
     Route::post('/companies', [CompanyController::class, 'store'])->name('companies.store');
+    // Company creation wizard
+    Route::get("/companies/wizard", [CompanyWizardController::class, "step1"])->name("companies.wizard.step1");
+    Route::post("/companies/wizard/step1", [CompanyWizardController::class, "storeStep1"])->name("companies.wizard.store-step1");
+    Route::get("/companies/wizard/step2", [CompanyWizardController::class, "step2"])->name("companies.wizard.step2");
+    Route::post("/companies/wizard/step2", [CompanyWizardController::class, "storeStep2"])->name("companies.wizard.store-step2");
+    Route::get("/companies/wizard/step3", [CompanyWizardController::class, "step3"])->name("companies.wizard.step3");
+    Route::post("/companies/wizard/step3", [CompanyWizardController::class, "storeStep3"])->name("companies.wizard.store-step3");
+    Route::get("/companies/wizard/complete", [CompanyWizardController::class, "complete"])->name("companies.wizard.complete");
+    Route::get("/companies/wizard/cancel", [CompanyWizardController::class, "cancel"])->name("companies.wizard.cancel");
     Route::get('/companies/{company}', [CompanyController::class, 'show'])->name('companies.show');
     Route::get('/companies/{company}/edit', [CompanyController::class, 'edit'])->name('companies.edit');
     Route::put('/companies/{company}', [CompanyController::class, 'update'])->name('companies.update');
     Route::post('/companies/{company}/assign-user', [CompanyController::class, 'assignUser'])->name('companies.assign-user');
+
 
     // User management
     Route::get('/users', [UserController::class, 'index'])->name('users.index');

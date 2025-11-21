@@ -5,9 +5,14 @@
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
         <h1>Manage Companies</h1>
-        <a href="{{ route('admin.companies.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus mr-2"></i> New Company
-        </a>
+        <div class="btn-group">
+            <a href="{{ route('admin.companies.wizard.step1') }}" class="btn btn-success">
+                <i class="fas fa-magic mr-1"></i> Create with Wizard
+            </a>
+            <a href="{{ route('admin.companies.create') }}" class="btn btn-outline-primary">
+                <i class="fas fa-plus mr-1"></i> Quick Create
+            </a>
+        </div>
     </div>
 @stop
 
