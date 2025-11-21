@@ -67,7 +67,7 @@
                                         {{ old('plan_id', $wizardData['plan_id'] ?? '') == $plan->id ? 'selected' : '' }}
                                         data-price="{{ $plan->price }}"
                                         data-limit="{{ $plan->invoice_limit }}">
-                                    {{ $plan->name }} - {{ number_format($plan->price, 2) }}/mo 
+                                    {{ $plan->name }} - €{{ number_format($plan->price, 2) }}/mo 
                                     ({{ $plan->invoice_limit == -1 ? 'Unlimited' : $plan->invoice_limit }} invoices)
                                 </option>
                             @endforeach

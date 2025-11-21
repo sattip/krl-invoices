@@ -100,7 +100,7 @@
                         <td>
                             <strong>{{ $plan->name }}</strong>
                             <span class="text-muted">
-                                ({{ number_format($plan->price, 2) }}/mo)
+                                (€{{ number_format($plan->price, 2) }}/mo)
                             </span>
                         </td>
                     </tr>

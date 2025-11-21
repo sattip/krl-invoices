@@ -81,7 +81,7 @@
                                 <td>
                                     <div class="input-group input-group-sm" style="width: 120px;">
                                         <div class="input-group-prepend">
-                                            <span class="input-group-text">$</span>
+                                            <span class="input-group-text">€</span>
                                         </div>
                                         <input type="number" step="0.01" min="0"
                                                class="form-control"

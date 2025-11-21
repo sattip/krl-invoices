@@ -64,5 +64,5 @@ return [
     | The currency used for subscriptions.
     |
     */
-    'currency' => 'usd',
+    'currency' => 'eur',
 ];
