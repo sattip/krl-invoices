@@ -27,7 +27,7 @@ class SubscriptionCreated extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Welcome to InvoiceAI - Subscription Activated')
+            ->subject('Καλώς ορίσατε στο InvoiceAI – Η συνδρομή σας ενεργοποιήθηκε')
             ->view('emails.billing.subscription-created', [
                 'plan' => $this->plan,
             ]);

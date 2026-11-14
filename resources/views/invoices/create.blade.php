@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Upload Invoices')
+@section('title', 'Μεταφόρτωση τιμολογίων')
 
 @section('content_header')
-    <h1>Upload Invoices</h1>
+    <h1>Μεταφόρτωση τιμολογίων</h1>
 @stop
 
 @section('content')
@@ -12,11 +12,11 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">
-                        <i class="fas fa-upload mr-2"></i> Upload Your Invoices
+                        <i class="fas fa-upload mr-2"></i> Ανεβάστε τα τιμολόγιά σας
                     </h3>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted mb-4">Our AI will automatically extract and structure the data from your invoices.</p>
+                    <p class="text-muted mb-4">Τα δεδομένα των τιμολογίων εξάγονται αυτόματα με τεχνητή νοημοσύνη. Ελέγξτε πάντα το αποτέλεσμα πριν το χρησιμοποιήσετε.</p>
 
                     <form method="POST" action="{{ route('invoices.store') }}" enctype="multipart/form-data" id="upload-form">
                         @csrf
@@ -26,10 +26,10 @@
                                 <input type="file" name="invoice_files[]" id="invoice_files" class="d-none" accept=".jpg,.jpeg,.png,.pdf" multiple>
                                 <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
                                 <p class="mb-2">
-                                    <strong class="text-primary">Click to upload</strong> or drag and drop
+                                    <strong class="text-primary">Επιλέξτε αρχεία</strong> ή σύρετέ τα εδώ
                                 </p>
-                                <p class="text-muted small">JPG, PNG, or PDF up to 10MB each</p>
-                                <p class="text-primary small">You can select multiple files</p>
+                                <p class="text-muted small">JPG, PNG ή PDF, έως 10 MB το καθένα</p>
+                                <p class="text-primary small">Μπορείτε να επιλέξετε πολλά αρχεία</p>
                             </div>
 
                             @error('invoice_files')
@@ -42,7 +42,7 @@
 
                         <!-- File preview list -->
                         <div id="file-list" class="d-none mb-4">
-                            <label class="font-weight-bold">Selected Files</label>
+                            <label class="font-weight-bold">Επιλεγμένα αρχεία</label>
                             <div id="file-items"></div>
                         </div>
 
@@ -50,17 +50,17 @@
                         <div id="processing" class="d-none mb-4">
                             <div class="alert alert-info">
                                 <i class="fas fa-spinner fa-spin mr-2"></i>
-                                <strong>Processing invoices with AI...</strong>
-                                <p class="mb-0 small mt-2">This may take a moment depending on the number of files</p>
+                                <strong>Γίνεται επεξεργασία των τιμολογίων…</strong>
+                                <p class="mb-0 small mt-2">Μπορεί να διαρκέσει λίγο, ανάλογα με το πλήθος των αρχείων</p>
                             </div>
                         </div>
 
                         <div class="d-flex justify-content-between">
                             <a href="{{ route('invoices.index') }}" class="btn btn-default">
-                                Cancel
+                                Άκυρο
                             </a>
                             <button type="submit" id="submit-btn" class="btn btn-primary" disabled>
-                                <i class="fas fa-magic mr-2"></i> Parse Invoices
+                                <i class="fas fa-magic mr-2"></i> Εξαγωγή δεδομένων
                             </button>
                         </div>
                     </form>
@@ -72,28 +72,28 @@
             <!-- Features -->
             <div class="card card-outline card-primary">
                 <div class="card-header">
-                    <h3 class="card-title">AI-Powered</h3>
+                    <h3 class="card-title">Τεχνητή νοημοσύνη</h3>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted small">Advanced AI extracts data with high accuracy from any invoice format</p>
+                    <p class="text-muted small">Το περιεχόμενο του αρχείου αποστέλλεται στην Anthropic (μοντέλο Claude) για την εξαγωγή. <a href="{{ route('legal.privacy') }}">Απόρρητο</a></p>
                 </div>
             </div>
 
             <div class="card card-outline card-success">
                 <div class="card-header">
-                    <h3 class="card-title">Structured Data</h3>
+                    <h3 class="card-title">Δομημένα δεδομένα</h3>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted small">Get organized line items, totals, and party information instantly</p>
+                    <p class="text-muted small">Γραμμές ειδών, σύνολα, ΦΠΑ και στοιχεία εκδότη/πελάτη</p>
                 </div>
             </div>
 
             <div class="card card-outline card-info">
                 <div class="card-header">
-                    <h3 class="card-title">API Access</h3>
+                    <h3 class="card-title">Πρόσβαση API</h3>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted small">Integrate with your apps using our REST API</p>
+                    <p class="text-muted small">Συνδέστε τις εφαρμογές σας μέσω του REST API</p>
                 </div>
             </div>
         </div>
@@ -102,6 +102,12 @@
 
 @section('js')
 <script>
+        function escapeHtml(value) {
+            const div = document.createElement('div');
+            div.textContent = value;
+            return div.innerHTML;
+        }
+
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('invoice_files');
     const fileList = document.getElementById('file-list');
@@ -147,7 +153,7 @@
                 item.innerHTML = `
                     <div>
                         <i class="fas fa-file mr-2 text-muted"></i>
-                        <span class="small">${file.name}</span>
+                        <span class="small">${escapeHtml(file.name)}</span>
                     </div>
                     <span class="badge badge-secondary">${formatFileSize(file.size)}</span>
                 `;

@@ -27,21 +27,21 @@ class CheckInvoiceLimit
         $company = current_company();
 
         if (!$company) {
-            return $this->errorResponse($request, 'No company associated with your account.');
+            return $this->errorResponse($request, 'Ο λογαριασμός σας δεν είναι συνδεδεμένος με κάποια εταιρεία.');
         }
 
         if (!$company->hasActiveSubscription()) {
             return $this->errorResponse(
                 $request,
-                'No active subscription. Please subscribe to create invoices.',
+                'Δεν υπάρχει ενεργή συνδρομή. Εγγραφείτε σε κάποιο πακέτο για να δημιουργήσετε τιμολόγια.',
                 'billing.plans'
             );
         }
 
         if (!$company->canCreateInvoice()) {
             $plan = $company->currentPlan();
-            $message = "You've reached your monthly limit of {$plan->invoice_limit} invoices. ";
-            $message .= "Please upgrade your plan to create more invoices.";
+            $message = "Έχετε φτάσει το μηνιαίο όριο των " . number_el($plan->invoice_limit) . " τιμολογίων. ";
+            $message .= "Αναβαθμίστε το πακέτο σας για να δημιουργήσετε περισσότερα τιμολόγια.";
 
             return $this->errorResponse($request, $message, 'billing.plans');
         }

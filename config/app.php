@@ -78,11 +78,16 @@ return [
     |
     */
 
-    'locale' => env('APP_LOCALE', 'en'),
+    // Default locale is Greek and not env-driven (production .env still says APP_LOCALE=en).
+    // English is served under /en via App\Http\Middleware\SetLocale.
+    'locale' => 'el',
 
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 
-    'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
+    'faker_locale' => env('APP_FAKER_LOCALE', 'el_GR'),
+
+    // Display timezone for dates shown to users (storage stays UTC).
+    'display_timezone' => 'Europe/Athens',
 
     /*
     |--------------------------------------------------------------------------

@@ -30,7 +30,7 @@ class WelcomeSubscriber extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Welcome to InvoiceAI!',
+            subject: 'Καλώς ορίσατε στο InvoiceAI!',
         );
     }
 

@@ -1,0 +1,28 @@
+<?php
+
+return [
+    'full_name' => 'Ονοματεπώνυμο',
+    'email' => 'Email',
+    'password' => 'Κωδικός πρόσβασης',
+    'retype_password' => 'Επανάληψη κωδικού',
+    'remember_me' => 'Να με θυμάσαι',
+    'register' => 'Εγγραφή',
+    'register_a_new_membership' => 'Δημιουργία λογαριασμού',
+    'i_forgot_my_password' => 'Ξέχασα τον κωδικό μου',
+    'i_already_have_a_membership' => 'Έχω ήδη λογαριασμό',
+    'sign_in' => 'Σύνδεση',
+    'log_out' => 'Αποσύνδεση',
+    'toggle_navigation' => 'Εναλλαγή μενού',
+    'login_message' => 'Συνδεθείτε για να συνεχίσετε',
+    'register_message' => 'Δημιουργία λογαριασμού',
+    'password_reset_message' => 'Επαναφορά κωδικού',
+    'reset_password' => 'Επαναφορά κωδικού',
+    'send_password_reset_link' => 'Αποστολή συνδέσμου επαναφοράς',
+    'verify_message' => 'Ο λογαριασμός σας χρειάζεται επιβεβαίωση',
+    'verify_email_sent' => 'Στάλθηκε νέος σύνδεσμος επιβεβαίωσης στο email σας.',
+    'verify_check_your_email' => 'Πριν συνεχίσετε, ελέγξτε το email σας για τον σύνδεσμο επιβεβαίωσης.',
+    'verify_if_not_recieved' => 'Αν δεν λάβατε το email',
+    'verify_request_another' => 'πατήστε εδώ για νέο σύνδεσμο',
+    'confirm_password_message' => 'Επιβεβαιώστε τον κωδικό σας για να συνεχίσετε.',
+    'remember_me_hint' => 'Να παραμένω συνδεδεμένος μέχρι να αποσυνδεθώ',
+];

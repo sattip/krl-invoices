@@ -77,7 +77,7 @@ class InvoiceController extends Controller
                     'vat_total' => (float) $invoice->vat_total,
                     'grand_total' => (float) $invoice->grand_total,
                 ],
-                'file_url' => Storage::url($invoice->file_path),
+                'file_url' => url('/api/invoices/'.$invoice->id.'/file'), // authenticated (Bearer token) download
                 'created_at' => $invoice->created_at->toIso8601String(),
             ],
         ]);
@@ -99,11 +99,19 @@ class InvoiceController extends Controller
 
         // Check subscription and invoice limits
         $company = current_company();
+
+        if (!$company && !$request->user()->is_super_admin) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ο λογαριασμός δεν είναι συνδεδεμένος με εταιρεία.',
+                'code' => 'no_company',
+            ], 403);
+        }
         if ($company && !$request->user()->is_super_admin) {
             if (!$company->hasActiveSubscription()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'No active subscription. Please subscribe to upload invoices.',
+                    'message' => 'Δεν υπάρχει ενεργή συνδρομή. Εγγραφείτε σε πακέτο για να ανεβάσετε παραστατικά.',
                     'code' => 'no_subscription',
                 ], 403);
             }
@@ -112,7 +120,7 @@ class InvoiceController extends Controller
                 $plan = $company->currentPlan();
                 return response()->json([
                     'success' => false,
-                    'message' => "Monthly invoice limit reached ({$plan->invoice_limit} invoices). Please upgrade your plan.",
+                    'message' => "Συμπληρώθηκε το μηνιαίο όριο παραστατικών ({$plan->invoice_limit}). Αναβαθμίστε το πακέτο σας για να συνεχίσετε.",
                     'code' => 'invoice_limit_reached',
                     'usage' => [
                         'used' => $company->invoicesUsedThisMonth(),
@@ -125,10 +133,10 @@ class InvoiceController extends Controller
 
         $file = $request->file('file');
         $originalFilename = $file->getClientOriginalName();
-        $path = $file->store('invoices', 'public');
+        $path = $file->store('invoices', Invoice::FILE_DISK);
 
         try {
-            $extractedData = $extractor->extract($path);
+            $extractedData = $extractor->extract($path, Invoice::FILE_DISK);
 
             $invoice = DB::transaction(function () use ($extractedData, $path, $originalFilename, $request) {
                 $invoice = Invoice::create([
@@ -195,7 +203,7 @@ class InvoiceController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Invoice parsed successfully',
+                'message' => 'Το παραστατικό αναλύθηκε επιτυχώς',
                 'data' => [
                     'id' => $invoice->id,
                     'invoice_number' => $invoice->invoice_number,
@@ -204,16 +212,20 @@ class InvoiceController extends Controller
             ], 201);
 
         } catch (Exception $e) {
-            Storage::disk('public')->delete($path);
+            Storage::disk(Invoice::FILE_DISK)->delete($path);
+
+            $safe = $e instanceof \App\Exceptions\InvoiceExtractionException;
 
             Log::error('API Invoice processing failed', [
-                'error' => $e->getMessage(),
+                'exception' => get_class($e),
+                'error' => $safe ? $e->getMessage() : null,
+                'at' => basename($e->getFile()) . ':' . $e->getLine(),
                 'file' => $originalFilename,
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to process invoice: ' . $e->getMessage(),
+                'message' => 'Η επεξεργασία του παραστατικού απέτυχε: ' . ($safe ? $e->getMessage() : 'σφάλμα επεξεργασίας. Δοκιμάστε ξανά.'),
             ], 422);
         }
     }
@@ -224,15 +236,35 @@ class InvoiceController extends Controller
     public function destroy(Request $request, Invoice $invoice): JsonResponse
     {
         // Global scope ensures invoice belongs to current company
-        if ($invoice->file_path) {
-            Storage::disk('public')->delete($invoice->file_path);
-        }
+        $invoice->deleteStoredFile();
 
         $invoice->delete();
 
         return response()->json([
             'success' => true,
-            'message' => 'Invoice deleted successfully',
+            'message' => 'Το παραστατικό διαγράφηκε',
         ]);
+    }
+
+    /**
+     * Download the original file (company-scoped through route-model binding).
+     */
+    public function file(Request $request, Invoice $invoice)
+    {
+        $disk = $invoice->fileDisk();
+
+        if ($disk === null) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Το αρχείο του παραστατικού δεν βρέθηκε.',
+            ], 404);
+        }
+
+        return Storage::disk($disk)->response(
+            $invoice->file_path,
+            $invoice->original_filename ?: basename($invoice->file_path),
+            ['Cache-Control' => 'private, no-store', 'X-Content-Type-Options' => 'nosniff'],
+            'inline'
+        );
     }
 }

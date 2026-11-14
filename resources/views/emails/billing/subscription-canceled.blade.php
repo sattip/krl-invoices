@@ -1,36 +1,36 @@
 @extends('emails.layouts.base')
 
-@section('title', 'Subscription Canceled')
+@section('title', 'Ακύρωση συνδρομής')
 
 @section('content')
-    <div class="greeting">Subscription Canceled</div>
+    <div class="greeting">Η συνδρομή σας ακυρώθηκε</div>
     
-    <p>Your InvoiceAI subscription has been canceled.</p>
+    <p>Η συνδρομή σας στο InvoiceAI ακυρώθηκε.</p>
     
     <div class="info-box warning">
-        <h4>Access Until End of Period</h4>
-        <p>You'll continue to have access to your account until <strong>{{ $endDate }}</strong>. After this date, you won't be able to process new invoices.</p>
+        <h4>Πρόσβαση έως το τέλος της περιόδου</h4>
+        <p>Θα έχετε πρόσβαση στον λογαριασμό σας έως τις <strong>{{ date_el($endDate) }}</strong>. Μετά την ημερομηνία αυτή δεν θα μπορείτε να επεξεργάζεστε νέα τιμολόγια.</p>
     </div>
     
     <div class="credentials-box">
-        <h4>Canceled Subscription</h4>
+        <h4>Συνδρομή που ακυρώθηκε</h4>
         <table class="details-table">
             <tr>
-                <th>Plan</th>
+                <th>Πακέτο</th>
                 <td>{{ $plan->name }}</td>
             </tr>
             <tr>
-                <th>Access Ends</th>
-                <td>{{ $endDate }}</td>
+                <th>Λήξη πρόσβασης</th>
+                <td>{{ date_el($endDate) }}</td>
             </tr>
         </table>
     </div>
     
-    <p>We're sorry to see you go! If you change your mind, you can resubscribe at any time.</p>
+    <p>Αν αλλάξετε γνώμη, μπορείτε να εγγραφείτε ξανά οποιαδήποτε στιγμή.</p>
     
     <div class="text-center mb-6">
-        <a href="{{ url('/billing/plans') }}" class="button">Resubscribe</a>
+        <a href="{{ url('/billing/plans') }}" class="button">Νέα εγγραφή</a>
     </div>
     
-    <p class="text-muted text-small">Your data will be retained for 30 days after cancellation. If you have any feedback about our service, we'd love to hear from you.</p>
+    <p class="text-muted text-small">Για τη διατήρηση και διαγραφή των δεδομένων σας ισχύουν όσα αναφέρονται στην <a href="{{ url('/privacy') }}">Πολιτική Απορρήτου</a>. Αν έχετε σχόλια για την υπηρεσία μας, θα χαρούμε να τα ακούσουμε στο <a href="mailto:support@obstechnologies.com">support@obstechnologies.com</a>.</p>
 @endsection

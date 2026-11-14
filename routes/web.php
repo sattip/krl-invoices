@@ -13,9 +13,26 @@ use App\Http\Controllers\Webhooks\StripeWebhookController;
 use App\Http\Controllers\WhatsAppSettingsController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Public pages: Greek (default) at /, English under /en.
+// Each English route is the Greek route name + ".en" (see lroute() in app/helpers.php).
+Route::view('/', 'welcome')->name('home')->defaults('locale', 'el');
+Route::view('/en', 'welcome')->name('home.en')->defaults('locale', 'en');
+
+foreach (['terms', 'privacy', 'cookies', 'contact'] as $page) {
+    Route::view('/'.$page, 'legal.'.$page)->name('legal.'.$page)->defaults('locale', 'el');
+    Route::view('/en/'.$page, 'legal.en.'.$page)->name('legal.'.$page.'.en')->defaults('locale', 'en');
+}
+
+Route::permanentRedirect('/oroi-xrisis', '/terms');
+Route::permanentRedirect('/politiki-aporritou', '/privacy');
+
+// Language switch for non-localized pages (auth); public pages switch via their /en twin.
+Route::get('/lang/{locale}', function (string $locale) {
+    abort_unless(in_array($locale, \App\Http\Middleware\SetLocale::SUPPORTED, true), 404);
+    session(['locale' => $locale]);
+
+    return redirect()->back(fallback: $locale === 'en' ? route('home.en') : route('home'));
+})->name('locale.switch');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -31,6 +48,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/invoices/create', [InvoiceController::class, 'create'])->name('invoices.create');
     Route::post('/invoices', [InvoiceController::class, 'store'])->name('invoices.store');
     Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
+    Route::get('/invoices/{invoice}/file', [InvoiceController::class, 'file'])->name('invoices.file');
     Route::delete('/invoices/{invoice}', [InvoiceController::class, 'destroy'])->name('invoices.destroy');
 
     // API Token routes

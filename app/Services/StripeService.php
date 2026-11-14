@@ -53,7 +53,7 @@ class StripeService
     public function createCustomer(Company $company, string $email, string $name): \Stripe\Customer
     {
         if (!$this->isConfigured()) {
-            throw new \Exception('Stripe is not configured');
+            throw new \Exception('Το σύστημα πληρωμών (Stripe) δεν έχει ρυθμιστεί.');
         }
 
         return $this->client->customers->create([
@@ -77,7 +77,7 @@ class StripeService
         array $metadata = []
     ): \Stripe\Checkout\Session {
         if (!$this->isConfigured()) {
-            throw new \Exception('Stripe is not configured');
+            throw new \Exception('Το σύστημα πληρωμών (Stripe) δεν έχει ρυθμιστεί.');
         }
 
         return $this->client->checkout->sessions->create([
@@ -92,6 +92,7 @@ class StripeService
             'mode' => 'subscription',
             'success_url' => $successUrl,
             'cancel_url' => $cancelUrl,
+            'locale' => self::stripeLocale(),
             'metadata' => $metadata,
             'subscription_data' => [
                 'metadata' => $metadata,
@@ -108,7 +109,7 @@ class StripeService
         string $customerId
     ): Subscription {
         if (!$this->isConfigured()) {
-            throw new \Exception('Stripe is not configured');
+            throw new \Exception('Το σύστημα πληρωμών (Stripe) δεν έχει ρυθμιστεί.');
         }
 
         $stripeSubscription = $this->client->subscriptions->create([
@@ -141,7 +142,7 @@ class StripeService
         bool $immediate = true
     ): Subscription {
         if (!$this->isConfigured()) {
-            throw new \Exception('Stripe is not configured');
+            throw new \Exception('Το σύστημα πληρωμών (Stripe) δεν έχει ρυθμιστεί.');
         }
 
         $stripeSubscription = $this->client->subscriptions->retrieve($subscription->stripe_subscription_id);
@@ -181,7 +182,7 @@ class StripeService
     public function cancelSubscription(Subscription $subscription): Subscription
     {
         if (!$this->isConfigured()) {
-            throw new \Exception('Stripe is not configured');
+            throw new \Exception('Το σύστημα πληρωμών (Stripe) δεν έχει ρυθμιστεί.');
         }
 
         $this->client->subscriptions->update($subscription->stripe_subscription_id, [
@@ -201,7 +202,7 @@ class StripeService
     public function cancelSubscriptionImmediately(Subscription $subscription): void
     {
         if (!$this->isConfigured()) {
-            throw new \Exception('Stripe is not configured');
+            throw new \Exception('Το σύστημα πληρωμών (Stripe) δεν έχει ρυθμιστεί.');
         }
 
         $this->client->subscriptions->cancel($subscription->stripe_subscription_id);
@@ -218,7 +219,7 @@ class StripeService
     public function resumeSubscription(Subscription $subscription): Subscription
     {
         if (!$this->isConfigured()) {
-            throw new \Exception('Stripe is not configured');
+            throw new \Exception('Το σύστημα πληρωμών (Stripe) δεν έχει ρυθμιστεί.');
         }
 
         $this->client->subscriptions->update($subscription->stripe_subscription_id, [
@@ -238,12 +239,13 @@ class StripeService
     public function getCustomerPortalUrl(string $customerId, string $returnUrl): string
     {
         if (!$this->isConfigured()) {
-            throw new \Exception('Stripe is not configured');
+            throw new \Exception('Το σύστημα πληρωμών (Stripe) δεν έχει ρυθμιστεί.');
         }
 
         $session = $this->client->billingPortal->sessions->create([
             'customer' => $customerId,
             'return_url' => $returnUrl,
+            'locale' => self::stripeLocale(),
         ]);
 
         return $session->url;
@@ -255,7 +257,7 @@ class StripeService
     public function syncSubscriptionStatus(Subscription $subscription): Subscription
     {
         if (!$this->isConfigured()) {
-            throw new \Exception('Stripe is not configured');
+            throw new \Exception('Το σύστημα πληρωμών (Stripe) δεν έχει ρυθμιστεί.');
         }
 
         $stripeSubscription = $this->client->subscriptions->retrieve($subscription->stripe_subscription_id);
@@ -278,7 +280,7 @@ class StripeService
     public function getStripeSubscription(string $subscriptionId): \Stripe\Subscription
     {
         if (!$this->isConfigured()) {
-            throw new \Exception('Stripe is not configured');
+            throw new \Exception('Το σύστημα πληρωμών (Stripe) δεν έχει ρυθμιστεί.');
         }
 
         return $this->client->subscriptions->retrieve($subscriptionId);
@@ -290,7 +292,7 @@ class StripeService
     public function getCustomerInvoices(string $customerId, int $limit = 10): \Stripe\Collection
     {
         if (!$this->isConfigured()) {
-            throw new \Exception('Stripe is not configured');
+            throw new \Exception('Το σύστημα πληρωμών (Stripe) δεν έχει ρυθμιστεί.');
         }
 
         return $this->client->invoices->all([
@@ -305,7 +307,7 @@ class StripeService
     public function verifyWebhookSignature(string $payload, string $signature): \Stripe\Event
     {
         if (!$this->settings->stripe_webhook_secret) {
-            throw new \Exception('Webhook secret is not configured');
+            throw new \Exception('Το μυστικό κλειδί webhook του Stripe δεν έχει ρυθμιστεί.');
         }
 
         return \Stripe\Webhook::constructEvent(
@@ -323,7 +325,7 @@ class StripeService
         if (!$this->isConfigured()) {
             return [
                 'success' => false,
-                'message' => 'Stripe is not configured',
+                'message' => 'Το Stripe δεν έχει ρυθμιστεί.',
             ];
         }
 
@@ -331,7 +333,7 @@ class StripeService
             $account = $this->client->accounts->retrieve();
             return [
                 'success' => true,
-                'message' => 'Connected to Stripe successfully',
+                'message' => 'Η σύνδεση με το Stripe ήταν επιτυχής.',
                 'account_id' => $account->id,
                 'business_name' => $account->business_profile->name ?? $account->email,
             ];
@@ -344,25 +346,57 @@ class StripeService
     }
 
     /**
+     * Currencies the site can display and charge. Prices are shown with money_el() in EUR,
+     * so Stripe prices must be EUR too (previously hard-coded 'usd').
+     */
+    public const SUPPORTED_CURRENCIES = ['eur'];
+
+    /**
+     * Stripe Checkout / Billing Portal language follows the page language
+     * (guest registration can be English; the logged-in app is Greek).
+     */
+    public static function stripeLocale(): string
+    {
+        return app()->getLocale() === 'en' ? 'en' : 'el';
+    }
+
+    public static function currency(): string
+    {
+        $currency = strtolower(trim((string) config('subscription.currency', 'eur')));
+
+        if (!in_array($currency, self::SUPPORTED_CURRENCIES, true)) {
+            throw new \InvalidArgumentException("Unsupported subscription currency [{$currency}].");
+        }
+
+        return $currency;
+    }
+
+    /**
      * Create a product and price in Stripe for a plan.
+     * Only used for plans without a stripe_price_id (Admin "sync plans"); existing
+     * price IDs and subscriptions are never modified.
      */
     public function createProductAndPrice(Plan $plan): string
     {
         if (!$this->isConfigured()) {
-            throw new \Exception('Stripe is not configured');
+            throw new \Exception('Το σύστημα πληρωμών (Stripe) δεν έχει ρυθμιστεί.');
         }
+
+        // Validate before creating anything in Stripe.
+        $currency = self::currency();
+        $unitAmount = (int) round(((float) $plan->price) * 100); // cents; round() avoids 79.99*100 = 7998
 
         // Create product
         $product = $this->client->products->create([
             'name' => $plan->name,
-            'description' => $plan->description ?? "Invoice AI {$plan->name} Plan",
+            'description' => $plan->description ?? "InvoiceAI {$plan->name}",
         ]);
 
-        // Create price
+        // Create price. No tax_behavior/tax settings on purpose: VAT treatment is an owner decision.
         $price = $this->client->prices->create([
             'product' => $product->id,
-            'unit_amount' => (int) ($plan->price * 100), // Convert to cents
-            'currency' => 'usd',
+            'unit_amount' => $unitAmount,
+            'currency' => $currency,
             'recurring' => [
                 'interval' => 'month',
             ],

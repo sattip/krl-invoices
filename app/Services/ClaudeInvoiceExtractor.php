@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Anthropic\Client;
+use App\Exceptions\InvoiceExtractionException;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -31,12 +32,12 @@ class ClaudeInvoiceExtractor
      * @return array
      * @throws Exception
      */
-    public function extract(string $filePath): array
+    public function extract(string $filePath, string $disk = 'local'): array
     {
-        $fullPath = Storage::disk('public')->path($filePath);
+        $fullPath = Storage::disk($disk)->path($filePath);
 
         if (!file_exists($fullPath)) {
-            throw new Exception("File not found: {$fullPath}");
+            throw new InvoiceExtractionException('Το αρχείο δεν βρέθηκε.');
         }
 
         $mimeType = $this->getMimeType($fullPath);
@@ -96,13 +97,15 @@ class ClaudeInvoiceExtractor
             $rawResponse = $response->content[0]->text ?? '';
 
             return $this->parseResponse($rawResponse);
+        } catch (InvoiceExtractionException $e) {
+            throw $e;
         } catch (Exception $e) {
             Log::error('Claude API Error', [
                 'message' => $e->getMessage(),
                 'file' => $filePath,
             ]);
 
-            throw new Exception('Failed to extract invoice data: ' . $e->getMessage());
+            throw new InvoiceExtractionException('Δεν ήταν δυνατή η εξαγωγή δεδομένων από το αρχείο. Δοκιμάστε ξανά.');
         }
     }
 
@@ -192,17 +195,18 @@ PROMPT;
         $data = json_decode($jsonString, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
+            // Do not log the model response: it contains invoice (personal) data.
             Log::error('Failed to parse Claude response', [
                 'error' => json_last_error_msg(),
-                'raw_response' => $rawResponse,
+                'response_length' => strlen($rawResponse),
             ]);
 
-            throw new Exception('Failed to parse invoice data: ' . json_last_error_msg());
+            throw new InvoiceExtractionException('Η απάντηση της εξαγωγής δεν ήταν έγκυρη. Δοκιμάστε ξανά.');
         }
 
         // Validate required fields
         if (!isset($data['issuer']['name'])) {
-            throw new Exception('Invoice must have an issuer name');
+            throw new InvoiceExtractionException('Δεν αναγνωρίστηκε εκδότης στο έγγραφο. Βεβαιωθείτε ότι πρόκειται για τιμολόγιο.');
         }
 
         // Add raw response for debugging

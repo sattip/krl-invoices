@@ -31,7 +31,7 @@ class GracePeriodExpiring extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Grace Period Expiring Soon - InvoiceAI')
+            ->subject('Η περίοδος δωρεάν πρόσβασης λήγει σύντομα – InvoiceAI')
             ->view('emails.billing.grace-period-expiring', [
                 'plan' => $this->plan,
                 'expirationDate' => $this->expirationDate,

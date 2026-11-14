@@ -37,9 +37,17 @@ class InvoiceController extends Controller
         ]);
 
         $company = current_company();
+
+        // Users without a company cannot upload: their rows would belong to no tenant
+        // and they would bypass the subscription/limit checks below.
+        if (!$company && !$request->user()->is_super_admin) {
+            return redirect()->route('dashboard')
+                ->with('error', 'Ο λογαριασμός σας δεν είναι συνδεδεμένος με εταιρεία. Επικοινωνήστε με την υποστήριξη στο ' . config('legal.company.support_email') . '.');
+        }
         if ($company && !$request->user()->is_super_admin) {
             if (!$company->hasActiveSubscription()) {
-                return redirect()->route('billing.plans')->with('error', 'Please subscribe to a plan to upload invoices.');
+                return redirect()->route('billing.plans')
+                    ->with('error', 'Επιλέξτε πακέτο συνδρομής για να ανεβάσετε τιμολόγια.');
             }
 
             $files = $request->file('invoice_files');
@@ -47,7 +55,11 @@ class InvoiceController extends Controller
 
             if (count($files) > $remaining) {
                 $plan = $company->currentPlan();
-                return back()->with('error', "You can only upload {$remaining} more invoice(s) this month. Your {$plan->name} plan allows {$plan->invoice_limit} invoices per month.");
+                return back()->with('error',
+                    "Αυτόν τον μήνα μπορείτε να ανεβάσετε ακόμη {$remaining} τιμολόγιο/α. " .
+                    "Το πακέτο {$plan->name} περιλαμβάνει {$plan->invoice_limit} τιμολόγια τον μήνα. " .
+                    "Αναβαθμίστε το πακέτο σας για περισσότερα."
+                );
             }
         }
 
@@ -58,10 +70,10 @@ class InvoiceController extends Controller
 
         foreach ($files as $file) {
             $originalFilename = $file->getClientOriginalName();
-            $path = $file->store('invoices', 'public');
+            $path = $file->store('invoices', Invoice::FILE_DISK);
 
             try {
-                $extractedData = $extractor->extract($path);
+                $extractedData = $extractor->extract($path, Invoice::FILE_DISK);
 
                 $invoice = DB::transaction(function () use ($extractedData, $path, $originalFilename, $request) {
                     $invoice = Invoice::create([
@@ -126,7 +138,7 @@ class InvoiceController extends Controller
                 try {
                     $request->user()->notify(new InvoiceProcessed($invoice));
                 } catch (Exception $e) {
-                    Log::warning('WhatsApp notification failed for processed invoice', ['error' => $e->getMessage(), 'invoice_id' => $invoice->id]);
+                    Log::warning('WhatsApp notification failed for processed invoice', ['exception' => get_class($e), 'invoice_id' => $invoice->id]);
                 }
 
                 // Increment invoice usage for the company
@@ -136,26 +148,43 @@ class InvoiceController extends Controller
                 }
 
             } catch (Exception $e) {
-                Storage::disk('public')->delete($path);
-                $errors[] = "{$originalFilename}: {$e->getMessage()}";
-                Log::error('Invoice processing failed', ['error' => $e->getMessage(), 'file' => $originalFilename]);
+                Storage::disk(Invoice::FILE_DISK)->delete($path);
+                $safe = $e instanceof \App\Exceptions\InvoiceExtractionException;
+                $errors[] = $originalFilename . ': ' . ($safe ? $e->getMessage() : 'Σφάλμα κατά την επεξεργασία. Δοκιμάστε ξανά.');
 
-                // Send WhatsApp notification for failed invoice
+                // No exception message for unexpected errors: DB errors can carry invoice values.
+                Log::error('Invoice processing failed', [
+                    'exception' => get_class($e),
+                    'error' => $safe ? $e->getMessage() : null,
+                    'at' => basename($e->getFile()) . ':' . $e->getLine(),
+                    'file' => $originalFilename,
+                ]);
+
+                // WhatsApp notification (live WaSenderAPI feature): only the safe user-facing text,
+                // never the raw exception message (it can contain invoice values).
                 try {
-                    $request->user()->notify(new InvoiceFailed($originalFilename, $e->getMessage()));
+                    $request->user()->notify(new InvoiceFailed(
+                        $originalFilename,
+                        $safe ? $e->getMessage() : 'Σφάλμα κατά την επεξεργασία. Δοκιμάστε ξανά.'
+                    ));
                 } catch (Exception $notifyError) {
-                    Log::warning('WhatsApp notification failed for processing error', ['error' => $notifyError->getMessage()]);
+                    Log::warning('WhatsApp notification failed for processing error', ['exception' => get_class($notifyError)]);
                 }
             }
         }
 
         if ($processedCount === 0) {
-            return back()->withInput()->withErrors(['invoice_files' => 'Failed to process any invoices. ' . implode('; ', $errors)]);
+            return back()
+                ->withInput()
+                ->withErrors(['invoice_files' => 'Δεν ήταν δυνατή η επεξεργασία κανενός αρχείου. ' . implode('; ', $errors)]);
         }
 
-        $message = $processedCount === 1 ? 'Invoice parsed and saved successfully!' : "{$processedCount} invoices parsed and saved successfully!";
+        $message = $processedCount === 1
+            ? 'Το τιμολόγιο επεξεργάστηκε και αποθηκεύτηκε. Ελέγξτε τα στοιχεία πριν τα χρησιμοποιήσετε.'
+            : "Επεξεργάστηκαν και αποθηκεύτηκαν {$processedCount} τιμολόγια. Ελέγξτε τα στοιχεία πριν τα χρησιμοποιήσετε.";
+
         if (!empty($errors)) {
-            $message .= ' Some files failed: ' . implode('; ', $errors);
+            $message .= ' Ορισμένα αρχεία απέτυχαν: ' . implode('; ', $errors);
         }
 
         if ($processedCount === 1 && $lastInvoice) {
@@ -193,10 +222,32 @@ class InvoiceController extends Controller
 
     public function destroy(Request $request, Invoice $invoice)
     {
-        if ($invoice->file_path) {
-            Storage::disk('public')->delete($invoice->file_path);
-        }
+        // Global scope ensures invoice belongs to current company
+        // Delete the file
+        $invoice->deleteStoredFile();
+
         $invoice->delete();
-        return redirect()->route('invoices.index')->with('success', 'Invoice deleted successfully!');
+
+        return redirect()
+            ->route('invoices.index')
+            ->with('success', 'Το τιμολόγιο και το αρχείο του διαγράφηκαν.');
+    }
+
+    /**
+     * Stream the original file to an authenticated user of the owning company.
+     * (Route-model binding applies the company global scope, so other companies get 404.)
+     */
+    public function file(Request $request, Invoice $invoice)
+    {
+        $disk = $invoice->fileDisk();
+
+        abort_if($disk === null, 404);
+
+        $name = $invoice->original_filename ?: basename($invoice->file_path);
+
+        return Storage::disk($disk)->response($invoice->file_path, $name, [
+            'Cache-Control' => 'private, no-store',
+            'X-Content-Type-Options' => 'nosniff',
+        ], 'inline');
     }
 }

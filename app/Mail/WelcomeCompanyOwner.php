@@ -45,7 +45,7 @@ class WelcomeCompanyOwner extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Welcome to InvoiceAI - Your Account is Ready',
+            subject: 'Καλώς ορίσατε στο InvoiceAI – Ο λογαριασμός σας είναι έτοιμος',
         );
     }
 

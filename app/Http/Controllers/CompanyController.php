@@ -18,7 +18,7 @@ class CompanyController extends Controller
 
         if (!$company) {
             return redirect()->route('dashboard')
-                ->with('error', 'You are not associated with any company.');
+                ->with('error', 'Ο λογαριασμός σας δεν είναι συνδεδεμένος με κάποια εταιρεία.');
         }
 
         return view('company.settings', compact('company'));
@@ -33,12 +33,12 @@ class CompanyController extends Controller
 
         if (!$company) {
             return redirect()->route('dashboard')
-                ->with('error', 'You are not associated with any company.');
+                ->with('error', 'Ο λογαριασμός σας δεν είναι συνδεδεμένος με κάποια εταιρεία.');
         }
 
         // Only owners and admins can update settings
         if (!$request->user()->isAdmin()) {
-            abort(403, 'Only company administrators can update settings.');
+            abort(403, 'Μόνο οι διαχειριστές της εταιρείας μπορούν να ενημερώσουν τις ρυθμίσεις.');
         }
 
         $validated = $request->validate([
@@ -52,7 +52,7 @@ class CompanyController extends Controller
         $company->update($validated);
 
         return redirect()->route('company.settings')
-            ->with('success', 'Company settings updated successfully.');
+            ->with('success', 'Οι ρυθμίσεις της εταιρείας ενημερώθηκαν επιτυχώς.');
     }
 
     /**
@@ -112,7 +112,7 @@ class CompanyController extends Controller
         });
 
         return redirect()->route('admin.companies.index')
-            ->with('success', "Company '{$company->name}' created successfully.");
+            ->with('success', "Η εταιρεία «{$company->name}» δημιουργήθηκε επιτυχώς.");
     }
 
     /**
@@ -152,7 +152,7 @@ class CompanyController extends Controller
         $company->update($validated);
 
         return redirect()->route('admin.companies.index')
-            ->with('success', "Company '{$company->name}' updated successfully.");
+            ->with('success', "Η εταιρεία «{$company->name}» ενημερώθηκε επιτυχώς.");
     }
 
     /**
@@ -172,6 +172,6 @@ class CompanyController extends Controller
         ]);
 
         return redirect()->route('admin.companies.show', $company)
-            ->with('success', "User '{$user->name}' assigned to company.");
+            ->with('success', "Ο χρήστης «{$user->name}» αντιστοιχίστηκε στην εταιρεία.");
     }
 }

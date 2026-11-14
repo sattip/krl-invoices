@@ -1,13 +1,13 @@
 @extends('adminlte::page')
 
-@section('title', 'Billing & Usage')
+@section('title', 'Χρέωση & Χρήση')
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Billing & Usage</h1>
+        <h1>Χρέωση & Χρήση</h1>
         @if($subscription)
             <a href="{{ route('billing.portal') }}" class="btn btn-outline-primary">
-                <i class="fas fa-external-link-alt mr-1"></i> Stripe Portal
+                <i class="fas fa-external-link-alt mr-1"></i> Πύλη πελάτη Stripe
             </a>
         @endif
     </div>
@@ -40,7 +40,7 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Current Plan</h3>
+                    <h3 class="card-title">Τρέχον πακέτο</h3>
                 </div>
                 <div class="card-body">
                     @if($plan)
@@ -49,38 +49,47 @@
                                 {{ $plan->name }}
                             </span>
                             <div>
-                                <strong>{{ $plan->formatted_price }}/month</strong>
+                                <strong>{{ $plan->formatted_price }} / μήνα</strong>
+                                @include('partials.vat-note')
                             </div>
                         </div>
 
                         @if($subscription)
                             <p class="mb-2">
-                                <strong>Status:</strong>
+                                <strong>Κατάσταση:</strong>
                                 @if($subscription->isActive())
-                                    <span class="badge badge-success">Active</span>
+                                    <span class="badge badge-success">Ενεργή</span>
                                 @elseif($subscription->isCanceled())
-                                    <span class="badge badge-warning">Canceling</span>
+                                    <span class="badge badge-warning">Σε ακύρωση</span>
                                 @elseif($subscription->isPastDue())
-                                    <span class="badge badge-danger">Past Due</span>
+                                    <span class="badge badge-danger">Ληξιπρόθεσμη</span>
                                 @else
-                                    <span class="badge badge-secondary">{{ ucfirst($subscription->status) }}</span>
+                                    <span class="badge badge-secondary">{{ match($subscription->status) {
+                                        'unpaid' => 'Απλήρωτη',
+                                        'trialing' => 'Δοκιμαστική περίοδος',
+                                        'incomplete' => 'Μη ολοκληρωμένη',
+                                        'incomplete_expired' => 'Έληξε (μη ολοκληρωμένη)',
+                                        'canceled' => 'Ακυρωμένη',
+                                        'paused' => 'Σε παύση',
+                                        default => ucfirst((string) $subscription->status),
+                                    } }}</span>
                                 @endif
                             </p>
 
                             @if($subscription->isCanceled() && !$subscription->hasEnded())
                                 <p class="text-warning mb-2">
                                     <i class="fas fa-exclamation-triangle mr-1"></i>
-                                    Your subscription will end on {{ $subscription->current_period_end->format('M d, Y') }}
+                                    Η συνδρομή σας θα λήξει στις {{ date_el($subscription->current_period_end) }}
                                 </p>
                                 <form action="{{ route('billing.resume') }}" method="POST" class="d-inline">
                                     @csrf
                                     <button type="submit" class="btn btn-success btn-sm">
-                                        <i class="fas fa-undo mr-1"></i> Resume Subscription
+                                        <i class="fas fa-undo mr-1"></i> Επανενεργοποίηση συνδρομής
                                     </button>
                                 </form>
                             @else
                                 <p class="mb-2">
-                                    <strong>Next billing:</strong> {{ $subscription->current_period_end->format('M d, Y') }}
+                                    <strong>Επόμενη χρέωση:</strong> {{ date_el($subscription->current_period_end) }}
                                 </p>
                             @endif
                         @endif
@@ -88,22 +97,22 @@
                         <hr>
 
                         <a href="{{ route('billing.plans') }}" class="btn btn-primary">
-                            <i class="fas fa-arrow-up mr-1"></i> Change Plan
+                            <i class="fas fa-arrow-up mr-1"></i> Αλλαγή πακέτου
                         </a>
 
                         @if($subscription && $subscription->isActive() && !$subscription->isCanceled())
                             <form action="{{ route('billing.cancel') }}" method="POST" class="d-inline ml-2">
                                 @csrf
                                 <button type="submit" class="btn btn-outline-danger"
-                                        onclick="return confirm('Are you sure you want to cancel your subscription?')">
-                                    Cancel Subscription
+                                        onclick="return confirm('Είστε βέβαιοι ότι θέλετε να ακυρώσετε τη συνδρομή σας; Η ακύρωση ισχύει στο τέλος της τρέχουσας περιόδου χρέωσης.')">
+                                    Ακύρωση συνδρομής
                                 </button>
                             </form>
                         @endif
                     @else
-                        <p class="text-muted mb-3">You don't have an active subscription.</p>
+                        <p class="text-muted mb-3">Δεν έχετε ενεργή συνδρομή.</p>
                         <a href="{{ route('billing.plans') }}" class="btn btn-primary">
-                            <i class="fas fa-rocket mr-1"></i> Subscribe Now
+                            <i class="fas fa-rocket mr-1"></i> Εγγραφή σε πακέτο
                         </a>
                     @endif
                 </div>
@@ -114,13 +123,13 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Usage This Month</h3>
+                    <h3 class="card-title">Χρήση τρέχοντος μήνα</h3>
                 </div>
                 <div class="card-body">
                     @if($plan)
                         <div class="d-flex justify-content-between mb-2">
-                            <span>Invoices Used</span>
-                            <strong>{{ $usage['used'] }} / {{ $usage['limit'] }}</strong>
+                            <span>Παραστατικά που χρησιμοποιήθηκαν</span>
+                            <strong>{{ number_el($usage['used']) }} / {{ number_el($usage['limit']) }}</strong>
                         </div>
 
                         <div class="progress mb-3" style="height: 20px;">
@@ -134,12 +143,12 @@
                                  aria-valuenow="{{ $usage['percentage'] }}"
                                  aria-valuemin="0"
                                  aria-valuemax="100">
-                                {{ number_format($usage['percentage'], 0) }}%
+                                {{ number_el($usage['percentage']) }}%
                             </div>
                         </div>
 
                         <p class="mb-0">
-                            <strong>{{ $usage['remaining'] }}</strong> invoices remaining this month
+                            Απομένουν <strong>{{ number_el($usage['remaining']) }}</strong> παραστατικά για τον τρέχοντα μήνα
                         </p>
 
                         @if($usage['percentage'] >= 80)
@@ -147,16 +156,16 @@
                             <div class="alert alert-{{ $usage['percentage'] >= 90 ? 'danger' : 'warning' }} mb-0">
                                 <i class="fas fa-exclamation-triangle mr-1"></i>
                                 @if($usage['percentage'] >= 100)
-                                    You've reached your monthly limit.
-                                    <a href="{{ route('billing.plans') }}">Upgrade now</a> to continue processing invoices.
+                                    Έχετε φτάσει το μηνιαίο όριο του πακέτου σας.
+                                    <a href="{{ route('billing.plans') }}">Αναβαθμίστε το πακέτο σας</a> για να συνεχίσετε την επεξεργασία παραστατικών.
                                 @else
-                                    You're approaching your monthly limit.
-                                    Consider <a href="{{ route('billing.plans') }}">upgrading</a> to avoid interruptions.
+                                    Πλησιάζετε το μηνιαίο όριο του πακέτου σας.
+                                    Εξετάστε την <a href="{{ route('billing.plans') }}">αναβάθμιση</a> για να αποφύγετε διακοπή της υπηρεσίας.
                                 @endif
                             </div>
                         @endif
                     @else
-                        <p class="text-muted mb-0">Subscribe to a plan to start tracking usage.</p>
+                        <p class="text-muted mb-0">Εγγραφείτε σε ένα πακέτο για να ξεκινήσει η καταμέτρηση της χρήσης.</p>
                     @endif
                 </div>
             </div>
@@ -168,28 +177,28 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Billing Actions</h3>
+                    <h3 class="card-title">Ενέργειες χρέωσης</h3>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-4">
                             <a href="{{ route('billing.plans') }}" class="btn btn-block btn-outline-primary">
-                                <i class="fas fa-tags mr-1"></i> View Plans
+                                <i class="fas fa-tags mr-1"></i> Προβολή πακέτων
                             </a>
                         </div>
                         <div class="col-md-4">
                             <a href="{{ route('billing.invoices') }}" class="btn btn-block btn-outline-info">
-                                <i class="fas fa-file-invoice mr-1"></i> Payment History
+                                <i class="fas fa-file-invoice mr-1"></i> Ιστορικό πληρωμών
                             </a>
                         </div>
                         <div class="col-md-4">
                             @if($subscription)
                                 <a href="{{ route('billing.portal') }}" class="btn btn-block btn-outline-secondary">
-                                    <i class="fas fa-credit-card mr-1"></i> Update Payment Method
+                                    <i class="fas fa-credit-card mr-1"></i> Αλλαγή τρόπου πληρωμής
                                 </a>
                             @else
                                 <button class="btn btn-block btn-outline-secondary" disabled>
-                                    <i class="fas fa-credit-card mr-1"></i> Update Payment Method
+                                    <i class="fas fa-credit-card mr-1"></i> Αλλαγή τρόπου πληρωμής
                                 </button>
                             @endif
                         </div>

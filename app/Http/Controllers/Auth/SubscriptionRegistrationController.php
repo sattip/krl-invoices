@@ -45,6 +45,9 @@ class SubscriptionRegistrationController extends Controller
             'company_name' => ['required', 'string', 'max:255'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'plan_id' => ['required', 'exists:plans,id'],
+            'terms' => ['accepted'],
+        ], [
+            'terms.accepted' => __('Για να συνεχίσετε πρέπει να αποδεχτείτε τους Όρους Χρήσης.'),
         ]);
 
         // Store registration data in session
@@ -53,8 +56,11 @@ class SubscriptionRegistrationController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'company_name' => $request->company_name,
-                'password' => $request->password,
+                // Never keep the plaintext password in the session store.
+                'password_hash' => Hash::make($request->password),
                 'plan_id' => $request->plan_id,
+                'terms_accepted_at' => now()->toIso8601String(),
+                'terms_version' => config('legal.terms_version'),
             ],
         ]);
 
@@ -70,7 +76,7 @@ class SubscriptionRegistrationController extends Controller
 
         if (!$registration) {
             return redirect()->route('register')
-                ->with('error', 'Please complete the registration form first.');
+                ->with('error', __('Συμπληρώστε πρώτα τη φόρμα εγγραφής.'));
         }
 
         $plan = Plan::findOrFail($registration['plan_id']);
@@ -87,11 +93,11 @@ class SubscriptionRegistrationController extends Controller
 
         if (!$registration) {
             return redirect()->route('register')
-                ->with('error', 'Please complete the registration form first.');
+                ->with('error', __('Συμπληρώστε πρώτα τη φόρμα εγγραφής.'));
         }
 
         if (!$this->stripeService->isConfigured()) {
-            return back()->with('error', 'Payment system is not configured. Please contact support.');
+            return back()->with('error', __('Το σύστημα πληρωμών δεν είναι διαθέσιμο αυτή τη στιγμή. Επικοινωνήστε με την υποστήριξη.'));
         }
 
         $plan = Plan::findOrFail($registration['plan_id']);
@@ -125,7 +131,9 @@ class SubscriptionRegistrationController extends Controller
 
             return redirect($session->url);
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to initialize payment: ' . $e->getMessage());
+            report($e);
+
+            return back()->with('error', __('Δεν ήταν δυνατή η έναρξη της πληρωμής. Δοκιμάστε ξανά ή επικοινωνήστε με την υποστήριξη.'));
         }
     }
 
@@ -139,7 +147,7 @@ class SubscriptionRegistrationController extends Controller
 
         if (!$registration || !$sessionId) {
             return redirect()->route('register')
-                ->with('error', 'Invalid registration session.');
+                ->with('error', __('Η συνεδρία εγγραφής δεν είναι έγκυρη. Ξεκινήστε ξανά την εγγραφή.'));
         }
 
         try {
@@ -150,7 +158,7 @@ class SubscriptionRegistrationController extends Controller
 
             if ($session->payment_status !== 'paid') {
                 return redirect()->route('register.checkout')
-                    ->with('error', 'Payment was not completed. Please try again.');
+                    ->with('error', __('Η πληρωμή δεν ολοκληρώθηκε. Δοκιμάστε ξανά.'));
             }
 
             // Create the company
@@ -164,10 +172,18 @@ class SubscriptionRegistrationController extends Controller
             $user = User::create([
                 'name' => $registration['name'],
                 'email' => $registration['email'],
-                'password' => Hash::make($registration['password']),
+                'password' => $registration['password_hash'] ?? Hash::make($registration['password']),
                 'company_id' => $company->id,
                 'role' => 'owner',
             ]);
+
+            // Record the explicit Terms acceptance given at step 1.
+            $user->forceFill([
+                'terms_accepted_at' => isset($registration['terms_accepted_at'])
+                    ? \Carbon\Carbon::parse($registration['terms_accepted_at'])
+                    : now(),
+                'terms_version' => $registration['terms_version'] ?? config('legal.terms_version'),
+            ])->save();
 
             // Create the subscription record
             $plan = Plan::findOrFail($registration['plan_id']);
@@ -202,10 +218,12 @@ class SubscriptionRegistrationController extends Controller
             Auth::login($user);
 
             return redirect()->route('dashboard')
-                ->with('success', 'Welcome to Invoice AI! Your account has been created successfully.');
+                ->with('success', __('Καλώς ήρθατε στο InvoiceAI! Ο λογαριασμός σας δημιουργήθηκε.'));
         } catch (\Exception $e) {
+            report($e);
+
             return redirect()->route('register')
-                ->with('error', 'Failed to complete registration: ' . $e->getMessage());
+                ->with('error', __('Δεν ήταν δυνατή η ολοκλήρωση της εγγραφής. Αν έχει γίνει χρέωση, επικοινωνήστε με την υποστήριξη στο :email.', ['email' => config('legal.company.support_email')]));
         }
     }
 
@@ -215,6 +233,6 @@ class SubscriptionRegistrationController extends Controller
     public function cancel()
     {
         return redirect()->route('register.checkout')
-            ->with('info', 'Payment was canceled. You can try again when ready.');
+            ->with('info', __('Η πληρωμή ακυρώθηκε. Μπορείτε να δοκιμάσετε ξανά όποτε θέλετε.'));
     }
 }

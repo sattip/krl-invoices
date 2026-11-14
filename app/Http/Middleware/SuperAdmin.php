@@ -14,7 +14,7 @@ class SuperAdmin
     public function handle(Request $request, Closure $next): Response
     {
         if (!$request->user() || !$request->user()->isSuperAdmin()) {
-            abort(403, 'Access denied. Super admin privileges required.');
+            abort(403, 'Δεν επιτρέπεται η πρόσβαση. Απαιτούνται δικαιώματα super admin.');
         }
 
         return $next($request);

@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Create Company - Step 2')
+@section('title', 'Δημιουργία εταιρείας – Βήμα 2')
 
 @section('content_header')
-    <h1>Create Company</h1>
+    <h1>Δημιουργία εταιρείας</h1>
 @stop
 
 @section('content')
@@ -17,21 +17,21 @@
                         <div class="step completed">
                             <button type="button" class="step-trigger" disabled>
                                 <span class="bs-stepper-circle bg-success"><i class="fas fa-check"></i></span>
-                                <span class="bs-stepper-label">Company Info</span>
+                                <span class="bs-stepper-label">Στοιχεία εταιρείας</span>
                             </button>
                         </div>
                         <div class="line bg-success"></div>
                         <div class="step active">
                             <button type="button" class="step-trigger" disabled>
                                 <span class="bs-stepper-circle bg-primary">2</span>
-                                <span class="bs-stepper-label">Owner Account</span>
+                                <span class="bs-stepper-label">Λογαριασμός ιδιοκτήτη</span>
                             </button>
                         </div>
                         <div class="line"></div>
                         <div class="step">
                             <button type="button" class="step-trigger" disabled>
                                 <span class="bs-stepper-circle">3</span>
-                                <span class="bs-stepper-label">Plan & Grace Period</span>
+                                <span class="bs-stepper-label">Πακέτο και περίοδος δωρεάν πρόσβασης</span>
                             </button>
                         </div>
                     </div>
@@ -42,7 +42,7 @@
         <!-- Step 2 Form -->
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Step 2: Owner Account</h3>
+                <h3 class="card-title">Βήμα 2: Λογαριασμός ιδιοκτήτη</h3>
             </div>
             <form action="{{ route('admin.companies.wizard.store-step2') }}" method="POST">
                 @csrf
@@ -53,11 +53,11 @@
 
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle mr-2"></i>
-                        Creating owner account for: <strong>{{ $wizardData['company_name'] }}</strong>
+                        Δημιουργία λογαριασμού ιδιοκτήτη για την εταιρεία: <strong>{{ $wizardData['company_name'] }}</strong>
                     </div>
 
                     <div class="form-group">
-                        <label for="owner_name">Owner Name <span class="text-danger">*</span></label>
+                        <label for="owner_name">Ονοματεπώνυμο ιδιοκτήτη <span class="text-danger">*</span></label>
                         <input type="text" class="form-control @error('owner_name') is-invalid @enderror" 
                                id="owner_name" name="owner_name" 
                                value="{{ old('owner_name', $wizardData['owner_name'] ?? '') }}" required>
@@ -67,14 +67,14 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="owner_email">Owner Email <span class="text-danger">*</span></label>
+                        <label for="owner_email">Email ιδιοκτήτη <span class="text-danger">*</span></label>
                         <input type="email" class="form-control @error('owner_email') is-invalid @enderror" 
                                id="owner_email" name="owner_email" 
                                value="{{ old('owner_email', $wizardData['owner_email'] ?? '') }}" required>
                         @error('owner_email')
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
-                        <small class="form-text text-muted">This email will be used for login and notifications.</small>
+                        <small class="form-text text-muted">Το email αυτό θα χρησιμοποιείται για τη σύνδεση και τις ειδοποιήσεις.</small>
                     </div>
 
                     <div class="form-group">
@@ -84,27 +84,27 @@
                                    {{ old('auto_generate_password', true) ? 'checked' : '' }}
                                    onchange="togglePasswordField()">
                             <label class="custom-control-label" for="auto_generate_password">
-                                Auto-generate secure password
+                                Αυτόματη δημιουργία ασφαλούς κωδικού πρόσβασης
                             </label>
                         </div>
                     </div>
 
                     <div class="form-group" id="password_field" style="display: none;">
-                        <label for="owner_password">Password</label>
+                        <label for="owner_password">Κωδικός πρόσβασης</label>
                         <input type="password" class="form-control @error('owner_password') is-invalid @enderror" 
                                id="owner_password" name="owner_password" minlength="8">
                         @error('owner_password')
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
-                        <small class="form-text text-muted">Minimum 8 characters.</small>
+                        <small class="form-text text-muted">Τουλάχιστον 8 χαρακτήρες.</small>
                     </div>
                 </div>
                 <div class="card-footer">
                     <a href="{{ route('admin.companies.wizard.step1') }}" class="btn btn-default">
-                        <i class="fas fa-arrow-left mr-1"></i> Back
+                        <i class="fas fa-arrow-left mr-1"></i> Πίσω
                     </a>
                     <button type="submit" class="btn btn-primary float-right">
-                        Next <i class="fas fa-arrow-right ml-1"></i>
+                        Επόμενο <i class="fas fa-arrow-right ml-1"></i>
                     </button>
                 </div>
             </form>

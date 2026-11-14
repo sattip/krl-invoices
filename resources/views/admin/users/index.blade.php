@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Manage Users')
+@section('title', 'Διαχείριση χρηστών')
 
 @section('content_header')
-    <h1>Manage Users</h1>
+    <h1>Διαχείριση χρηστών</h1>
 @stop
 
 @section('content')
@@ -24,22 +24,22 @@
     <!-- Filters -->
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">Filters</h3>
+            <h3 class="card-title">Φίλτρα</h3>
         </div>
         <div class="card-body">
             <form action="{{ route('admin.users.index') }}" method="GET" class="row">
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label>Search</label>
+                        <label>Αναζήτηση</label>
                         <input type="text" name="search" class="form-control"
-                               placeholder="Name or email" value="{{ request('search') }}">
+                               placeholder="Όνομα ή email" value="{{ request('search') }}">
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label>Company</label>
+                        <label>Εταιρεία</label>
                         <select name="company_id" class="form-control">
-                            <option value="">All Companies</option>
+                            <option value="">Όλες οι εταιρείες</option>
                             @foreach($companies as $company)
                                 <option value="{{ $company->id }}" {{ request('company_id') == $company->id ? 'selected' : '' }}>
                                     {{ $company->name }}
@@ -50,12 +50,12 @@
                 </div>
                 <div class="col-md-2">
                     <div class="form-group">
-                        <label>Role</label>
+                        <label>Ρόλος</label>
                         <select name="role" class="form-control">
-                            <option value="">All Roles</option>
-                            <option value="owner" {{ request('role') === 'owner' ? 'selected' : '' }}>Owner</option>
-                            <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Admin</option>
-                            <option value="member" {{ request('role') === 'member' ? 'selected' : '' }}>Member</option>
+                            <option value="">Όλοι οι ρόλοι</option>
+                            <option value="owner" {{ request('role') === 'owner' ? 'selected' : '' }}>Ιδιοκτήτης</option>
+                            <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Διαχειριστής</option>
+                            <option value="member" {{ request('role') === 'member' ? 'selected' : '' }}>Μέλος</option>
                         </select>
                     </div>
                 </div>
@@ -63,18 +63,18 @@
                     <div class="form-group">
                         <label>Super Admin</label>
                         <select name="is_super_admin" class="form-control">
-                            <option value="">All</option>
-                            <option value="1" {{ request('is_super_admin') === '1' ? 'selected' : '' }}>Yes</option>
-                            <option value="0" {{ request('is_super_admin') === '0' ? 'selected' : '' }}>No</option>
+                            <option value="">Όλοι</option>
+                            <option value="1" {{ request('is_super_admin') === '1' ? 'selected' : '' }}>Ναι</option>
+                            <option value="0" {{ request('is_super_admin') === '0' ? 'selected' : '' }}>Όχι</option>
                         </select>
                     </div>
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-search mr-1"></i> Filter
+                            <i class="fas fa-search mr-1"></i> Φιλτράρισμα
                         </button>
-                        <a href="{{ route('admin.users.index') }}" class="btn btn-default">Clear</a>
+                        <a href="{{ route('admin.users.index') }}" class="btn btn-default">Καθαρισμός</a>
                     </div>
                 </div>
             </form>
@@ -87,13 +87,13 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Name</th>
+                        <th>Όνομα</th>
                         <th>Email</th>
-                        <th>Company</th>
-                        <th>Role</th>
+                        <th>Εταιρεία</th>
+                        <th>Ρόλος</th>
                         <th>Super Admin</th>
-                        <th>Created</th>
-                        <th>Actions</th>
+                        <th>Δημιουργία</th>
+                        <th>Ενέργειες</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -107,30 +107,30 @@
                                         {{ $user->company->name }}
                                     </a>
                                 @else
-                                    <span class="text-muted">No company</span>
+                                    <span class="text-muted">Χωρίς εταιρεία</span>
                                 @endif
                             </td>
                             <td>
                                 <span class="badge badge-{{ $user->role === 'owner' ? 'success' : ($user->role === 'admin' ? 'warning' : 'secondary') }}">
-                                    {{ ucfirst($user->role) }}
+                                    {{ ['owner' => 'Ιδιοκτήτης', 'admin' => 'Διαχειριστής', 'member' => 'Μέλος'][$user->role] ?? $user->role }}
                                 </span>
                             </td>
                             <td>
                                 @if($user->is_super_admin)
-                                    <span class="badge badge-danger">Yes</span>
+                                    <span class="badge badge-danger">Ναι</span>
                                 @else
-                                    <span class="text-muted">No</span>
+                                    <span class="text-muted">Όχι</span>
                                 @endif
                             </td>
-                            <td>{{ $user->created_at->format('M d, Y') }}</td>
+                            <td>{{ date_el($user->created_at) }}</td>
                             <td>
-                                <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-sm btn-warning" title="Edit">
+                                <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-sm btn-warning" title="Επεξεργασία">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 @if($user->id !== auth()->id() && !$user->is_super_admin)
                                     <form action="{{ route('admin.users.impersonate', $user) }}" method="POST" class="d-inline">
                                         @csrf
-                                        <button type="submit" class="btn btn-sm btn-info" title="Impersonate">
+                                        <button type="submit" class="btn btn-sm btn-info" title="Σύνδεση ως χρήστης">
                                             <i class="fas fa-user-secret"></i>
                                         </button>
                                     </form>
@@ -140,7 +140,7 @@
                     @empty
                         <tr>
                             <td colspan="7" class="text-center py-4">
-                                <p class="text-muted mb-0">No users found.</p>
+                                <p class="text-muted mb-0">Δεν βρέθηκαν χρήστες.</p>
                             </td>
                         </tr>
                     @endforelse

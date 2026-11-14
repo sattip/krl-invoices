@@ -1,12 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - InvoiceAI</title>
+    <title>{{ __('Σύνδεση') }} - InvoiceAI</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
 </head>
 <body class="font-sans antialiased">
     <div class="min-h-screen flex">
@@ -80,17 +78,17 @@
                     <svg class="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
-                    <span class="text-sm">AI-powered data extraction</span>
+                    <span class="text-sm">{{ __('Εξαγωγή δεδομένων τιμολογίων με τεχνητή νοημοσύνη') }}</span>
                 </div>
                 <div class="flex items-center space-x-3 text-white/90">
                     <svg class="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
-                    <span class="text-sm">Enterprise-grade security</span>
+                    <span class="text-sm">{{ __('Δεδομένα διαχωρισμένα ανά εταιρεία') }}</span>
                 </div>
             </div>
             
-            <p class="relative z-10 text-indigo-200 text-sm mt-6">&copy; {{ date('Y') }} InvoiceAI. All rights reserved.</p>
+            <p class="relative z-10 text-indigo-200 text-sm mt-6">&copy; {{ date('Y') }} InvoiceAI · {{ config('legal.company.name') }}</p>
         </div>
 
         <!-- Right side - Login Form -->
@@ -105,8 +103,8 @@
 
                 <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
                     <div class="text-center mb-8">
-                        <h2 class="text-2xl font-bold text-gray-900">Welcome back</h2>
-                        <p class="text-gray-500 mt-2">Sign in to your account</p>
+                        <h2 class="text-2xl font-bold text-gray-900">{{ __('Καλώς ήρθατε') }}</h2>
+                        <p class="text-gray-500 mt-2">{{ __('Συνδεθείτε στον λογαριασμό σας') }}</p>
                     </div>
 
                     @if (session('status'))
@@ -120,10 +118,10 @@
 
                         <!-- Email -->
                         <div>
-                            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email address</label>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
                             <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus
                                 class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors @error('email') border-red-500 @enderror"
-                                placeholder="you@example.com">
+                                placeholder="you@company.gr">
                             @error('email')
                                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -131,7 +129,7 @@
 
                         <!-- Password -->
                         <div>
-                            <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                            <label for="password" class="block text-sm font-medium text-gray-700 mb-2">{{ __('Κωδικός πρόσβασης') }}</label>
                             <input type="password" id="password" name="password" required
                                 class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors @error('password') border-red-500 @enderror"
                                 placeholder="••••••••">
@@ -144,11 +142,11 @@
                         <div class="flex items-center justify-between">
                             <label class="flex items-center">
                                 <input type="checkbox" name="remember" class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                                <span class="ml-2 text-sm text-gray-600">Remember me</span>
+                                <span class="ml-2 text-sm text-gray-600">{{ __('Να με θυμάσαι') }}</span>
                             </label>
                             @if (Route::has('password.request'))
                                 <a href="{{ route('password.request') }}" class="text-sm text-indigo-600 hover:text-indigo-500 font-medium">
-                                    Forgot password?
+                                    {{ __('Ξεχάσατε τον κωδικό;') }}
                                 </a>
                             @endif
                         </div>
@@ -156,20 +154,21 @@
                         <!-- Submit -->
                         <button type="submit" 
                             class="w-full py-3 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
-                            Sign in
+                            {{ __('Σύνδεση') }}
                         </button>
                     </form>
 
                     <!-- Register link -->
                     <p class="mt-6 text-center text-sm text-gray-600">
-                        Don't have an account?
+                        {{ __('Δεν έχετε λογαριασμό;') }}
                         <a href="{{ route('register') }}" class="text-indigo-600 hover:text-indigo-500 font-semibold">
-                            Create one now
+                            {{ __('Εγγραφή') }}
                         </a>
                     </p>
                 </div>
             </div>
         </div>
     </div>
+    @include('partials.legal-links', ['variant' => 'auth'])
 </body>
 </html>

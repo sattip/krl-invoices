@@ -28,7 +28,7 @@ class ApiTokenController extends Controller
         $token = $request->user()->createToken($request->name);
 
         return back()->with([
-            'success' => 'API token created successfully!',
+            'success' => 'Το API token δημιουργήθηκε επιτυχώς.',
             'new_token' => $token->plainTextToken,
         ]);
     }
@@ -40,6 +40,6 @@ class ApiTokenController extends Controller
     {
         $request->user()->tokens()->where('id', $tokenId)->delete();
 
-        return back()->with('success', 'API token deleted successfully!');
+        return back()->with('success', 'Το API token διαγράφηκε.');
     }
 }

@@ -43,9 +43,8 @@
         @endempty
 
         {{-- Footer --}}
-        @hasSection('footer')
-            @include('adminlte::partials.footer.footer')
-        @endif
+        {{-- Always render the footer: it carries the legal links (Terms/Privacy/Cookies/Contact). --}}
+        @include('adminlte::partials.footer.footer')
 
         {{-- Right Control Sidebar --}}
         @if($layoutHelper->isRightSidebarEnabled())

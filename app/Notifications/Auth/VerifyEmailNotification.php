@@ -24,7 +24,7 @@ class VerifyEmailNotification extends Notification implements ShouldQueue
         $url = $this->verificationUrl($notifiable);
 
         return (new MailMessage)
-            ->subject('Verify Your Email - InvoiceAI')
+            ->subject('Επιβεβαίωση email – InvoiceAI')
             ->view('emails.auth.verify-email', ['url' => $url]);
     }
 

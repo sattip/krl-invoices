@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Create Company - Step 1')
+@section('title', 'Δημιουργία εταιρείας – Βήμα 1')
 
 @section('content_header')
-    <h1>Create Company</h1>
+    <h1>Δημιουργία εταιρείας</h1>
 @stop
 
 @section('content')
@@ -17,21 +17,21 @@
                         <div class="step active">
                             <button type="button" class="step-trigger" disabled>
                                 <span class="bs-stepper-circle bg-primary">1</span>
-                                <span class="bs-stepper-label">Company Info</span>
+                                <span class="bs-stepper-label">Στοιχεία εταιρείας</span>
                             </button>
                         </div>
                         <div class="line"></div>
                         <div class="step">
                             <button type="button" class="step-trigger" disabled>
                                 <span class="bs-stepper-circle">2</span>
-                                <span class="bs-stepper-label">Owner Account</span>
+                                <span class="bs-stepper-label">Λογαριασμός ιδιοκτήτη</span>
                             </button>
                         </div>
                         <div class="line"></div>
                         <div class="step">
                             <button type="button" class="step-trigger" disabled>
                                 <span class="bs-stepper-circle">3</span>
-                                <span class="bs-stepper-label">Plan & Grace Period</span>
+                                <span class="bs-stepper-label">Πακέτο και περίοδος δωρεάν πρόσβασης</span>
                             </button>
                         </div>
                     </div>
@@ -42,7 +42,7 @@
         <!-- Step 1 Form -->
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Step 1: Company Information</h3>
+                <h3 class="card-title">Βήμα 1: Στοιχεία εταιρείας</h3>
             </div>
             <form action="{{ route('admin.companies.wizard.store-step1') }}" method="POST">
                 @csrf
@@ -52,7 +52,7 @@
                     @endif
 
                     <div class="form-group">
-                        <label for="company_name">Company Name <span class="text-danger">*</span></label>
+                        <label for="company_name">Επωνυμία εταιρείας <span class="text-danger">*</span></label>
                         <input type="text" class="form-control @error('company_name') is-invalid @enderror" 
                                id="company_name" name="company_name" 
                                value="{{ old('company_name', $wizardData['company_name'] ?? '') }}" required>
@@ -62,7 +62,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="company_email">Company Email</label>
+                        <label for="company_email">Email εταιρείας</label>
                         <input type="email" class="form-control @error('company_email') is-invalid @enderror" 
                                id="company_email" name="company_email" 
                                value="{{ old('company_email', $wizardData['company_email'] ?? '') }}">
@@ -74,7 +74,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="company_phone">Phone</label>
+                                <label for="company_phone">Τηλέφωνο</label>
                                 <input type="text" class="form-control @error('company_phone') is-invalid @enderror" 
                                        id="company_phone" name="company_phone" 
                                        value="{{ old('company_phone', $wizardData['company_phone'] ?? '') }}">
@@ -85,7 +85,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="company_vat">VAT Number</label>
+                                <label for="company_vat">ΑΦΜ</label>
                                 <input type="text" class="form-control @error('company_vat') is-invalid @enderror" 
                                        id="company_vat" name="company_vat" 
                                        value="{{ old('company_vat', $wizardData['company_vat'] ?? '') }}">
@@ -97,7 +97,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="company_address">Address</label>
+                        <label for="company_address">Διεύθυνση</label>
                         <textarea class="form-control @error('company_address') is-invalid @enderror" 
                                   id="company_address" name="company_address" rows="3">{{ old('company_address', $wizardData['company_address'] ?? '') }}</textarea>
                         @error('company_address')
@@ -106,9 +106,9 @@
                     </div>
                 </div>
                 <div class="card-footer">
-                    <a href="{{ route('admin.companies.index') }}" class="btn btn-default">Cancel</a>
+                    <a href="{{ route('admin.companies.index') }}" class="btn btn-default">Ακύρωση</a>
                     <button type="submit" class="btn btn-primary float-right">
-                        Next <i class="fas fa-arrow-right ml-1"></i>
+                        Επόμενο <i class="fas fa-arrow-right ml-1"></i>
                     </button>
                 </div>
             </form>

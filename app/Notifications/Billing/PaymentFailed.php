@@ -30,7 +30,7 @@ class PaymentFailed extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Payment Failed - Action Required - InvoiceAI')
+            ->subject('Αποτυχία πληρωμής – Απαιτείται ενέργεια – InvoiceAI')
             ->view('emails.billing.payment-failed', [
                 'amount' => $this->amount,
                 'planName' => $this->planName,

@@ -1,42 +1,42 @@
 @extends('emails.layouts.base')
 
-@section('title', 'Welcome to InvoiceAI')
+@section('title', 'Καλώς ορίσατε στο InvoiceAI')
 
 @section('content')
-    <div class="greeting">Welcome to InvoiceAI!</div>
+    <div class="greeting">Καλώς ορίσατε στο InvoiceAI!</div>
     
-    <p>Thank you for subscribing! Your account is now active and ready to use.</p>
+    <p>Σας ευχαριστούμε για την εγγραφή σας! Ο λογαριασμός σας είναι πλέον ενεργός και έτοιμος για χρήση.</p>
     
     <div class="credentials-box">
-        <h4>Your Subscription Details</h4>
+        <h4>Στοιχεία συνδρομής</h4>
         <table class="details-table">
             <tr>
-                <th>Plan</th>
+                <th>Πακέτο</th>
                 <td>{{ $plan->name }}</td>
             </tr>
             <tr>
-                <th>Price</th>
-                <td>{{ $plan->formatted_price }}/month</td>
+                <th>Τιμή</th>
+                <td>{{ $plan->formatted_price }}/μήνα</td>
             </tr>
             <tr>
-                <th>Invoice Limit</th>
-                <td>{{ $plan->invoice_limit == -1 ? 'Unlimited' : number_format($plan->invoice_limit) }} invoices/month</td>
+                <th>Όριο τιμολογίων</th>
+                <td>{{ $plan->invoice_limit == -1 ? 'Απεριόριστα' : number_el($plan->invoice_limit) }} τιμολόγια/μήνα</td>
             </tr>
             <tr>
-                <th>Status</th>
-                <td><span style="color: #10b981; font-weight: 600;">Active</span></td>
+                <th>Κατάσταση</th>
+                <td><span style="color: #10b981; font-weight: 600;">Ενεργή</span></td>
             </tr>
         </table>
     </div>
     
     <div class="text-center mb-6">
-        <a href="{{ url('/dashboard') }}" class="button">Go to Dashboard</a>
+        <a href="{{ url('/dashboard') }}" class="button">Μετάβαση στον πίνακα ελέγχου</a>
     </div>
     
     <div class="info-box success">
-        <h4>Get Started</h4>
-        <p>Upload your first invoice to see AI-powered data extraction in action!</p>
+        <h4>Ξεκινήστε</h4>
+        <p>Ανεβάστε το πρώτο σας τιμολόγιο για να δείτε την αυτόματη εξαγωγή δεδομένων με τεχνητή νοημοσύνη.</p>
     </div>
     
-    <p class="text-muted text-small">If you have any questions, please don't hesitate to contact our support team.</p>
+    <p class="text-muted text-small">Για οποιαδήποτε απορία, μη διστάσετε να επικοινωνήσετε μαζί μας στο <a href="mailto:support@obstechnologies.com">support@obstechnologies.com</a>.</p>
 @endsection

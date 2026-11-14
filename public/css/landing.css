@@ -345,7 +345,7 @@ body {
 }
 
 .pricing-card.featured::before {
-    content: 'Most Popular';
+    content: attr(data-badge); /* localized label from the view; was an unverified 'Most Popular' claim */
     position: absolute;
     top: -12px;
     left: 50%;

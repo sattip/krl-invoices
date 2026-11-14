@@ -108,4 +108,22 @@ class User extends Authenticatable
     {
         $this->notify(new \App\Notifications\Auth\VerifyEmailNotification);
     }
+
+    /**
+     * invoices.user_id cascades on delete in the database, which removes the rows
+     * but not the uploaded files. Remove the files first so account deletion
+     * matches the Privacy Policy.
+     */
+    protected static function booted(): void
+    {
+        static::deleting(function (User $user) {
+            \App\Models\Invoice::withoutGlobalScopes()
+                ->where('user_id', $user->id)
+                ->whereNotNull('file_path')
+                ->each(fn (\App\Models\Invoice $invoice) => $invoice->deleteStoredFile());
+
+            // Sanctum tokens have no FK to users; remove them explicitly.
+            $user->tokens()->delete();
+        });
+    }
 }
