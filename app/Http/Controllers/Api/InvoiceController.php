@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Invoice;
+use App\Models\TrialEntitlement;
 use App\Models\InvoiceDiscount;
 use App\Models\InvoiceLineItem;
 use App\Models\InvoiceOtherCharge;
@@ -107,7 +108,21 @@ class InvoiceController extends Controller
                 'code' => 'no_company',
             ], 403);
         }
-        if ($company && !$request->user()->is_super_admin) {
+        $trial = ($company && !$request->user()->is_super_admin) ? $company->governingTrial() : null;
+
+        if ($trial) {
+            // Local free trial: atomic reservation before storage/extraction (fails closed).
+            if (!$trial->reserveSlot()) {
+                $denial = $trial->denial() ?? ['code' => TrialEntitlement::CODE_LIMIT, 'message' => 'Η δωρεάν δοκιμή δεν επιτρέπει άλλα παραστατικά.'];
+
+                return response()->json([
+                    'success' => false,
+                    'message' => $denial['message'],
+                    'code' => $denial['code'],
+                    'usage' => $trial->usage(),
+                ], 403);
+            }
+        } elseif ($company && !$request->user()->is_super_admin) {
             if (!$company->hasActiveSubscription()) {
                 return response()->json([
                     'success' => false,
@@ -196,8 +211,8 @@ class InvoiceController extends Controller
 
             $invoice->load(['lineItems', 'discounts', 'otherCharges']);
 
-            // Increment invoice usage for the company
-            if ($company && !$request->user()->is_super_admin) {
+            // Increment invoice usage for the company (paid plans; a trial slot is already taken)
+            if ($company && !$request->user()->is_super_admin && !$trial) {
                 $company->incrementInvoiceUsage();
             }
 
@@ -213,6 +228,7 @@ class InvoiceController extends Controller
 
         } catch (Exception $e) {
             Storage::disk(Invoice::FILE_DISK)->delete($path);
+            $trial?->releaseSlot();
 
             $safe = $e instanceof \App\Exceptions\InvoiceExtractionException;
 

@@ -89,6 +89,38 @@ class Company extends Model
     }
 
     /**
+     * Local free trial granted at self-service registration (none for other companies).
+     */
+    public function trialEntitlement(): HasOne
+    {
+        return $this->hasOne(TrialEntitlement::class);
+    }
+
+    /**
+     * The trial that governs uploads right now: only when there is no active paid
+     * subscription (a paid subscription always takes precedence). It may be expired
+     * or used up; callers must check denial()/reserveSlot().
+     */
+    public function governingTrial(): ?TrialEntitlement
+    {
+        if ($this->hasActiveSubscription()) {
+            return null;
+        }
+
+        return $this->trialEntitlement;
+    }
+
+    /**
+     * The governing trial (no paid subscription) is neither expired nor used up.
+     */
+    public function hasActiveTrial(): bool
+    {
+        $trial = $this->governingTrial();
+
+        return $trial !== null && $trial->isActive();
+    }
+
+    /**
      * Get invoice usage records for the company.
      */
     public function invoiceUsages(): HasMany

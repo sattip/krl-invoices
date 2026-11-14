@@ -57,6 +57,8 @@ return [
     'pf_support' => 'Email support',
     'choose_plan' => 'Choose plan',
     'pricing_note' => 'Card payment through Stripe; the final amount is shown before you confirm. The subscription renews monthly and can be cancelled from your account, effective at the end of the period.',
+    'trial_note' => 'Free :days-day trial for new accounts: up to :count invoices in total, no card, no automatic renewal or charge.',
+    'trial_cta' => 'Start free trial',
     'terms' => 'Terms of Use',
     'faq_title' => 'Frequently asked questions',
     'faqs' => [

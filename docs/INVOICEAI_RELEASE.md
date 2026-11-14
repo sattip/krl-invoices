@@ -58,6 +58,21 @@ George confirmed on 2026-11-14 at 18:31 Athens that **29/79/199 EUR include VAT*
 - Security: lock-only updates within majors (composer audit 56 → 0, npm audit 14 → 0 at 2026-11-14); `composer.json`/`package.json` unchanged.
 - The server's Git remote URL contains an inline credential; prefer a Forge deploy key and rotate that token (owner action).
 
+## 0d. Free trial release (branch `feat/invoiceai-free-trial-20261114`, base `c04c1a3`)
+Owner-approved offer (George, 2026-11-14 23:05): **14 days, 10 invoices total, no card, no automatic charge, new registrations only, existing subscriptions unchanged.**
+- Migration (runs automatically on deploy via `migrate --force`): `2026_11_14_000002_create_trial_entitlements_table` — **new table only**
+  (`company_id` unique FK cascade, `starts_at`, `ends_at`, `invoice_limit`, `invoices_used`, timestamps, index `ends_at`). No change to `subscriptions`,
+  `plans`, `invoice_usage`, no backfill. Existing companies get no trial row.
+- Optional env: `INVOICEAI_TRIAL_ENABLED=false` hides/rejects the trial for new sign-ups (default on). Run `php artisan config:cache` after env changes.
+- No Stripe settings/prices change. Trial sign-up creates no Stripe customer/subscription and sends no email (verification is not enforced; unchanged).
+- Post-deploy checks (read-only + one synthetic sign-up only if the owner approves a test account):
+  `/register?utm_source=obstechnologies.gr&utm_medium=referral&utm_campaign=invoice-ai-page` → 200, trial card selected, button «Έναρξη δωρεάν δοκιμής»;
+  `/terms` §5 shows the trial clause; `/en/terms` likewise; only session/XSRF cookies.
+  DB: `select count(*) from trial_entitlements` grows only with new sign-ups; `subscriptions` unchanged.
+- Rollback: switch the release symlink back (§4). The new table is unused by older code; dropping it is optional
+  (`php artisan migrate:rollback --step=1` would delete trial rows — only if explicitly wanted). Trial users created meanwhile would then have no entitlement
+  (old code: no subscription → upload blocked, data still readable).
+
 ## 1. Backup (before deploy)
 Protected verified backup already exists: `/home/forge/.obs-backups/invoiceai-20261114-phase1` (site + DB + env + live-drift patch).
 On the server (forge user), keep outside the web root:

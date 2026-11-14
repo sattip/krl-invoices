@@ -48,5 +48,15 @@
     "Η πληρωμή δεν ολοκληρώθηκε. Δοκιμάστε ξανά.": "The payment was not completed. Please try again.",
     "Καλώς ήρθατε στο InvoiceAI! Ο λογαριασμός σας δημιουργήθηκε.": "Welcome to InvoiceAI! Your account has been created.",
     "Η πληρωμή ακυρώθηκε. Μπορείτε να δοκιμάσετε ξανά όποτε θέλετε.": "The payment was cancelled. You can try again whenever you like.",
-    "Δεν ήταν δυνατή η ολοκλήρωση της εγγραφής. Αν έχει γίνει χρέωση, επικοινωνήστε με την υποστήριξη στο :email.": "The registration could not be completed. If you were charged, please contact support at :email."
+    "Δεν ήταν δυνατή η ολοκλήρωση της εγγραφής. Αν έχει γίνει χρέωση, επικοινωνήστε με την υποστήριξη στο :email.": "The registration could not be completed. If you were charged, please contact support at :email.",
+    "Ξεκινήστε δωρεάν δοκιμή χωρίς κάρτα ή επιλέξτε πακέτο συνδρομής.": "Start a free trial without a card, or choose a subscription plan.",
+    "Δωρεάν δοκιμή :days ημερών": "Free :days-day trial",
+    "Έως :count τιμολόγια συνολικά": "Up to :count invoices in total",
+    "Χωρίς κάρτα · χωρίς αυτόματη ανανέωση ή χρέωση": "No card · no automatic renewal or charge",
+    "Για νέους λογαριασμούς. Ο λογαριασμός δημιουργείται αμέσως. Η δοκιμή λήγει μετά από :days ημέρες ή :count τιμολόγια, ό,τι έρθει πρώτο· μετά η μεταφόρτωση σταματά μέχρι να επιλέξετε πακέτο. Δεν γίνεται καμία χρέωση χωρίς δική σας ενέργεια.": "For new accounts. Your account is created immediately. The trial ends after :days days or :count invoices, whichever comes first; uploading then stops until you choose a plan. Nothing is charged unless you act.",
+    "ή επιλέξτε πακέτο συνδρομής": "or choose a subscription plan",
+    "Τα πακέτα συνδρομής πληρώνονται με κάρτα μέσω Stripe στο επόμενο βήμα και ανανεώνονται μηνιαία μέχρι να τα ακυρώσετε.": "Subscription plans are paid by card via Stripe in the next step and renew monthly until you cancel.",
+    "Έναρξη δωρεάν δοκιμής": "Start free trial",
+    "Δωρεάν δοκιμή :days ημερών για έως :count τιμολόγια, χωρίς κάρτα": "Free :days-day trial for up to :count invoices, no card",
+    "Η δωρεάν δοκιμή δεν είναι διαθέσιμη αυτή τη στιγμή. Επιλέξτε πακέτο.": "The free trial is not available right now. Please choose a plan."
 }

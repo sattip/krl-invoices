@@ -7,6 +7,8 @@
 @stop
 
 @section('content')
+    @include('partials.trial-status', ['company' => current_company()])
+
     <div class="row">
         <div class="col-md-8">
             <div class="card">

@@ -46,7 +46,8 @@ return [
         'vat_mode' => env('INVOICEAI_PRICE_VAT_MODE', 'included'),
     ],
 
-    'terms_version' => '2026-11-14',
+    // 2026-11-14b: §5 free trial clause (14 days / 10 invoices total, no card, no auto renewal).
+    'terms_version' => '2026-11-14b',
     'terms_updated' => '14/11/2026',
     'privacy_updated' => '14/11/2026',
     'cookies_updated' => '14/11/2026',

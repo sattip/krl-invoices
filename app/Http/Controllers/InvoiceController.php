@@ -44,7 +44,17 @@ class InvoiceController extends Controller
             return redirect()->route('dashboard')
                 ->with('error', 'Ο λογαριασμός σας δεν είναι συνδεδεμένος με εταιρεία. Επικοινωνήστε με την υποστήριξη στο ' . config('legal.company.support_email') . '.');
         }
-        if ($company && !$request->user()->is_super_admin) {
+        // Local free trial (only when there is no active paid subscription): total limit and
+        // end date are enforced per file with an atomic reservation below.
+        $trial = ($company && !$request->user()->is_super_admin) ? $company->governingTrial() : null;
+
+        if ($trial) {
+            $denial = $trial->denial(count($request->file('invoice_files')));
+
+            if ($denial) {
+                return redirect()->route('billing.plans')->with('error', $denial['message']);
+            }
+        } elseif ($company && !$request->user()->is_super_admin) {
             if (!$company->hasActiveSubscription()) {
                 return redirect()->route('billing.plans')
                     ->with('error', 'Επιλέξτε πακέτο συνδρομής για να ανεβάσετε τιμολόγια.');
@@ -70,6 +80,13 @@ class InvoiceController extends Controller
 
         foreach ($files as $file) {
             $originalFilename = $file->getClientOriginalName();
+
+            // Trial: take the slot before any storage/extraction; fails closed when expired/full.
+            if ($trial && !$trial->reserveSlot()) {
+                $errors[] = $originalFilename . ': ' . ($trial->denial()['message'] ?? 'Η δωρεάν δοκιμή δεν επιτρέπει άλλα τιμολόγια.');
+                continue;
+            }
+
             $path = $file->store('invoices', Invoice::FILE_DISK);
 
             try {
@@ -141,14 +158,15 @@ class InvoiceController extends Controller
                     Log::warning('WhatsApp notification failed for processed invoice', ['exception' => get_class($e), 'invoice_id' => $invoice->id]);
                 }
 
-                // Increment invoice usage for the company
-                if ($company && !$request->user()->is_super_admin) {
+                // Increment invoice usage for the company (paid plans; a trial slot is already taken)
+                if ($company && !$request->user()->is_super_admin && !$trial) {
                     $company->incrementInvoiceUsage();
                     $this->checkUsageWarning($request->user(), $company);
                 }
 
             } catch (Exception $e) {
                 Storage::disk(Invoice::FILE_DISK)->delete($path);
+                $trial?->releaseSlot();
                 $safe = $e instanceof \App\Exceptions\InvoiceExtractionException;
                 $errors[] = $originalFilename . ': ' . ($safe ? $e->getMessage() : 'Σφάλμα κατά την επεξεργασία. Δοκιμάστε ξανά.');
 

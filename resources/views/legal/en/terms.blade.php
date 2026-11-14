@@ -41,6 +41,11 @@
 
 <h2>5. Subscription and payment</h2>
 <ul>
+    <li><strong>Free trial:</strong> new accounts created on the registration page can choose a free trial of {{ config('subscription.trial.days') }} days
+        from account creation for up to {{ config('subscription.trial.invoice_limit') }} invoices in total (not per month), whichever comes first.
+        No card is required, nothing is charged, and the trial neither renews nor turns into a subscription automatically. When it ends, uploading new
+        invoices stops while the invoices you uploaded remain available; to continue you choose a subscription plan. Deleting an invoice does not give back
+        a trial invoice. The trial is offered once per company and does not apply to existing subscriptions.</li>
     <li>Use is based on a monthly subscription to the plans shown on the pricing page. Each plan has a monthly invoice limit; only successfully processed invoices count.</li>
     <li>Payment is made by card through Stripe. The final amount is shown on the Stripe payment page before you confirm. The subscription renews automatically every month.</li>
     <li>You can cancel from the “Billing &amp; usage” page. Cancellation takes effect at the end of the current billing period; until then access continues.</li>

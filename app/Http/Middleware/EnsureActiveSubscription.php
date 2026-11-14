@@ -46,7 +46,7 @@ class EnsureActiveSubscription
                 ->with('error', 'Ο λογαριασμός σας δεν είναι συνδεδεμένος με κάποια εταιρεία.');
         }
 
-        if (!$company->hasActiveSubscription()) {
+        if (!$company->hasActiveSubscription() && !$company->hasActiveTrial()) {
             return redirect()->route('billing.plans')
                 ->with('warning', 'Εγγραφείτε σε κάποιο πακέτο για να αποκτήσετε πρόσβαση σε αυτή τη λειτουργία.');
         }

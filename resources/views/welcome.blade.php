@@ -233,6 +233,12 @@
             </div>
 
             <div class="text-center mt-4">
+                @if(config('subscription.trial.enabled'))
+                    <p class="mb-2" data-trial-note>
+                        {{ __('landing.trial_note', ['days' => (int) config('subscription.trial.days'), 'count' => (int) config('subscription.trial.invoice_limit')]) }}
+                        <a href="{{ route('register') }}">{{ __('landing.trial_cta') }}</a>
+                    </p>
+                @endif
                 <p class="text-muted small mb-0">
                     {{ __('landing.pricing_note') }} <a href="{{ lroute('legal.terms') }}">{{ __('landing.terms') }}</a>
                 </p>

@@ -30,6 +30,14 @@ class CheckInvoiceLimit
             return $this->errorResponse($request, 'Ο λογαριασμός σας δεν είναι συνδεδεμένος με κάποια εταιρεία.');
         }
 
+        if (!$company->hasActiveSubscription() && ($trial = $company->trialEntitlement)) {
+            $denial = $trial->denial();
+
+            return $denial
+                ? $this->errorResponse($request, $denial['message'], 'billing.plans', $denial['code'])
+                : $next($request);
+        }
+
         if (!$company->hasActiveSubscription()) {
             return $this->errorResponse(
                 $request,
@@ -52,12 +60,12 @@ class CheckInvoiceLimit
     /**
      * Return appropriate error response based on request type.
      */
-    protected function errorResponse(Request $request, string $message, string $redirect = 'dashboard'): Response
+    protected function errorResponse(Request $request, string $message, string $redirect = 'dashboard', string $code = 'invoice_limit_reached'): Response
     {
         if ($request->expectsJson()) {
             return response()->json([
                 'error' => $message,
-                'code' => 'invoice_limit_reached',
+                'code' => $code,
             ], 403);
         }
 

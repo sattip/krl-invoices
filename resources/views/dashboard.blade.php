@@ -102,7 +102,7 @@
                     <div class="card-header">
                         <h3 class="card-title">
                             <i class="fas fa-chart-pie mr-2"></i>
-                            Monthly Usage - {{ $plan->name }} Plan
+                            Μηνιαία χρήση — πακέτο {{ $plan->name }}
                         </h3>
                         <div class="card-tools">
                             <a href="{{ route('billing.index') }}" class="btn btn-tool">
@@ -152,6 +152,8 @@
                 </div>
             </div>
         </div>
+    @elseif($company && $company->governingTrial())
+        @include('partials.trial-status', ['company' => $company])
     @elseif($company && !$plan)
         <div class="row">
             <div class="col-12">

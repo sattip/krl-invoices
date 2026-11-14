@@ -15,7 +15,9 @@ Route::middleware('guest')->group(function () {
     Route::get('register', [SubscriptionRegistrationController::class, 'create'])
         ->name('register');
 
-    Route::post('register', [SubscriptionRegistrationController::class, 'store']);
+    // Throttled: a free trial account is created directly from this request.
+    Route::post('register', [SubscriptionRegistrationController::class, 'store'])
+        ->middleware('throttle:10,10');
 
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');

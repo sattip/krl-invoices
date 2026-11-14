@@ -1,5 +1,10 @@
 # Release Notes
 
+## 2026-11-14 — local free trial (14 days / 10 invoices, no card)
+- New registrations can start a free trial (default choice on /register): 14 days from sign-up, max 10 invoices in total, no card, no Stripe, no auto renewal.
+- Server-enforced on web upload and REST API with an atomic per-invoice reservation; paid subscriptions take precedence and are unchanged.
+- New additive table `trial_entitlements` (migration 2026_11_14_000002). Terms §5 el/en (version 2026-11-14b), register/landing/dashboard/billing texts.
+
 ## 2026-11-14 — reconcile onto live 9559c32
 - Merged Greek/OBS legal release onto the actual production commit 9559c32 (WhatsApp/WaSenderAPI kept) + server accessor fix.
 - Fixed WhatsApp table name and notification fields; WaSenderAPI disclosed in privacy policy (el/en).

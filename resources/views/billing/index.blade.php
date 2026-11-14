@@ -35,6 +35,8 @@
         </div>
     @endif
 
+    @include('partials.trial-status', ['company' => $company])
+
     <div class="row">
         <!-- Current Plan -->
         <div class="col-md-6">

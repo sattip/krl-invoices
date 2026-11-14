@@ -6,16 +6,22 @@ use App\Http\Controllers\Controller;
 use App\Models\Company;
 use App\Models\Plan;
 use App\Models\Subscription;
+use App\Models\TrialEntitlement;
 use App\Models\User;
 use App\Services\StripeService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
 
 class SubscriptionRegistrationController extends Controller
 {
+    /** Registration form value for the local free trial (no Stripe). */
+    public const TRIAL_CHOICE = 'trial';
+
     protected StripeService $stripeService;
 
     public function __construct(StripeService $stripeService)
@@ -39,16 +45,27 @@ class SubscriptionRegistrationController extends Controller
      */
     public function store(Request $request)
     {
+        // "trial" is the only non-numeric choice; anything else must be an active paid plan.
+        // Trial length/limit are never read from the request (see TrialEntitlement::startFor).
+        $isTrial = $request->input('plan_id') === self::TRIAL_CHOICE;
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'company_name' => ['required', 'string', 'max:255'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'plan_id' => ['required', 'exists:plans,id'],
+            'plan_id' => $isTrial
+                ? ['required', Rule::in(config('subscription.trial.enabled') ? [self::TRIAL_CHOICE] : [])]
+                : ['required', 'integer', Rule::exists('plans', 'id')->where('is_active', true)],
             'terms' => ['accepted'],
         ], [
             'terms.accepted' => __('Για να συνεχίσετε πρέπει να αποδεχτείτε τους Όρους Χρήσης.'),
+            'plan_id.in' => __('Η δωρεάν δοκιμή δεν είναι διαθέσιμη αυτή τη στιγμή. Επιλέξτε πακέτο.'),
         ]);
+
+        if ($isTrial) {
+            return $this->startTrial($request);
+        }
 
         // Store registration data in session
         session([
@@ -65,6 +82,54 @@ class SubscriptionRegistrationController extends Controller
         ]);
 
         return redirect()->route('register.checkout');
+    }
+
+    /**
+     * Free trial: create company + owner + trial entitlement in one transaction and log in.
+     * No Stripe call, no customer/payment object, no card.
+     */
+    protected function startTrial(Request $request)
+    {
+        // A half-finished paid registration must not linger next to the trial account.
+        session()->forget('registration');
+
+        $user = DB::transaction(function () use ($request) {
+            $company = Company::create([
+                'name' => $request->company_name,
+                'email' => $request->email,
+                'is_active' => true,
+            ]);
+
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'company_id' => $company->id,
+                'role' => 'owner',
+            ]);
+
+            $user->forceFill([
+                'terms_accepted_at' => now(),
+                'terms_version' => config('legal.terms_version'),
+            ])->save();
+
+            TrialEntitlement::startFor($company);
+
+            return $user;
+        });
+
+        event(new Registered($user));
+
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        $trial = $user->company->trialEntitlement;
+
+        // The logged-in app is Greek-only.
+        return redirect()->route('dashboard')->with('success',
+            'Καλώς ήρθατε στο InvoiceAI! Η δωρεάν δοκιμή σας ξεκίνησε: έως '.number_el($trial->invoice_limit)
+            .' τιμολόγια συνολικά μέχρι τις '.date_el($trial->ends_at, true)
+            .'. Χωρίς κάρτα, χωρίς αυτόματη ανανέωση ή χρέωση.');
     }
 
     /**

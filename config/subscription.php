@@ -38,6 +38,24 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Free trial (local, no Stripe)
+    |--------------------------------------------------------------------------
+    |
+    | Offered only to new self-service registrations: N days from account
+    | creation and at most M invoices in total (not per month). No card, no
+    | Stripe customer/subscription, no automatic renewal or charge.
+    | INVOICEAI_TRIAL_ENABLED=false hides the option for new registrations;
+    | trials already granted keep their own end date and limit.
+    |
+    */
+    'trial' => [
+        'enabled' => (bool) env('INVOICEAI_TRIAL_ENABLED', true),
+        'days' => 14,
+        'invoice_limit' => 10,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Grace Period
     |--------------------------------------------------------------------------
     |

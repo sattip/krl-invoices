@@ -113,6 +113,14 @@
                     </svg>
                     <span class="text-sm">{{ __('Μηνιαία συνδρομή μέσω Stripe, ακύρωση από τον λογαριασμό σας') }}</span>
                 </div>
+                @if(config('subscription.trial.enabled'))
+                <div class="flex items-center space-x-3 text-white/90">
+                    <svg class="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    <span class="text-sm">{{ __('Δωρεάν δοκιμή :days ημερών για έως :count τιμολόγια, χωρίς κάρτα', ['days' => (int) config('subscription.trial.days'), 'count' => number_el((int) config('subscription.trial.invoice_limit'))]) }}</span>
+                </div>
+                @endif
             </div>
             
             <p class="relative z-10 text-indigo-200 text-sm mt-6">&copy; {{ date('Y') }} InvoiceAI · {{ config('legal.company.name') }}</p>
@@ -131,7 +139,7 @@
                 <div class="bg-white rounded-2xl shadow-xl p-5 sm:p-6 lg:p-8">
                     <div class="text-center mb-6">
                         <h2 class="text-2xl font-bold text-gray-900">{{ __('Δημιουργία λογαριασμού') }}</h2>
-                        <p class="text-gray-500 mt-2">{{ __('Συμπληρώστε τα στοιχεία σας και επιλέξτε πακέτο. Η πληρωμή ολοκληρώνεται στο επόμενο βήμα μέσω Stripe.') }}</p>
+                        <p class="text-gray-500 mt-2">{{ config('subscription.trial.enabled') ? __('Ξεκινήστε δωρεάν δοκιμή χωρίς κάρτα ή επιλέξτε πακέτο συνδρομής.') : __('Συμπληρώστε τα στοιχεία σας και επιλέξτε πακέτο. Η πληρωμή ολοκληρώνεται στο επόμενο βήμα μέσω Stripe.') }}</p>
                     </div>
 
                     <form method="POST" action="{{ route('register') }}" class="space-y-4">
@@ -195,20 +203,51 @@
                             </div>
                         </div>
 
-                        <!-- Plan Selection -->
+                        {{-- Plan selection: trial (default) or a paid plan --}}
                         @php
                             $plans = \App\Models\Plan::active()->ordered()->get();
-                            $selectedPlan = old('plan_id') ?? request('plan');
+                            $trialEnabled = (bool) config('subscription.trial.enabled');
+                            $trialDays = (int) config('subscription.trial.days');
+                            $trialLimit = (int) config('subscription.trial.invoice_limit');
+                            // Only an explicit plan choice (old input or ?plan=) preselects a paid plan; UTM or other query params never do.
+                            $requested = old('plan_id', request()->query('plan'));
+                            $requested = is_scalar($requested) ? (string) $requested : null;
+                            $requestedPlan = $requested === null ? null
+                                : $plans->first(fn ($p) => $requested === (string) $p->id || $requested === $p->slug);
+                            $selectedChoice = $requestedPlan ? (string) $requestedPlan->id
+                                : ($trialEnabled ? 'trial' : (string) optional($plans->first(fn ($p) => $p->isProfessional()) ?? $plans->first())->id);
+                            $trialButton = __('Έναρξη δωρεάν δοκιμής');
+                            $paidButton = __('Συνέχεια στην πληρωμή');
                         @endphp
+
+                        <div x-data="{ choice: @js($selectedChoice) }" class="space-y-4">
+                        @if($trialEnabled)
+                            <div class="mt-2">
+                                <label class="relative cursor-pointer group block">
+                                    <input type="radio" name="plan_id" value="trial" x-model="choice"
+                                        {{ $selectedChoice === 'trial' ? 'checked' : '' }}
+                                        class="peer sr-only">
+                                    <div class="p-4 rounded-xl border-2 border-gray-200 peer-checked:border-emerald-500 peer-checked:bg-emerald-50 hover:border-gray-300 transition-all" data-trial-card>
+                                        <div class="flex items-center justify-between gap-3">
+                                            <span class="font-semibold text-gray-900">{{ __('Δωρεάν δοκιμή :days ημερών', ['days' => $trialDays]) }}</span>
+                                            <span class="text-xl font-bold text-gray-900">{{ money_el(0, 'EUR', 0) }}</span>
+                                        </div>
+                                        <div class="text-sm text-gray-700 mt-1">{{ __('Έως :count τιμολόγια συνολικά', ['count' => number_el($trialLimit)]) }}</div>
+                                        <div class="text-sm text-emerald-700 mt-1">{{ __('Χωρίς κάρτα · χωρίς αυτόματη ανανέωση ή χρέωση') }}</div>
+                                    </div>
+                                </label>
+                                <p class="mt-2 text-xs text-gray-500">{{ __('Για νέους λογαριασμούς. Ο λογαριασμός δημιουργείται αμέσως. Η δοκιμή λήγει μετά από :days ημέρες ή :count τιμολόγια, ό,τι έρθει πρώτο· μετά η μεταφόρτωση σταματά μέχρι να επιλέξετε πακέτο. Δεν γίνεται καμία χρέωση χωρίς δική σας ενέργεια.', ['days' => $trialDays, 'count' => number_el($trialLimit)]) }}</p>
+                            </div>
+                        @endif
 
                         @if($plans->isNotEmpty())
                             <div class="mt-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-3">{{ __('Επιλέξτε πακέτο') }}</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-3">{{ $trialEnabled ? __('ή επιλέξτε πακέτο συνδρομής') : __('Επιλέξτε πακέτο') }}</label>
                                 <div class="grid grid-cols-1 sm:grid-cols-{{ min($plans->count(), 3) }} gap-3">
                                     @foreach($plans as $plan)
                                         <label class="relative cursor-pointer group">
-                                            <input type="radio" name="plan_id" value="{{ $plan->id }}" 
-                                                {{ ($selectedPlan == $plan->slug || $selectedPlan == $plan->id || (!$selectedPlan && $plan->isProfessional())) ? 'checked' : '' }}
+                                            <input type="radio" name="plan_id" value="{{ $plan->id }}" x-model="choice"
+                                                {{ $selectedChoice === (string) $plan->id ? 'checked' : '' }}
                                                 class="peer sr-only">
                                             <div class="p-4 rounded-xl border-2 border-gray-200 peer-checked:border-indigo-500 peer-checked:bg-indigo-50 hover:border-gray-300 transition-all">
                                                 <div class="flex items-center justify-between mb-2">
@@ -231,11 +270,14 @@
                                     @endforeach
                                 </div>
                                 @include('partials.vat-note', ['class' => 'mt-2 text-xs text-gray-500'])
-                                @error('plan_id')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
+                                @if($trialEnabled)
+                                    <p class="mt-1 text-xs text-gray-500">{{ __('Τα πακέτα συνδρομής πληρώνονται με κάρτα μέσω Stripe στο επόμενο βήμα και ανανεώνονται μηνιαία μέχρι να τα ακυρώσετε.') }}</p>
+                                @endif
                             </div>
                         @endif
+                        @error('plan_id')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
 
                         <!-- Terms (explicit, unticked, server-validated) -->
                         <div>
@@ -256,8 +298,9 @@
                         <!-- Submit -->
                         <button type="submit" 
                             class="w-full py-3 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
-                            {{ __('Συνέχεια στην πληρωμή') }}
+                            <span x-text="choice === 'trial' ? @js($trialButton) : @js($paidButton)">{{ $selectedChoice === 'trial' ? $trialButton : $paidButton }}</span>
                         </button>
+                        </div>
                     </form>
 
                     <!-- Login link -->

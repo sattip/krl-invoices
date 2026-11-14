@@ -33,6 +33,8 @@
         </div>
     @endif
 
+    @include('partials.trial-status', ['company' => $company])
+
     @if(!$company)
         <div class="alert alert-warning">
             <i class="fas fa-exclamation-triangle mr-2"></i>
