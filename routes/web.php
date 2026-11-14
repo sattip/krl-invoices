@@ -65,11 +65,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/company/settings', [CompanyController::class, 'settings'])->name('company.settings');
     Route::put('/company/settings', [CompanyController::class, 'updateSettings'])->name('company.settings.update');
     // WhatsApp settings
-    Route::get("/company/whatsapp", [WhatsAppSettingsController::class, "index"])->name("company.whatsapp");
-    Route::put("/company/whatsapp", [WhatsAppSettingsController::class, "update"])->name("company.whatsapp.update");
-    Route::post("/company/whatsapp/test", [WhatsAppSettingsController::class, "testConnection"])->name("company.whatsapp.test");
-    Route::post("/company/whatsapp/send-test", [WhatsAppSettingsController::class, "sendTestMessage"])->name("company.whatsapp.send-test");
-
+    Route::get('/company/whatsapp', [WhatsAppSettingsController::class, 'index'])->name('company.whatsapp');
+    Route::put('/company/whatsapp', [WhatsAppSettingsController::class, 'update'])->name('company.whatsapp.update');
+    Route::post('/company/whatsapp/test', [WhatsAppSettingsController::class, 'testConnection'])->name('company.whatsapp.test');
+    Route::post('/company/whatsapp/send-test', [WhatsAppSettingsController::class, 'sendTestMessage'])->name('company.whatsapp.send-test');
 
     // Billing routes
     Route::get('/billing', [BillingController::class, 'index'])->name('billing.index');
@@ -97,19 +96,18 @@ Route::middleware(['auth', 'super_admin'])->prefix('admin')->name('admin.')->gro
     Route::get('/companies/create', [CompanyController::class, 'create'])->name('companies.create');
     Route::post('/companies', [CompanyController::class, 'store'])->name('companies.store');
     // Company creation wizard
-    Route::get("/companies/wizard", [CompanyWizardController::class, "step1"])->name("companies.wizard.step1");
-    Route::post("/companies/wizard/step1", [CompanyWizardController::class, "storeStep1"])->name("companies.wizard.store-step1");
-    Route::get("/companies/wizard/step2", [CompanyWizardController::class, "step2"])->name("companies.wizard.step2");
-    Route::post("/companies/wizard/step2", [CompanyWizardController::class, "storeStep2"])->name("companies.wizard.store-step2");
-    Route::get("/companies/wizard/step3", [CompanyWizardController::class, "step3"])->name("companies.wizard.step3");
-    Route::post("/companies/wizard/step3", [CompanyWizardController::class, "storeStep3"])->name("companies.wizard.store-step3");
-    Route::get("/companies/wizard/complete", [CompanyWizardController::class, "complete"])->name("companies.wizard.complete");
-    Route::get("/companies/wizard/cancel", [CompanyWizardController::class, "cancel"])->name("companies.wizard.cancel");
+    Route::get('/companies/wizard', [CompanyWizardController::class, 'step1'])->name('companies.wizard.step1');
+    Route::post('/companies/wizard/step1', [CompanyWizardController::class, 'storeStep1'])->name('companies.wizard.store-step1');
+    Route::get('/companies/wizard/step2', [CompanyWizardController::class, 'step2'])->name('companies.wizard.step2');
+    Route::post('/companies/wizard/step2', [CompanyWizardController::class, 'storeStep2'])->name('companies.wizard.store-step2');
+    Route::get('/companies/wizard/step3', [CompanyWizardController::class, 'step3'])->name('companies.wizard.step3');
+    Route::post('/companies/wizard/step3', [CompanyWizardController::class, 'storeStep3'])->name('companies.wizard.store-step3');
+    Route::get('/companies/wizard/complete', [CompanyWizardController::class, 'complete'])->name('companies.wizard.complete');
+    Route::get('/companies/wizard/cancel', [CompanyWizardController::class, 'cancel'])->name('companies.wizard.cancel');
     Route::get('/companies/{company}', [CompanyController::class, 'show'])->name('companies.show');
     Route::get('/companies/{company}/edit', [CompanyController::class, 'edit'])->name('companies.edit');
     Route::put('/companies/{company}', [CompanyController::class, 'update'])->name('companies.update');
     Route::post('/companies/{company}/assign-user', [CompanyController::class, 'assignUser'])->name('companies.assign-user');
-
 
     // User management
     Route::get('/users', [UserController::class, 'index'])->name('users.index');

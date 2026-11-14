@@ -128,14 +128,16 @@ class TenantIsolationTest extends TestCase
 
     public function test_stripe_prices_are_created_in_eur_with_exact_cents(): void
     {
-        $fake = new class('sk_test_synthetic_not_a_real_key') extends \Stripe\StripeClient {
+        $fake = new class('sk_test_synthetic_not_a_real_key') extends \Stripe\StripeClient
+        {
             public array $calls = [];
 
             public function __get($name)
             {
                 $client = $this;
 
-                return new class($client, $name) {
+                return new class($client, $name)
+                {
                     public function __construct(private $client, private string $service) {}
 
                     public function create(array $params)
@@ -191,7 +193,8 @@ class TenantIsolationTest extends TestCase
 
     private function extractorThrowing(\Throwable $e): ClaudeInvoiceExtractor
     {
-        return new class($e) extends ClaudeInvoiceExtractor {
+        return new class($e) extends ClaudeInvoiceExtractor
+        {
             public function __construct(private \Throwable $toThrow) {}
 
             public function extract(string $filePath, string $disk = 'local'): array
