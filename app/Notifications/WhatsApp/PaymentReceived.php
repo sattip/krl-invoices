@@ -22,9 +22,9 @@ class PaymentReceived extends Notification
 
     public function toWhatsApp(object $notifiable): string
     {
-        return "💰 *Payment Received*\n\n" .
-               "Amount: {$this->amount}\n" .
-               "Description: {$this->description}\n\n" .
-               "Thank you for your payment!";
+        return "💰 *Λάβαμε την πληρωμή σας*\n\n".
+               "Ποσό: {$this->amount}\n".
+               "Περιγραφή: {$this->description}\n\n".
+               'Σας ευχαριστούμε!';
     }
 }

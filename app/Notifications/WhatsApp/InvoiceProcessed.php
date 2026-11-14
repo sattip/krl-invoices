@@ -22,14 +22,14 @@ class InvoiceProcessed extends Notification
 
     public function toWhatsApp(object $notifiable): string
     {
-        $invoiceNumber = $this->invoice->invoice_number ?? 'N/A';
-        $vendor = $this->invoice->issuer_name ?? 'Unknown';
-        $total = number_format((float) ($this->invoice->grand_total ?? 0), 2) . ' ' . ($this->invoice->currency ?: '€');
-        
-        return "✅ *Invoice Processed*\n\n" .
-               "Invoice: #{$invoiceNumber}\n" .
-               "Vendor: {$vendor}\n" .
-               "Total: {$total}\n\n" .
-               "View details in InvoiceAI.";
+        $invoiceNumber = $this->invoice->invoice_number ?? '—';
+        $vendor = $this->invoice->issuer_name ?? '—';
+        $total = number_format((float) ($this->invoice->grand_total ?? 0), 2).' '.($this->invoice->currency ?: '€');
+
+        return "✅ *Το τιμολόγιο επεξεργάστηκε*\n\n".
+               "Τιμολόγιο: #{$invoiceNumber}\n".
+               "Εκδότης: {$vendor}\n".
+               "Σύνολο: {$total}\n\n".
+               'Ελέγξτε τα στοιχεία στο InvoiceAI.';
     }
 }

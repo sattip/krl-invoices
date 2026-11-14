@@ -51,6 +51,10 @@ George confirmed on 2026-11-14 at 18:31 Athens that **29/79/199 EUR include VAT*
   Protected source snapshot (no .git) is kept outside the repo by obs-dev.
 - Fixed in this branch (live bugs): model table name `whatsapp_settings` (Eloquent defaulted to `whats_app_settings`, so the live settings page
   and notifications fail), `InvoiceProcessed` message fields (`issuer_name`/`grand_total`).
+- WhatsApp UI is Greek: settings page (labels, buttons, help, status, SweetAlert dialogs), controller flash/JSON messages,
+  WhatsApp message texts and webhook fallbacks. Provider/technical names (WaSenderAPI, API, Session ID, URLs, field names) unchanged.
+  Test endpoints show only generic Greek errors; raw provider/exception text is logged, never shown.
+- Private package `obstechnologies/invoiceai` stays **inactive exactly as in the live runtime** (not in composer.json/lock, no `packages/` dir).
 - Security: lock-only updates within majors (composer audit 56 → 0, npm audit 14 → 0 at 2026-11-14); `composer.json`/`package.json` unchanged.
 - The server's Git remote URL contains an inline credential; prefer a Forge deploy key and rotate that token (owner action).
 

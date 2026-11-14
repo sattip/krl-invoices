@@ -23,9 +23,9 @@ class UsageWarning extends Notification
 
     public function toWhatsApp(object $notifiable): string
     {
-        return "📊 *Usage Warning*\n\n" .
-               "You have used {$this->percentage}% of your monthly invoice limit.\n\n" .
-               "Used: {$this->used} / {$this->limit} invoices\n\n" .
-               "Consider upgrading your plan for more capacity.";
+        return "📊 *Προειδοποίηση χρήσης*\n\n".
+               "Έχετε χρησιμοποιήσει το {$this->percentage}% του μηνιαίου ορίου τιμολογίων.\n\n".
+               "Χρήση: {$this->used} / {$this->limit} τιμολόγια\n\n".
+               'Αν χρειάζεστε περισσότερα, μπορείτε να αναβαθμίσετε το πακέτο σας.';
     }
 }

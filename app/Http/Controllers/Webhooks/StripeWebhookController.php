@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Company;
 use App\Models\Plan;
 use App\Models\Subscription;
-use App\Notifications\WhatsApp\PaymentReceived;
 use App\Notifications\WhatsApp\PaymentFailed;
+use App\Notifications\WhatsApp\PaymentReceived;
 use App\Services\StripeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -30,6 +30,7 @@ class StripeWebhookController extends Controller
             $event = $this->stripeService->verifyWebhookSignature($payload, $signature);
         } catch (\Exception $e) {
             Log::error('Stripe webhook signature verification failed', ['error' => $e->getMessage()]);
+
             return response('Invalid signature', 400);
         }
 
@@ -60,20 +61,21 @@ class StripeWebhookController extends Controller
         $companyId = $stripeSubscription->metadata->company_id ?? null;
         $planId = $stripeSubscription->metadata->plan_id ?? null;
 
-        if (!$companyId) {
+        if (! $companyId) {
             $company = $this->findCompanyByCustomerId($stripeSubscription->customer);
             $companyId = $company?->id;
         }
 
-        if (!$companyId) {
+        if (! $companyId) {
             Log::warning('Subscription created but company not found', [
                 'stripe_subscription_id' => $stripeSubscription->id,
                 'customer_id' => $stripeSubscription->customer,
             ]);
+
             return;
         }
 
-        if (!$planId) {
+        if (! $planId) {
             $priceId = $stripeSubscription->items->data[0]->price->id ?? null;
             if ($priceId) {
                 $plan = Plan::where('stripe_price_id', $priceId)->first();
@@ -81,8 +83,9 @@ class StripeWebhookController extends Controller
             }
         }
 
-        if (!$planId) {
+        if (! $planId) {
             Log::warning('Subscription created but plan not found', ['stripe_subscription_id' => $stripeSubscription->id]);
+
             return;
         }
 
@@ -90,6 +93,7 @@ class StripeWebhookController extends Controller
         if ($existing) {
             Log::info('Subscription already exists, updating', ['subscription_id' => $existing->id]);
             $this->handleSubscriptionUpdated($stripeSubscription);
+
             return;
         }
 
@@ -114,9 +118,10 @@ class StripeWebhookController extends Controller
     {
         $subscription = Subscription::where('stripe_subscription_id', $stripeSubscription->id)->first();
 
-        if (!$subscription) {
+        if (! $subscription) {
             Log::warning('Subscription not found for update', ['stripe_subscription_id' => $stripeSubscription->id]);
             $this->handleSubscriptionCreated($stripeSubscription);
+
             return;
         }
 
@@ -144,8 +149,9 @@ class StripeWebhookController extends Controller
     {
         $subscription = Subscription::where('stripe_subscription_id', $stripeSubscription->id)->first();
 
-        if (!$subscription) {
+        if (! $subscription) {
             Log::warning('Subscription not found for deletion', ['stripe_subscription_id' => $stripeSubscription->id]);
+
             return;
         }
 
@@ -167,8 +173,8 @@ class StripeWebhookController extends Controller
                     $subscription->update(['status' => Subscription::STATUS_ACTIVE]);
                 }
 
-                $amount = number_format($invoice->amount_paid / 100, 2) . ' €';
-                $description = $invoice->lines->data[0]->description ?? 'Subscription payment';
+                $amount = money_el($invoice->amount_paid / 100);
+                $description = $invoice->lines->data[0]->description ?? 'Συνδρομή InvoiceAI';
 
                 Log::info('Payment succeeded', [
                     'subscription_id' => $subscription->id,
@@ -199,8 +205,8 @@ class StripeWebhookController extends Controller
             if ($subscription) {
                 $subscription->update(['status' => Subscription::STATUS_PAST_DUE]);
 
-                $amount = number_format($invoice->amount_due / 100, 2) . ' €';
-                $reason = $invoice->last_finalization_error->message ?? 'Payment method declined';
+                $amount = money_el($invoice->amount_due / 100);
+                $reason = $invoice->last_finalization_error->message ?? 'Ο τρόπος πληρωμής απορρίφθηκε';
 
                 Log::warning('Payment failed', [
                     'subscription_id' => $subscription->id,
@@ -226,6 +232,7 @@ class StripeWebhookController extends Controller
     protected function findCompanyByCustomerId(string $customerId): ?Company
     {
         $subscription = Subscription::where('stripe_customer_id', $customerId)->first();
+
         return $subscription?->company;
     }
 }

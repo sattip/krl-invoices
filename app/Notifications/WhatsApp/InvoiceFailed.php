@@ -22,9 +22,9 @@ class InvoiceFailed extends Notification
 
     public function toWhatsApp(object $notifiable): string
     {
-        return "❌ *Invoice Processing Failed*\n\n" .
-               "File: {$this->filename}\n" .
-               "Error: {$this->error}\n\n" .
-               "Please check the file and try again.";
+        return "❌ *Αποτυχία επεξεργασίας τιμολογίου*\n\n".
+               "Αρχείο: {$this->filename}\n".
+               "Σφάλμα: {$this->error}\n\n".
+               'Ελέγξτε το αρχείο και δοκιμάστε ξανά.';
     }
 }

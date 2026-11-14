@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'WhatsApp Settings')
+@section('title', 'Ρυθμίσεις WhatsApp')
 
 @section('content_header')
-    <h1><i class="fab fa-whatsapp text-success mr-2"></i>WhatsApp Settings</h1>
+    <h1><i class="fab fa-whatsapp text-success mr-2"></i>Ρυθμίσεις WhatsApp</h1>
 @stop
 
 @section('content')
@@ -23,21 +23,21 @@
 
     <div class="row">
         <div class="col-md-8">
-            <!-- API Configuration -->
+            {{-- API Configuration --}}
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">API Configuration</h3>
+                    <h3 class="card-title">Σύνδεση με το WaSenderAPI</h3>
                 </div>
                 <form action="{{ route('company.whatsapp.update') }}" method="POST">
                     @csrf
                     @method('PUT')
                     <div class="card-body">
                         <div class="form-group">
-                            <label for="api_key">WaSenderAPI Key</label>
+                            <label for="api_key">Κλειδί API του WaSenderAPI</label>
                             <div class="input-group">
                                 <input type="password" class="form-control @error('api_key') is-invalid @enderror"
                                        id="api_key" name="api_key" 
-                                       placeholder="{{ $settings->api_key ? '••••••••••••••••' : 'Enter your API key' }}">
+                                       placeholder="{{ $settings->api_key ? '••••••••••••••••' : 'Εισαγάγετε το κλειδί API' }}">
                                 <div class="input-group-append">
                                     <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('api_key')">
                                         <i class="fas fa-eye"></i>
@@ -45,7 +45,7 @@
                                 </div>
                             </div>
                             <small class="form-text text-muted">
-                                Get your API key from <a href="https://wasenderapi.com" target="_blank">WaSenderAPI.com</a>
+                                Το κλειδί API το βρίσκετε στον λογαριασμό σας στο <a href="https://wasenderapi.com" target="_blank" rel="noopener">WaSenderAPI.com</a>. Αν το αφήσετε κενό, διατηρείται το αποθηκευμένο.
                             </small>
                             @error('api_key')
                                 <span class="invalid-feedback d-block">{{ $message }}</span>
@@ -53,13 +53,13 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="session_id">Session ID (Optional)</label>
+                            <label for="session_id">Session ID (προαιρετικό)</label>
                             <input type="text" class="form-control @error('session_id') is-invalid @enderror"
                                    id="session_id" name="session_id" 
                                    value="{{ old('session_id', $settings->session_id) }}"
-                                   placeholder="Your session ID">
+                                   placeholder="Το session ID σας">
                             <small class="form-text text-muted">
-                                If you have multiple WhatsApp numbers, specify the session ID
+                                Συμπληρώστε το μόνο αν έχετε περισσότερους αριθμούς WhatsApp στο WaSenderAPI.
                             </small>
                             @error('session_id')
                                 <span class="invalid-feedback">{{ $message }}</span>
@@ -67,13 +67,13 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="phone_number">Default Recipient Phone</label>
+                            <label for="phone_number">Τηλέφωνο παραλήπτη ειδοποιήσεων</label>
                             <input type="text" class="form-control @error('phone_number') is-invalid @enderror"
                                    id="phone_number" name="phone_number" 
                                    value="{{ old('phone_number', $settings->phone_number) }}"
-                                   placeholder="e.g., 306912345678">
+                                   placeholder="π.χ. 306912345678">
                             <small class="form-text text-muted">
-                                The phone number to receive notifications (with country code, no +)
+                                Ο αριθμός που θα λαμβάνει τις ειδοποιήσεις, με κωδικό χώρας και χωρίς «+».
                             </small>
                             @error('phone_number')
                                 <span class="invalid-feedback">{{ $message }}</span>
@@ -81,11 +81,11 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="phone_display_name">Display Name</label>
+                            <label for="phone_display_name">Όνομα εμφάνισης</label>
                             <input type="text" class="form-control @error('phone_display_name') is-invalid @enderror"
                                    id="phone_display_name" name="phone_display_name" 
                                    value="{{ old('phone_display_name', $settings->phone_display_name) }}"
-                                   placeholder="e.g., John Doe">
+                                   placeholder="π.χ. Γιώργος Παπαδόπουλος">
                             @error('phone_display_name')
                                 <span class="invalid-feedback">{{ $message }}</span>
                             @enderror
@@ -93,7 +93,7 @@
 
                         <hr>
 
-                        <h5 class="mb-3">Notification Settings</h5>
+                        <h5 class="mb-3">Ποιες ειδοποιήσεις θα λαμβάνετε</h5>
 
                         @php
                             $notificationSettings = $settings->notification_settings ?? \App\Models\WhatsAppSettings::defaultNotificationSettings();
@@ -105,7 +105,7 @@
                                        name="notification_settings[invoice_processed]" value="1"
                                        {{ ($notificationSettings['invoice_processed'] ?? false) ? 'checked' : '' }}>
                                 <label class="custom-control-label" for="notif_invoice_processed">
-                                    Invoice Processed Successfully
+                                    Επιτυχής επεξεργασία τιμολογίου
                                 </label>
                             </div>
 
@@ -114,7 +114,7 @@
                                        name="notification_settings[invoice_failed]" value="1"
                                        {{ ($notificationSettings['invoice_failed'] ?? false) ? 'checked' : '' }}>
                                 <label class="custom-control-label" for="notif_invoice_failed">
-                                    Invoice Processing Failed
+                                    Αποτυχία επεξεργασίας τιμολογίου
                                 </label>
                             </div>
 
@@ -123,7 +123,7 @@
                                        name="notification_settings[payment_received]" value="1"
                                        {{ ($notificationSettings['payment_received'] ?? false) ? 'checked' : '' }}>
                                 <label class="custom-control-label" for="notif_payment_received">
-                                    Payment Received
+                                    Πληρωμή συνδρομής που ελήφθη
                                 </label>
                             </div>
 
@@ -132,7 +132,7 @@
                                        name="notification_settings[payment_failed]" value="1"
                                        {{ ($notificationSettings['payment_failed'] ?? false) ? 'checked' : '' }}>
                                 <label class="custom-control-label" for="notif_payment_failed">
-                                    Payment Failed
+                                    Αποτυχία πληρωμής συνδρομής
                                 </label>
                             </div>
 
@@ -141,7 +141,7 @@
                                        name="notification_settings[usage_warning]" value="1"
                                        {{ ($notificationSettings['usage_warning'] ?? false) ? 'checked' : '' }}>
                                 <label class="custom-control-label" for="notif_usage_warning">
-                                    Usage Limit Warning (80% reached)
+                                    Προειδοποίηση χρήσης (στο 80% του μηνιαίου ορίου)
                                 </label>
                             </div>
                         </div>
@@ -154,7 +154,7 @@
                                        name="is_enabled" value="1"
                                        {{ $settings->is_enabled ? 'checked' : '' }}>
                                 <label class="custom-control-label" for="is_enabled">
-                                    <strong>Enable WhatsApp Notifications</strong>
+                                    <strong>Ενεργοποίηση ειδοποιήσεων WhatsApp</strong>
                                 </label>
                             </div>
                         </div>
@@ -162,39 +162,39 @@
                     <div class="card-footer">
                         @if(auth()->user()->isAdmin())
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save mr-2"></i> Save Settings
+                                <i class="fas fa-save mr-2"></i> Αποθήκευση ρυθμίσεων
                             </button>
                         @else
                             <p class="text-muted mb-0">
                                 <i class="fas fa-info-circle mr-1"></i>
-                                Only company administrators can update WhatsApp settings.
+                                Μόνο οι διαχειριστές της εταιρείας μπορούν να αλλάξουν τις ρυθμίσεις WhatsApp.
                             </p>
                         @endif
                     </div>
                 </form>
             </div>
 
-            <!-- Test Message -->
+            {{-- Test Message --}}
             @if($settings->api_key)
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Send Test Message</h3>
+                    <h3 class="card-title">Δοκιμαστικό μήνυμα</h3>
                 </div>
                 <div class="card-body">
                     <div class="form-group">
-                        <label for="test_phone">Phone Number</label>
+                        <label for="test_phone">Αριθμός τηλεφώνου</label>
                         <input type="text" class="form-control" id="test_phone" 
                                value="{{ $settings->phone_number }}"
-                               placeholder="e.g., 306912345678">
+                               placeholder="π.χ. 306912345678">
                     </div>
                     <div class="form-group">
-                        <label for="test_message">Message</label>
-                        <textarea class="form-control" id="test_message" rows="3">Hello from InvoiceAI! This is a test message.</textarea>
+                        <label for="test_message">Μήνυμα</label>
+                        <textarea class="form-control" id="test_message" rows="3">Γεια σας από το InvoiceAI! Αυτό είναι δοκιμαστικό μήνυμα.</textarea>
                     </div>
                 </div>
                 <div class="card-footer">
                     <button type="button" class="btn btn-success" onclick="sendTestMessage()">
-                        <i class="fab fa-whatsapp mr-2"></i> Send Test Message
+                        <i class="fab fa-whatsapp mr-2"></i> Αποστολή δοκιμαστικού μηνύματος
                     </button>
                 </div>
             </div>
@@ -202,25 +202,25 @@
         </div>
 
         <div class="col-md-4">
-            <!-- Connection Status -->
+            {{-- Connection Status --}}
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Connection Status</h3>
+                    <h3 class="card-title">Κατάσταση σύνδεσης</h3>
                 </div>
                 <div class="card-body">
                     <div class="d-flex align-items-center mb-3">
                         <div class="mr-3">
                             @if($settings->is_connected)
                                 <span class="badge badge-success p-2">
-                                    <i class="fas fa-check-circle"></i> Connected
+                                    <i class="fas fa-check-circle"></i> Συνδεδεμένο
                                 </span>
                             @elseif($settings->api_key)
                                 <span class="badge badge-warning p-2">
-                                    <i class="fas fa-exclamation-circle"></i> Not Tested
+                                    <i class="fas fa-exclamation-circle"></i> Δεν έχει ελεγχθεί
                                 </span>
                             @else
                                 <span class="badge badge-secondary p-2">
-                                    <i class="fas fa-times-circle"></i> Not Configured
+                                    <i class="fas fa-times-circle"></i> Δεν έχει ρυθμιστεί
                                 </span>
                             @endif
                         </div>
@@ -228,57 +228,57 @@
 
                     @if($settings->last_connected_at)
                         <p class="text-muted small mb-2">
-                            Last connected: {{ $settings->last_connected_at->diffForHumans() }}
+                            Τελευταία επιτυχής σύνδεση: {{ date_el($settings->last_connected_at, true) }}
                         </p>
                     @endif
 
                     @if($settings->api_key)
                         <button type="button" class="btn btn-outline-primary btn-block" onclick="testConnection()">
-                            <i class="fas fa-plug mr-2"></i> Test Connection
+                            <i class="fas fa-plug mr-2"></i> Έλεγχος σύνδεσης
                         </button>
                     @endif
                 </div>
             </div>
 
-            <!-- Help -->
+            {{-- Help --}}
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Setup Guide</h3>
+                    <h3 class="card-title">Οδηγός ρύθμισης</h3>
                 </div>
                 <div class="card-body">
                     <ol class="pl-3 mb-0">
-                        <li class="mb-2">Sign up at <a href="https://wasenderapi.com" target="_blank">WaSenderAPI.com</a></li>
-                        <li class="mb-2">Connect your WhatsApp number</li>
-                        <li class="mb-2">Copy your API key</li>
-                        <li class="mb-2">Paste it here and save</li>
-                        <li>Test the connection</li>
+                        <li class="mb-2">Δημιουργήστε λογαριασμό στο <a href="https://wasenderapi.com" target="_blank" rel="noopener">WaSenderAPI.com</a></li>
+                        <li class="mb-2">Συνδέστε τον αριθμό WhatsApp σας</li>
+                        <li class="mb-2">Αντιγράψτε το κλειδί API</li>
+                        <li class="mb-2">Επικολλήστε το εδώ και πατήστε «Αποθήκευση ρυθμίσεων»</li>
+                        <li>Πατήστε «Έλεγχος σύνδεσης»</li>
                     </ol>
                 </div>
             </div>
 
-            <!-- Status Info -->
+            {{-- Status Info --}}
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Status</h3>
+                    <h3 class="card-title">Σύνοψη</h3>
                 </div>
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                            Enabled
+                            Ενεργές ειδοποιήσεις
                             <span class="badge badge-{{ $settings->is_enabled ? 'success' : 'secondary' }}">
-                                {{ $settings->is_enabled ? 'Yes' : 'No' }}
+                                {{ $settings->is_enabled ? 'Ναι' : 'Όχι' }}
                             </span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                            API Key
+                            Κλειδί API
                             <span class="badge badge-{{ $settings->api_key ? 'success' : 'secondary' }}">
-                                {{ $settings->api_key ? 'Configured' : 'Not Set' }}
+                                {{ $settings->api_key ? 'Έχει οριστεί' : 'Δεν έχει οριστεί' }}
                             </span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                            Phone
+                            Τηλέφωνο
                             <span class="badge badge-{{ $settings->phone_number ? 'success' : 'secondary' }}">
-                                {{ $settings->phone_number ? 'Configured' : 'Not Set' }}
+                                {{ $settings->phone_number ? 'Έχει οριστεί' : 'Δεν έχει οριστεί' }}
                             </span>
                         </li>
                     </ul>
@@ -297,8 +297,8 @@ function togglePassword(fieldId) {
 
 function testConnection() {
     Swal.fire({
-        title: 'Testing Connection...',
-        text: 'Please wait while we verify your API key',
+        title: 'Έλεγχος σύνδεσης…',
+        text: 'Περιμένετε όσο ελέγχουμε το κλειδί API.',
         allowOutsideClick: false,
         didOpen: () => {
             Swal.showLoading();
@@ -317,7 +317,7 @@ function testConnection() {
         if (data.success) {
             Swal.fire({
                 icon: 'success',
-                title: 'Connected!',
+                title: 'Η σύνδεση πέτυχε',
                 text: data.message,
                 timer: 3000
             }).then(() => {
@@ -326,7 +326,7 @@ function testConnection() {
         } else {
             Swal.fire({
                 icon: 'error',
-                title: 'Connection Failed',
+                title: 'Η σύνδεση απέτυχε',
                 text: data.message
             });
         }
@@ -334,8 +334,8 @@ function testConnection() {
     .catch(error => {
         Swal.fire({
             icon: 'error',
-            title: 'Error',
-            text: 'Failed to test connection. Please try again.'
+            title: 'Σφάλμα',
+            text: 'Δεν ήταν δυνατός ο έλεγχος της σύνδεσης. Δοκιμάστε ξανά.'
         });
     });
 }
@@ -347,14 +347,14 @@ function sendTestMessage() {
     if (!phone || !message) {
         Swal.fire({
             icon: 'warning',
-            title: 'Missing Information',
-            text: 'Please enter both phone number and message.'
+            title: 'Λείπουν στοιχεία',
+            text: 'Συμπληρώστε αριθμό τηλεφώνου και μήνυμα.'
         });
         return;
     }
 
     Swal.fire({
-        title: 'Sending Message...',
+        title: 'Αποστολή μηνύματος…',
         allowOutsideClick: false,
         didOpen: () => {
             Swal.showLoading();
@@ -377,13 +377,13 @@ function sendTestMessage() {
         if (data.success) {
             Swal.fire({
                 icon: 'success',
-                title: 'Message Sent!',
+                title: 'Το μήνυμα στάλθηκε',
                 text: data.message
             });
         } else {
             Swal.fire({
                 icon: 'error',
-                title: 'Failed to Send',
+                title: 'Η αποστολή απέτυχε',
                 text: data.message
             });
         }
@@ -391,8 +391,8 @@ function sendTestMessage() {
     .catch(error => {
         Swal.fire({
             icon: 'error',
-            title: 'Error',
-            text: 'Failed to send message. Please try again.'
+            title: 'Σφάλμα',
+            text: 'Δεν ήταν δυνατή η αποστολή. Δοκιμάστε ξανά.'
         });
     });
 }

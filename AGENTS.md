@@ -14,7 +14,7 @@ Codebase facts for agents working on this repo (verified 2026-11-14).
 - **Actual production baseline is `9559c32` (server-only commit, WhatsApp/WaSenderAPI) + server edits, not GitHub `main`/9632f01.**
   See docs/INVOICEAI_RELEASE.md §0c. Rollback = symlink to the previous release dir, never a redeploy of 9632f01.
 - WhatsApp: per-company `whatsapp_settings` (API key/webhook secret encrypted), `App\Services\WhatsAppService` → api.wasenderapi.com,
-  `App\Notifications\Channels\WhatsAppChannel`. Never send raw exception text or invoice content beyond the documented summary.
+  `App\Notifications\Channels\WhatsAppChannel`. UI/messages are Greek (tests/Feature/WhatsAppLiveFeatureTest). Never send raw exception text or invoice content beyond the documented summary.
 - `packages/obstechnologies/invoiceai` exists only untracked on the server and is NOT installed; don't add it to composer.json without review.
 
 ## Stack

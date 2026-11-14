@@ -22,9 +22,9 @@ class PaymentFailed extends Notification
 
     public function toWhatsApp(object $notifiable): string
     {
-        return "⚠️ *Payment Failed*\n\n" .
-               "Amount: {$this->amount}\n" .
-               "Reason: {$this->reason}\n\n" .
-               "Please update your payment method in InvoiceAI.";
+        return "⚠️ *Αποτυχία πληρωμής συνδρομής*\n\n".
+               "Ποσό: {$this->amount}\n".
+               "Αιτία: {$this->reason}\n\n".
+               'Ενημερώστε τον τρόπο πληρωμής σας στο InvoiceAI.';
     }
 }

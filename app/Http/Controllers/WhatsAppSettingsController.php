@@ -16,9 +16,9 @@ class WhatsAppSettingsController extends Controller
     {
         $company = current_company();
 
-        if (!$company) {
+        if (! $company) {
             return redirect()->route('dashboard')
-                ->with('error', 'You are not associated with any company.');
+                ->with('error', 'Ο λογαριασμός σας δεν είναι συνδεδεμένος με εταιρεία.');
         }
 
         $settings = WhatsAppSettings::forCompany($company->id);
@@ -33,14 +33,14 @@ class WhatsAppSettingsController extends Controller
     {
         $company = current_company();
 
-        if (!$company) {
+        if (! $company) {
             return redirect()->route('dashboard')
-                ->with('error', 'You are not associated with any company.');
+                ->with('error', 'Ο λογαριασμός σας δεν είναι συνδεδεμένος με εταιρεία.');
         }
 
         // Only owners and admins can update settings
-        if (!$request->user()->isAdmin()) {
-            abort(403, 'Only company administrators can update WhatsApp settings.');
+        if (! $request->user()->isAdmin()) {
+            abort(403, 'Μόνο οι διαχειριστές της εταιρείας μπορούν να αλλάξουν τις ρυθμίσεις WhatsApp.');
         }
 
         $validated = $request->validate([
@@ -56,7 +56,7 @@ class WhatsAppSettingsController extends Controller
         $settings = WhatsAppSettings::forCompany($company->id);
 
         // Only update API key if a new one is provided
-        if (!empty($validated['api_key'])) {
+        if (! empty($validated['api_key'])) {
             $settings->api_key = $validated['api_key'];
         }
 
@@ -71,7 +71,7 @@ class WhatsAppSettingsController extends Controller
         $settings->save();
 
         return redirect()->route('company.whatsapp')
-            ->with('success', 'WhatsApp settings updated successfully.');
+            ->with('success', 'Οι ρυθμίσεις WhatsApp αποθηκεύτηκαν.');
     }
 
     /**
@@ -81,13 +81,13 @@ class WhatsAppSettingsController extends Controller
     {
         $company = current_company();
 
-        if (!$company) {
-            return response()->json(['success' => false, 'message' => 'No company found.'], 400);
+        if (! $company) {
+            return response()->json(['success' => false, 'message' => 'Ο λογαριασμός σας δεν είναι συνδεδεμένος με εταιρεία.'], 400);
         }
 
         $settings = WhatsAppSettings::forCompany($company->id);
 
-        if (!$settings->api_key) {
+        if (! $settings->api_key) {
             return response()->json(['success' => false, 'message' => 'API key not configured.'], 400);
         }
 
@@ -105,7 +105,7 @@ class WhatsAppSettingsController extends Controller
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Connection successful!',
+                    'message' => 'Η σύνδεση με το WaSenderAPI πέτυχε.',
                     'data' => $result['data'] ?? null,
                 ]);
             }
@@ -117,7 +117,7 @@ class WhatsAppSettingsController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => $result['error'] ?? 'Connection failed.',
+                'message' => 'Η σύνδεση με το WaSenderAPI απέτυχε. Ελέγξτε το κλειδί API και δοκιμάστε ξανά.',
             ], 400);
 
         } catch (\Exception $e) {
@@ -133,7 +133,7 @@ class WhatsAppSettingsController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Connection test failed: ' . $e->getMessage(),
+                'message' => 'Δεν ήταν δυνατός ο έλεγχος της σύνδεσης. Δοκιμάστε ξανά αργότερα.',
             ], 500);
         }
     }
@@ -145,8 +145,8 @@ class WhatsAppSettingsController extends Controller
     {
         $company = current_company();
 
-        if (!$company) {
-            return response()->json(['success' => false, 'message' => 'No company found.'], 400);
+        if (! $company) {
+            return response()->json(['success' => false, 'message' => 'Ο λογαριασμός σας δεν είναι συνδεδεμένος με εταιρεία.'], 400);
         }
 
         $validated = $request->validate([
@@ -161,13 +161,13 @@ class WhatsAppSettingsController extends Controller
             if ($result['success']) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Test message sent successfully!',
+                    'message' => 'Το δοκιμαστικό μήνυμα στάλθηκε.',
                 ]);
             }
 
             return response()->json([
                 'success' => false,
-                'message' => $result['error'] ?? 'Failed to send message.',
+                'message' => 'Η αποστολή απέτυχε. Ελέγξτε τον αριθμό και τη σύνδεση με το WaSenderAPI.',
             ], 400);
 
         } catch (\Exception $e) {
@@ -178,7 +178,7 @@ class WhatsAppSettingsController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to send message: ' . $e->getMessage(),
+                'message' => 'Δεν ήταν δυνατή η αποστολή. Δοκιμάστε ξανά αργότερα.',
             ], 500);
         }
     }
