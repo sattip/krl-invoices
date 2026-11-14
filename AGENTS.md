@@ -16,7 +16,12 @@ Codebase facts for agents working on this repo (verified 2026-11-14).
   Bootstrap/AdminLTE CSS for the landing page (`public/css/landing.css`).
 - AI extraction: `app/Services/ClaudeInvoiceExtractor.php` (Anthropic PHP SDK, model from `CLAUDE_MODEL`).
 - Billing: Stripe Checkout + Billing Portal (`app/Services/StripeService.php`); Stripe credentials are stored in DB (`stripe_settings`), not `.env`.
-- Multi-tenant: `BelongsToCompany` trait + `CompanyScope` global scope on invoices.
+- Multi-tenant: `BelongsToCompany` trait + `CompanyScope` global scope on invoices. The scope **fails closed**: no company context →
+  no rows, except super admins (intended cross-company access) and CLI/queue code. Users without a company cannot upload (web redirect, API 403 `no_company`).
+- User-facing errors: only `App\Exceptions\InvoiceExtractionException` messages are shown; other exceptions get a generic Greek message and
+  are logged by class/location only (DB errors can contain invoice values). Billing errors: generic message + `report($e)`.
+- Stripe: new prices are created in `config('subscription.currency')` (only `eur` allowed) with exact cents; no tax settings.
+  Checkout/Portal `locale` follows the page language.
 
 ## Conventions
 - Languages: Greek default at `/`, English at `/en` (public pages: home, terms, privacy, cookies, contact). English route = Greek route name + `.en`;

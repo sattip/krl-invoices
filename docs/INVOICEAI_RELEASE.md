@@ -24,6 +24,15 @@ Production `.env` (Forge → site → Environment). Values read on 2026-11-14 vi
   Then set `INVOICEAI_PRICE_VAT_MODE=included` (or `excluded` — only if checkout is also changed to add VAT) in `.env` and run `php artisan config:cache`.
   Until then no VAT statement is shown (preview omits the unverified claim).
 
+### Currency fix — migration implications
+- `StripeService::createProductAndPrice` now creates **EUR** prices (was hard-coded USD). It runs only for plans **without** `stripe_price_id`
+  (Admin → "Sync plans"); existing price IDs, products and subscriptions are untouched, and Stripe prices are immutable.
+- If the live `stripe_price_id`s turn out to be USD: create new EUR prices in the Stripe Dashboard (or clear the plan's `stripe_price_id` and sync),
+  update `plans.stripe_price_id`, and decide separately how to move existing USD subscribers (Stripe subscription item price change; owner decision).
+- Read-only verification of the live prices was **not possible** from here: the live Stripe key is stored only in the production DB
+  (`stripe_settings`), there is no SSH access, the only local Stripe key is a test-mode key, and Forge site commands would execute code on production.
+  Check in Stripe Dashboard → Product catalogue → each InvoiceAI price: currency, amount, tax behaviour.
+
 ## 1. Backup (before deploy)
 On the server (forge user), keep outside the web root:
 ```bash

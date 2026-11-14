@@ -99,6 +99,14 @@ class InvoiceController extends Controller
 
         // Check subscription and invoice limits
         $company = current_company();
+
+        if (!$company && !$request->user()->is_super_admin) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ο λογαριασμός δεν είναι συνδεδεμένος με εταιρεία.',
+                'code' => 'no_company',
+            ], 403);
+        }
         if ($company && !$request->user()->is_super_admin) {
             if (!$company->hasActiveSubscription()) {
                 return response()->json([
@@ -206,14 +214,18 @@ class InvoiceController extends Controller
         } catch (Exception $e) {
             Storage::disk(Invoice::FILE_DISK)->delete($path);
 
+            $safe = $e instanceof \App\Exceptions\InvoiceExtractionException;
+
             Log::error('API Invoice processing failed', [
-                'error' => $e->getMessage(),
+                'exception' => get_class($e),
+                'error' => $safe ? $e->getMessage() : null,
+                'at' => basename($e->getFile()) . ':' . $e->getLine(),
                 'file' => $originalFilename,
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Η επεξεργασία του παραστατικού απέτυχε: ' . $e->getMessage(),
+                'message' => 'Η επεξεργασία του παραστατικού απέτυχε: ' . ($safe ? $e->getMessage() : 'σφάλμα επεξεργασίας. Δοκιμάστε ξανά.'),
             ], 422);
         }
     }

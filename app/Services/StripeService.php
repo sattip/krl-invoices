@@ -92,7 +92,7 @@ class StripeService
             'mode' => 'subscription',
             'success_url' => $successUrl,
             'cancel_url' => $cancelUrl,
-            'locale' => 'el',
+            'locale' => self::stripeLocale(),
             'metadata' => $metadata,
             'subscription_data' => [
                 'metadata' => $metadata,
@@ -245,7 +245,7 @@ class StripeService
         $session = $this->client->billingPortal->sessions->create([
             'customer' => $customerId,
             'return_url' => $returnUrl,
-            'locale' => 'el',
+            'locale' => self::stripeLocale(),
         ]);
 
         return $session->url;
@@ -346,7 +346,35 @@ class StripeService
     }
 
     /**
+     * Currencies the site can display and charge. Prices are shown with money_el() in EUR,
+     * so Stripe prices must be EUR too (previously hard-coded 'usd').
+     */
+    public const SUPPORTED_CURRENCIES = ['eur'];
+
+    /**
+     * Stripe Checkout / Billing Portal language follows the page language
+     * (guest registration can be English; the logged-in app is Greek).
+     */
+    public static function stripeLocale(): string
+    {
+        return app()->getLocale() === 'en' ? 'en' : 'el';
+    }
+
+    public static function currency(): string
+    {
+        $currency = strtolower(trim((string) config('subscription.currency', 'eur')));
+
+        if (!in_array($currency, self::SUPPORTED_CURRENCIES, true)) {
+            throw new \InvalidArgumentException("Unsupported subscription currency [{$currency}].");
+        }
+
+        return $currency;
+    }
+
+    /**
      * Create a product and price in Stripe for a plan.
+     * Only used for plans without a stripe_price_id (Admin "sync plans"); existing
+     * price IDs and subscriptions are never modified.
      */
     public function createProductAndPrice(Plan $plan): string
     {
@@ -354,17 +382,21 @@ class StripeService
             throw new \Exception('Το σύστημα πληρωμών (Stripe) δεν έχει ρυθμιστεί.');
         }
 
+        // Validate before creating anything in Stripe.
+        $currency = self::currency();
+        $unitAmount = (int) round(((float) $plan->price) * 100); // cents; round() avoids 79.99*100 = 7998
+
         // Create product
         $product = $this->client->products->create([
             'name' => $plan->name,
-            'description' => $plan->description ?? "Invoice AI {$plan->name} Plan",
+            'description' => $plan->description ?? "InvoiceAI {$plan->name}",
         ]);
 
-        // Create price
+        // Create price. No tax_behavior/tax settings on purpose: VAT treatment is an owner decision.
         $price = $this->client->prices->create([
             'product' => $product->id,
-            'unit_amount' => (int) ($plan->price * 100), // Convert to cents
-            'currency' => 'usd',
+            'unit_amount' => $unitAmount,
+            'currency' => $currency,
             'recurring' => [
                 'interval' => 'month',
             ],

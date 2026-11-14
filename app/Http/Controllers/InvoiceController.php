@@ -52,6 +52,13 @@ class InvoiceController extends Controller
 
         // Check subscription and invoice limits
         $company = current_company();
+
+        // Users without a company cannot upload: their rows would belong to no tenant
+        // and they would bypass the subscription/limit checks below.
+        if (!$company && !$request->user()->is_super_admin) {
+            return redirect()->route('dashboard')
+                ->with('error', 'Ο λογαριασμός σας δεν είναι συνδεδεμένος με εταιρεία. Επικοινωνήστε με την υποστήριξη στο ' . config('legal.company.support_email') . '.');
+        }
         if ($company && !$request->user()->is_super_admin) {
             if (!$company->hasActiveSubscription()) {
                 return redirect()->route('billing.plans')
@@ -149,10 +156,14 @@ class InvoiceController extends Controller
 
             } catch (Exception $e) {
                 Storage::disk(Invoice::FILE_DISK)->delete($path);
-                $errors[] = "{$originalFilename}: {$e->getMessage()}";
+                $safe = $e instanceof \App\Exceptions\InvoiceExtractionException;
+                $errors[] = $originalFilename . ': ' . ($safe ? $e->getMessage() : 'Σφάλμα κατά την επεξεργασία. Δοκιμάστε ξανά.');
 
+                // No exception message for unexpected errors: DB errors can carry invoice values.
                 Log::error('Invoice processing failed', [
-                    'error' => $e->getMessage(),
+                    'exception' => get_class($e),
+                    'error' => $safe ? $e->getMessage() : null,
+                    'at' => basename($e->getFile()) . ':' . $e->getLine(),
                     'file' => $originalFilename,
                 ]);
             }

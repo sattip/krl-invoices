@@ -8,8 +8,10 @@
 | Single source for the legal pages, footer and emails. Change values here
 | (not in the views). Facts marked "verified" were confirmed on 2026-11-14:
 |  - name, VAT number, support/info email: confirmed by the owner.
-|  - address, GEMI, phone: published on https://www.obstechnologies.gr
-|    (footer + schema.org data). Still to be cross-checked in the GEMI registry.
+|  - name, VAT number, GEMI, status «Ενεργή» and address: confirmed 2026-11-14 in the
+|    public GEMI registry (publicity.businessportal.gr, ΓΕΜΗ 163724403000).
+|    Note: VIES (tax registry) still returns «ΣΥΡΡΑΚΟΥ 5, 10444 ΑΘΗΝΑ» — owner to align.
+|  - phone: published on https://www.obstechnologies.gr only.
 |
 | Bump the versions/dates whenever the text of a policy changes materially.
 */

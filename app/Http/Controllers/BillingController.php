@@ -168,7 +168,9 @@ class BillingController extends Controller
             return redirect()->route('billing.index')
                 ->with('success', "Η αναβάθμιση σε {$newPlan->name} ολοκληρώθηκε. Εφαρμόστηκε αναλογική χρέωση.");
         } catch (\Exception $e) {
-            return back()->with('error', 'Η αναβάθμιση απέτυχε: ' . $e->getMessage());
+            report($e);
+
+            return back()->with('error', 'Η αναβάθμιση απέτυχε. Δοκιμάστε ξανά ή επικοινωνήστε με την υποστήριξη.');
         }
     }
 
@@ -203,7 +205,9 @@ class BillingController extends Controller
             return redirect()->route('billing.index')
                 ->with('success', "Το πακέτο σας άλλαξε σε {$newPlan->name}. Η νέα τιμή θα χρεωθεί από την επόμενη περίοδο χρέωσης.");
         } catch (\Exception $e) {
-            return back()->with('error', 'Η υποβάθμιση απέτυχε: ' . $e->getMessage());
+            report($e);
+
+            return back()->with('error', 'Η υποβάθμιση απέτυχε. Δοκιμάστε ξανά ή επικοινωνήστε με την υποστήριξη.');
         }
     }
 
@@ -225,7 +229,9 @@ class BillingController extends Controller
             return redirect()->route('billing.index')
                 ->with('success', 'Η συνδρομή σας θα ακυρωθεί στο τέλος της τρέχουσας περιόδου χρέωσης.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Η ακύρωση της συνδρομής απέτυχε: ' . $e->getMessage());
+            report($e);
+
+            return back()->with('error', 'Η ακύρωση της συνδρομής απέτυχε. Δοκιμάστε ξανά ή επικοινωνήστε με την υποστήριξη.');
         }
     }
 
@@ -247,7 +253,9 @@ class BillingController extends Controller
             return redirect()->route('billing.index')
                 ->with('success', 'Η συνδρομή σας επανενεργοποιήθηκε.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Η επανενεργοποίηση της συνδρομής απέτυχε: ' . $e->getMessage());
+            report($e);
+
+            return back()->with('error', 'Η επανενεργοποίηση της συνδρομής απέτυχε. Δοκιμάστε ξανά ή επικοινωνήστε με την υποστήριξη.');
         }
     }
 
@@ -271,7 +279,9 @@ class BillingController extends Controller
 
             return redirect($url);
         } catch (\Exception $e) {
-            return back()->with('error', 'Δεν ήταν δυνατή η πρόσβαση στην πύλη χρέωσης: ' . $e->getMessage());
+            report($e);
+
+            return back()->with('error', 'Δεν ήταν δυνατή η πρόσβαση στην πύλη χρέωσης. Δοκιμάστε ξανά ή επικοινωνήστε με την υποστήριξη.');
         }
     }
 
