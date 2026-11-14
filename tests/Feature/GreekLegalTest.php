@@ -34,6 +34,15 @@ class GreekLegalTest extends TestCase
         $this->get('/politiki-aporritou')->assertRedirect('/privacy');
     }
 
+    public function test_contact_pages_use_the_owner_confirmed_company_address(): void
+    {
+        foreach (['/contact', '/en/contact'] as $url) {
+            $this->get($url)->assertOk()
+                ->assertSee('Συρράκου 5, 104 44 Αθήνα')
+                ->assertDontSee('Αλικαρνασσού 29');
+        }
+    }
+
     public function test_homepage_is_greek_and_has_no_unsupported_claims(): void
     {
         $response = $this->get('/');

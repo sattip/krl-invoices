@@ -3,6 +3,10 @@
 Branch: `feat/el-obs-legal-20261114` (base `9632f01` = what production runs, Forge deployment 59520543).
 Nothing has been pushed. **Forge Quick Deploy is ON for `main`: merging/pushing to `main` deploys immediately.**
 
+## Confirmed corporate address
+George confirmed on 2026-11-14: **Συρράκου 5, 104 44 Αθήνα** (postal code/city match VIES).
+`config/legal.php` is the source for Greek/English legal pages and contact details. The older GEMI address must not be published in this release.
+
 ## 0. Prerequisites (owner / Marina) — before or together with the deploy
 Production `.env` (Forge → site → Environment). Values read on 2026-11-14 via an allowlisted, non-secret key audit:
 
