@@ -55,45 +55,22 @@
                         <div class="display-4 mb-3">
                             {{ $plan->formatted_price }}
                             <small class="text-muted">/ μήνα</small>
+                            @include('partials.vat-note')
                         </div>
 
                         <ul class="list-unstyled mb-4">
                             <li class="mb-2">
                                 <strong>{{ number_el($plan->invoice_limit) }}</strong> παραστατικά / μήνα
                             </li>
-                            @if($plan->features)
-                                @foreach($plan->features as $feature)
-                                    <li class="mb-2">
-                                        <i class="fas fa-check text-success mr-1"></i>
-                                        {{ $feature }}
-                                    </li>
-                                @endforeach
-                            @else
+                            {{-- Fixed, verified feature list (same as the public pricing). The DB "features"
+                                 column holds legacy English marketing items (priority support, account manager,
+                                 faster processing, custom integrations) that are not implemented/verified. --}}
+                            @foreach(['Εξαγωγή δεδομένων με τεχνητή νοημοσύνη', 'Πρόσβαση στο REST API', 'Υποστήριξη μέσω email'] as $feature)
                                 <li class="mb-2">
                                     <i class="fas fa-check text-success mr-1"></i>
-                                    Εξαγωγή δεδομένων με AI
+                                    {{ $feature }}
                                 </li>
-                                <li class="mb-2">
-                                    <i class="fas fa-check text-success mr-1"></i>
-                                    Πρόσβαση στο API
-                                </li>
-                                <li class="mb-2">
-                                    <i class="fas fa-check text-success mr-1"></i>
-                                    Υποστήριξη μέσω email
-                                </li>
-                                @if($plan->isProfessional() || $plan->isEnterprise())
-                                    <li class="mb-2">
-                                        <i class="fas fa-check text-success mr-1"></i>
-                                        Υποστήριξη κατά προτεραιότητα
-                                    </li>
-                                @endif
-                                @if($plan->isEnterprise())
-                                    <li class="mb-2">
-                                        <i class="fas fa-check text-success mr-1"></i>
-                                        Αποκλειστικός υπεύθυνος λογαριασμού
-                                    </li>
-                                @endif
-                            @endif
+                            @endforeach
                         </ul>
 
                         @if(!$currentPlan)

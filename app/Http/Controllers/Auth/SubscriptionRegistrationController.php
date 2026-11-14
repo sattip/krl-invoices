@@ -47,7 +47,7 @@ class SubscriptionRegistrationController extends Controller
             'plan_id' => ['required', 'exists:plans,id'],
             'terms' => ['accepted'],
         ], [
-            'terms.accepted' => 'Για να συνεχίσετε πρέπει να αποδεχτείτε τους Όρους Χρήσης.',
+            'terms.accepted' => __('Για να συνεχίσετε πρέπει να αποδεχτείτε τους Όρους Χρήσης.'),
         ]);
 
         // Store registration data in session
@@ -76,7 +76,7 @@ class SubscriptionRegistrationController extends Controller
 
         if (!$registration) {
             return redirect()->route('register')
-                ->with('error', 'Συμπληρώστε πρώτα τη φόρμα εγγραφής.');
+                ->with('error', __('Συμπληρώστε πρώτα τη φόρμα εγγραφής.'));
         }
 
         $plan = Plan::findOrFail($registration['plan_id']);
@@ -93,11 +93,11 @@ class SubscriptionRegistrationController extends Controller
 
         if (!$registration) {
             return redirect()->route('register')
-                ->with('error', 'Συμπληρώστε πρώτα τη φόρμα εγγραφής.');
+                ->with('error', __('Συμπληρώστε πρώτα τη φόρμα εγγραφής.'));
         }
 
         if (!$this->stripeService->isConfigured()) {
-            return back()->with('error', 'Το σύστημα πληρωμών δεν είναι διαθέσιμο αυτή τη στιγμή. Επικοινωνήστε με την υποστήριξη.');
+            return back()->with('error', __('Το σύστημα πληρωμών δεν είναι διαθέσιμο αυτή τη στιγμή. Επικοινωνήστε με την υποστήριξη.'));
         }
 
         $plan = Plan::findOrFail($registration['plan_id']);
@@ -133,7 +133,7 @@ class SubscriptionRegistrationController extends Controller
         } catch (\Exception $e) {
             report($e);
 
-            return back()->with('error', 'Δεν ήταν δυνατή η έναρξη της πληρωμής. Δοκιμάστε ξανά ή επικοινωνήστε με την υποστήριξη.');
+            return back()->with('error', __('Δεν ήταν δυνατή η έναρξη της πληρωμής. Δοκιμάστε ξανά ή επικοινωνήστε με την υποστήριξη.'));
         }
     }
 
@@ -147,7 +147,7 @@ class SubscriptionRegistrationController extends Controller
 
         if (!$registration || !$sessionId) {
             return redirect()->route('register')
-                ->with('error', 'Η συνεδρία εγγραφής δεν είναι έγκυρη. Ξεκινήστε ξανά την εγγραφή.');
+                ->with('error', __('Η συνεδρία εγγραφής δεν είναι έγκυρη. Ξεκινήστε ξανά την εγγραφή.'));
         }
 
         try {
@@ -158,7 +158,7 @@ class SubscriptionRegistrationController extends Controller
 
             if ($session->payment_status !== 'paid') {
                 return redirect()->route('register.checkout')
-                    ->with('error', 'Η πληρωμή δεν ολοκληρώθηκε. Δοκιμάστε ξανά.');
+                    ->with('error', __('Η πληρωμή δεν ολοκληρώθηκε. Δοκιμάστε ξανά.'));
             }
 
             // Create the company
@@ -218,12 +218,12 @@ class SubscriptionRegistrationController extends Controller
             Auth::login($user);
 
             return redirect()->route('dashboard')
-                ->with('success', 'Καλώς ήρθατε στο InvoiceAI! Ο λογαριασμός σας δημιουργήθηκε.');
+                ->with('success', __('Καλώς ήρθατε στο InvoiceAI! Ο λογαριασμός σας δημιουργήθηκε.'));
         } catch (\Exception $e) {
             report($e);
 
             return redirect()->route('register')
-                ->with('error', 'Δεν ήταν δυνατή η ολοκλήρωση της εγγραφής. Αν έχει γίνει χρέωση, επικοινωνήστε με την υποστήριξη στο ' . config('legal.company.support_email') . '.');
+                ->with('error', __('Δεν ήταν δυνατή η ολοκλήρωση της εγγραφής. Αν έχει γίνει χρέωση, επικοινωνήστε με την υποστήριξη στο :email.', ['email' => config('legal.company.support_email')]));
         }
     }
 
@@ -233,6 +233,6 @@ class SubscriptionRegistrationController extends Controller
     public function cancel()
     {
         return redirect()->route('register.checkout')
-            ->with('info', 'Η πληρωμή ακυρώθηκε. Μπορείτε να δοκιμάσετε ξανά όποτε θέλετε.');
+            ->with('info', __('Η πληρωμή ακυρώθηκε. Μπορείτε να δοκιμάσετε ξανά όποτε θέλετε.'));
     }
 }

@@ -25,12 +25,24 @@ return [
         'phone' => '+30 211 800 5101',
         'support_email' => 'support@obstechnologies.com',
         'info_email' => 'info@obstechnologies.com',
-        'website' => 'https://www.obstechnologies.gr',
+        'website' => 'https://obstechnologies.gr',
     ],
 
     'service' => [
         'name' => 'InvoiceAI',
         'url' => 'https://invoiceai.gr',
+    ],
+
+    /*
+     | VAT presentation next to prices: null (not stated), 'included' or 'excluded'.
+     | Left null on purpose: the code passes no tax settings to Stripe Checkout
+     | (no automatic_tax / tax_rates), so the amount charged is the Stripe price
+     | as-is, and the currency/amount of the live Stripe prices could not be
+     | verified (StripeService::createProductAndPrice creates them in USD).
+     | The owner must confirm before this is set. See docs/INVOICEAI_RELEASE.md.
+     */
+    'pricing' => [
+        'vat_mode' => env('INVOICEAI_PRICE_VAT_MODE'),
     ],
 
     'terms_version' => '2026-11-14',

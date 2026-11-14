@@ -50,6 +50,7 @@
                             </span>
                             <div>
                                 <strong>{{ $plan->formatted_price }} / μήνα</strong>
+                                @include('partials.vat-note')
                             </div>
                         </div>
 

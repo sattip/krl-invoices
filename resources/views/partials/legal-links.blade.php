@@ -7,16 +7,21 @@
     $legal = config('legal.company');
     $variant = $variant ?? 'auth';
     $muted = $variant === 'app' ? '#6c757d' : '#6b7280';
+    $en = app()->getLocale() === 'en';
 @endphp
 <div class="obs-legal-links" style="font-size:12.5px;line-height:1.6;color:{{ $muted }};text-align:center;padding:{{ $variant === 'app' ? '0' : '16px 12px 20px' }};">
-    <nav aria-label="Νομικές πληροφορίες" style="margin-bottom:4px;">
-        <a href="{{ route('legal.terms') }}" style="color:inherit;text-decoration:underline;margin:0 6px;">Όροι Χρήσης</a>
-        <a href="{{ route('legal.privacy') }}" style="color:inherit;text-decoration:underline;margin:0 6px;">Πολιτική Απορρήτου</a>
-        <a href="{{ route('legal.cookies') }}" style="color:inherit;text-decoration:underline;margin:0 6px;">Πολιτική Cookies</a>
-        <a href="{{ route('legal.contact') }}" style="color:inherit;text-decoration:underline;margin:0 6px;">Επικοινωνία</a>
+    <nav aria-label="{{ $en ? 'Legal information' : 'Νομικές πληροφορίες' }}" style="margin-bottom:4px;">
+        <a href="{{ lroute('legal.terms') }}" style="color:inherit;text-decoration:underline;margin:0 6px;">{{ $en ? 'Terms of Use' : 'Όροι Χρήσης' }}</a>
+        <a href="{{ lroute('legal.privacy') }}" style="color:inherit;text-decoration:underline;margin:0 6px;">{{ $en ? 'Privacy Policy' : 'Πολιτική Απορρήτου' }}</a>
+        <a href="{{ lroute('legal.cookies') }}" style="color:inherit;text-decoration:underline;margin:0 6px;">{{ $en ? 'Cookie Policy' : 'Πολιτική Cookies' }}</a>
+        <a href="{{ lroute('legal.contact') }}" style="color:inherit;text-decoration:underline;margin:0 6px;">{{ $en ? 'Contact' : 'Επικοινωνία' }}</a>
+        @if($variant !== 'app')
+            @include('partials.lang-switch', ['style' => 'color:inherit;text-decoration:underline;margin:0 6px;'])
+        @endif
     </nav>
     <div>
-        &copy; {{ date('Y') }} InvoiceAI · {{ $legal['name'] }} · ΑΦΜ {{ $legal['vat'] }} · ΓΕΜΗ {{ $legal['gemi'] }}
+        &copy; {{ date('Y') }} InvoiceAI {{ $en ? 'by' : 'από την' }} <a href="https://obstechnologies.gr" rel="noopener" target="_blank" style="color:inherit;text-decoration:underline;">OBS Technologies</a>
+        · {{ $legal['name'] }} · {{ $en ? 'VAT' : 'ΑΦΜ' }} {{ $en ? $legal['vat_eu'] : $legal['vat'] }} · {{ $en ? 'GEMI' : 'ΓΕΜΗ' }} {{ $legal['gemi'] }}
         · <a href="mailto:{{ $legal['support_email'] }}" style="color:inherit;">{{ $legal['support_email'] }}</a>
     </div>
 </div>

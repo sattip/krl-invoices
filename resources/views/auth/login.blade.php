@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Σύνδεση - InvoiceAI</title>
+    <title>{{ __('Σύνδεση') }} - InvoiceAI</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="font-sans antialiased">
@@ -78,13 +78,13 @@
                     <svg class="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
-                    <span class="text-sm">Εξαγωγή δεδομένων τιμολογίων με τεχνητή νοημοσύνη</span>
+                    <span class="text-sm">{{ __('Εξαγωγή δεδομένων τιμολογίων με τεχνητή νοημοσύνη') }}</span>
                 </div>
                 <div class="flex items-center space-x-3 text-white/90">
                     <svg class="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
-                    <span class="text-sm">Δεδομένα διαχωρισμένα ανά εταιρεία</span>
+                    <span class="text-sm">{{ __('Δεδομένα διαχωρισμένα ανά εταιρεία') }}</span>
                 </div>
             </div>
             
@@ -103,8 +103,8 @@
 
                 <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
                     <div class="text-center mb-8">
-                        <h2 class="text-2xl font-bold text-gray-900">Καλώς ήρθατε</h2>
-                        <p class="text-gray-500 mt-2">Συνδεθείτε στον λογαριασμό σας</p>
+                        <h2 class="text-2xl font-bold text-gray-900">{{ __('Καλώς ήρθατε') }}</h2>
+                        <p class="text-gray-500 mt-2">{{ __('Συνδεθείτε στον λογαριασμό σας') }}</p>
                     </div>
 
                     @if (session('status'))
@@ -129,7 +129,7 @@
 
                         <!-- Password -->
                         <div>
-                            <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Κωδικός πρόσβασης</label>
+                            <label for="password" class="block text-sm font-medium text-gray-700 mb-2">{{ __('Κωδικός πρόσβασης') }}</label>
                             <input type="password" id="password" name="password" required
                                 class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors @error('password') border-red-500 @enderror"
                                 placeholder="••••••••">
@@ -142,11 +142,11 @@
                         <div class="flex items-center justify-between">
                             <label class="flex items-center">
                                 <input type="checkbox" name="remember" class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                                <span class="ml-2 text-sm text-gray-600">Να με θυμάσαι</span>
+                                <span class="ml-2 text-sm text-gray-600">{{ __('Να με θυμάσαι') }}</span>
                             </label>
                             @if (Route::has('password.request'))
                                 <a href="{{ route('password.request') }}" class="text-sm text-indigo-600 hover:text-indigo-500 font-medium">
-                                    Ξεχάσατε τον κωδικό;
+                                    {{ __('Ξεχάσατε τον κωδικό;') }}
                                 </a>
                             @endif
                         </div>
@@ -154,15 +154,15 @@
                         <!-- Submit -->
                         <button type="submit" 
                             class="w-full py-3 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
-                            Σύνδεση
+                            {{ __('Σύνδεση') }}
                         </button>
                     </form>
 
                     <!-- Register link -->
                     <p class="mt-6 text-center text-sm text-gray-600">
-                        Δεν έχετε λογαριασμό;
+                        {{ __('Δεν έχετε λογαριασμό;') }}
                         <a href="{{ route('register') }}" class="text-indigo-600 hover:text-indigo-500 font-semibold">
-                            Εγγραφή
+                            {{ __('Εγγραφή') }}
                         </a>
                     </p>
                 </div>

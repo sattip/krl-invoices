@@ -78,7 +78,8 @@ return [
     |
     */
 
-    // Greek-only service: locale is fixed (an APP_LOCALE=en left in a server .env must not switch the UI back).
+    // Default locale is Greek and not env-driven (production .env still says APP_LOCALE=en).
+    // English is served under /en via App\Http\Middleware\SetLocale.
     'locale' => 'el',
 
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),

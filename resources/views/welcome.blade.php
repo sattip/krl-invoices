@@ -4,20 +4,30 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="description" content="InvoiceAI: εξαγωγή δομημένων δεδομένων από τιμολόγια PDF, JPG και PNG με τεχνητή νοημοσύνη, μέσω web εφαρμογής και REST API. Υπηρεσία της OBS TECHNOLOGIES Ε.Ε.">
-
-    <title>InvoiceAI - Εξαγωγή δεδομένων τιμολογίων με τεχνητή νοημοσύνη</title>
+    @include('partials.seo-head', ['title' => __('landing.title'), 'description' => __('landing.description')])
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="{{ asset('images/favicon.svg') }}">
 
-
-    <!-- Styles -->
+    <!-- Styles (local only; no third-party font requests) -->
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome-free/css/all.min.css') }}">
     <link rel="stylesheet" href="{{ asset('vendor/adminlte/dist/css/adminlte.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
+    <style>
+        .landing-nav .nav-actions { display:flex; align-items:center; flex-wrap:wrap; gap:8px; justify-content:flex-end; }
+        .landing-nav .lang-link { color:#fff; opacity:.9; font-size:14px; text-decoration:underline; margin-right:6px; }
+        @media (max-width: 575.98px) {
+            .landing-nav .nav-logo img { height:30px; }
+            .landing-nav .btn { padding:.3rem .65rem; font-size:.85rem; }
+            .hero-section h1.display-4 { font-size:2.1rem; }
+        }
+    </style>
 </head>
 <body>
+    @php
+        $legal = config('legal.company');
+        $vatMode = config('legal.pricing.vat_mode');
+    @endphp
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="hero-content">
@@ -25,19 +35,16 @@
             <nav class="landing-nav">
                 <div class="container">
                     <div class="d-flex justify-content-between align-items-center">
-                        <a href="/" class="nav-logo">
+                        <a href="{{ lroute('home') }}" class="nav-logo">
                             <img src="{{ asset('images/logo-white.svg') }}" alt="InvoiceAI" height="40">
                         </a>
-                        <div>
+                        <div class="nav-actions">
+                            @include('partials.lang-switch', ['class' => 'lang-link'])
                             @auth
-                                <a href="{{ route('dashboard') }}" class="btn btn-outline-white">Πίνακας ελέγχου</a>
+                                <a href="{{ route('dashboard') }}" class="btn btn-outline-white">{{ __('landing.nav_dashboard') }}</a>
                             @else
-                                @if (Route::has('login'))
-                                    <a href="{{ route('login') }}" class="btn btn-outline-white mr-2">Σύνδεση</a>
-                                @endif
-                                @if (Route::has('register'))
-                                    <a href="{{ route('register') }}" class="btn btn-light">Εγγραφή</a>
-                                @endif
+                                <a href="{{ route('login') }}" class="btn btn-outline-white">{{ __('landing.nav_login') }}</a>
+                                <a href="{{ route('register') }}" class="btn btn-light">{{ __('landing.nav_register') }}</a>
                             @endauth
                         </div>
                     </div>
@@ -48,29 +55,21 @@
             <div class="container py-5">
                 <div class="row align-items-center">
                     <div class="col-lg-6 text-white">
-                        <h1 class="display-4 font-weight-bold mb-4">
-                            Δεδομένα τιμολογίων, <span style="color: #F59E0B;">χωρίς πληκτρολόγηση</span>
-                        </h1>
-                        <p class="lead mb-4" style="opacity: 0.9;">
-                            Ανεβάστε τιμολόγια σε PDF ή εικόνα και λάβετε δομημένα δεδομένα: εκδότη, πελάτη, ΑΦΜ, γραμμές ειδών, ΦΠΑ και σύνολα.
-                            Ελέγξτε τα στην εφαρμογή ή πάρτε τα σε JSON μέσω REST API για το δικό σας σύστημα.
-                        </p>
+                        <h1 class="display-4 font-weight-bold mb-4">{!! __('landing.hero_title') !!}</h1>
+                        <p class="lead mb-4" style="opacity: 0.9;">{{ __('landing.hero_text') }}</p>
                         <div class="mb-4">
-                            <a href="#pricing" class="btn btn-accent btn-lg mr-3">
-                                Δείτε τα πακέτα
-                            </a>
-                            <a href="#how-it-works" class="btn btn-outline-white btn-lg">
-                                <i class="fas fa-play-circle mr-2"></i> Πώς λειτουργεί
+                            <a href="#pricing" class="btn btn-accent btn-lg mr-3 mb-2">{{ __('landing.cta_plans') }}</a>
+                            <a href="#how-it-works" class="btn btn-outline-white btn-lg mb-2">
+                                <i class="fas fa-play-circle mr-2"></i> {{ __('landing.cta_how') }}
                             </a>
                         </div>
                         <div class="d-flex align-items-center flex-wrap" style="opacity: 0.8;">
-                            <span class="mr-3 mb-2"><i class="fas fa-check-circle mr-1"></i> PDF, JPG, PNG έως 10 MB</span>
-                            <span class="mr-3 mb-2"><i class="fas fa-check-circle mr-1"></i> REST API με JSON</span>
-                            <span class="mb-2"><i class="fas fa-check-circle mr-1"></i> Μηνιαία συνδρομή, ακύρωση όποτε θέλετε</span>
+                            <span class="mr-3 mb-2"><i class="fas fa-check-circle mr-1"></i> {{ __('landing.chip_formats') }}</span>
+                            <span class="mr-3 mb-2"><i class="fas fa-check-circle mr-1"></i> {{ __('landing.chip_api') }}</span>
+                            <span class="mb-2"><i class="fas fa-check-circle mr-1"></i> {{ __('landing.chip_monthly') }}</span>
                         </div>
                     </div>
                     <div class="col-lg-6 mt-5 mt-lg-0">
-                        <!-- Hero Animation/Illustration -->
                         <div class="text-center">
                             <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%;">
                                 <!-- Invoice Document -->
@@ -112,7 +111,7 @@
             <!-- Supported Formats -->
             <div class="container pb-5">
                 <div class="text-center text-white" style="opacity: 0.7;">
-                    <small class="text-uppercase font-weight-bold">Υποστηριζόμενες μορφές</small>
+                    <small class="text-uppercase font-weight-bold">{{ __('landing.formats') }}</small>
                     <div class="mt-2">
                         <span class="badge badge-light mr-2"><i class="fas fa-file-pdf mr-1"></i> PDF</span>
                         <span class="badge badge-light mr-2"><i class="fas fa-file-image mr-1"></i> JPG</span>
@@ -127,34 +126,20 @@
     <section id="how-it-works" class="section-padding">
         <div class="container">
             <div class="text-center mb-5">
-                <h2 class="section-title">Πώς λειτουργεί</h2>
-                <p class="section-subtitle">Τρία βήματα, από το αρχείο στα δομημένα δεδομένα</p>
+                <h2 class="section-title">{{ __('landing.how_title') }}</h2>
+                <p class="section-subtitle">{{ __('landing.how_sub') }}</p>
             </div>
             <div class="row">
+                @foreach([[1, 'fa-cloud-upload-alt'], [2, 'fa-robot'], [3, 'fa-clipboard-check']] as [$n, $icon])
                 <div class="col-md-4">
                     <div class="step-card fade-in">
-                        <div class="step-number">1</div>
-                        <i class="fas fa-cloud-upload-alt step-icon"></i>
-                        <h4>Ανεβάζετε το τιμολόγιο</h4>
-                        <p class="text-muted">PDF, JPG ή PNG, ένα ή περισσότερα μαζί, από την εφαρμογή ή μέσω API.</p>
+                        <div class="step-number">{{ $n }}</div>
+                        <i class="fas {{ $icon }} step-icon"></i>
+                        <h4>{{ __('landing.step'.$n.'_t') }}</h4>
+                        <p class="text-muted">{{ __('landing.step'.$n.'_d') }}</p>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="step-card fade-in">
-                        <div class="step-number">2</div>
-                        <i class="fas fa-robot step-icon"></i>
-                        <h4>Γίνεται η εξαγωγή</h4>
-                        <p class="text-muted">Μοντέλο τεχνητής νοημοσύνης διαβάζει το έγγραφο και επιστρέφει τα πεδία του τιμολογίου.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="step-card fade-in">
-                        <div class="step-number">3</div>
-                        <i class="fas fa-clipboard-check step-icon"></i>
-                        <h4>Ελέγχετε και αξιοποιείτε</h4>
-                        <p class="text-muted">Ελέγχετε τα αποτελέσματα και τα μεταφέρετε στο σύστημά σας μέσω του REST API.</p>
-                    </div>
-                </div>
+                @endforeach
             </div>
         </div>
     </section>
@@ -163,16 +148,16 @@
     <section class="erp-section section-padding">
         <div class="container">
             <div class="text-center mb-5">
-                <h2 class="section-title">Σύνδεση με το σύστημά σας</h2>
-                <p class="section-subtitle">Τα δεδομένα διατίθενται μέσω REST API σε JSON, ώστε να τα παραλάβει το ERP ή το λογιστικό σας πρόγραμμα</p>
+                <h2 class="section-title">{{ __('landing.int_title') }}</h2>
+                <p class="section-subtitle">{{ __('landing.int_sub') }}</p>
             </div>
             <div class="row justify-content-center">
                 <div class="col-lg-8">
                     <div class="feature-card">
                         <ul class="mb-0 text-muted" style="padding-left: 1.1rem;">
-                            <li class="mb-2">Endpoints για ανέβασμα, λίστα, προβολή και διαγραφή τιμολογίων, με αυθεντικοποίηση μέσω API token.</li>
-                            <li class="mb-2">Η σύνδεση με συγκεκριμένο ERP (π.χ. Soft1, Pylon, Galaxy, Epsilon) υλοποιείται μέσω του API από εσάς ή τον συνεργάτη σας· δεν περιλαμβάνονται έτοιμοι connectors.</li>
-                            <li>Χρειάζεστε υλοποίηση διασύνδεσης; Η OBS Technologies αναλαμβάνει τέτοια έργα κατόπιν προσφοράς: <a href="mailto:{{ config('legal.company.info_email') }}">{{ config('legal.company.info_email') }}</a>.</li>
+                            <li class="mb-2">{{ __('landing.int_1') }}</li>
+                            <li class="mb-2">{{ __('landing.int_2') }}</li>
+                            <li>{{ __('landing.int_3') }} <a href="mailto:{{ $legal['info_email'] }}">{{ $legal['info_email'] }}</a>.</li>
                         </ul>
                     </div>
                 </div>
@@ -184,56 +169,22 @@
     <section class="section-padding">
         <div class="container">
             <div class="text-center mb-5">
-                <h2 class="section-title">Λειτουργίες</h2>
-                <p class="section-subtitle">Ό,τι περιλαμβάνει σήμερα η υπηρεσία</p>
+                <h2 class="section-title">{{ __('landing.feat_title') }}</h2>
+                <p class="section-subtitle">{{ __('landing.feat_sub') }}</p>
             </div>
             <div class="row">
+                @foreach([1 => 'fa-brain', 2 => 'fa-table', 3 => 'fa-code', 4 => 'fa-layer-group', 5 => 'fa-users', 6 => 'fa-chart-pie'] as $n => $icon)
                 <div class="col-md-4 mb-4">
                     <div class="feature-card">
-                        <div class="feature-icon"><i class="fas fa-brain"></i></div>
-                        <h5>Εξαγωγή με τεχνητή νοημοσύνη</h5>
-                        <p class="text-muted">Εκδότης, πελάτης, ΑΦΜ, αριθμός και ημερομηνία, γραμμές ειδών, εκπτώσεις, λοιπές χρεώσεις, ΦΠΑ και σύνολα.</p>
+                        <div class="feature-icon"><i class="fas {{ $icon }}"></i></div>
+                        <h5>{{ __('landing.f'.$n.'_t') }}</h5>
+                        <p class="text-muted">{{ __('landing.f'.$n.'_d') }}</p>
                     </div>
                 </div>
-                <div class="col-md-4 mb-4">
-                    <div class="feature-card">
-                        <div class="feature-icon"><i class="fas fa-table"></i></div>
-                        <h5>Δομημένο αποτέλεσμα</h5>
-                        <p class="text-muted">Προβολή στην εφαρμογή και JSON μέσω API, με σταθερά πεδία για εύκολη ενσωμάτωση.</p>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <div class="feature-card">
-                        <div class="feature-icon"><i class="fas fa-code"></i></div>
-                        <h5>REST API</h5>
-                        <p class="text-muted">API tokens ανά χρήστη και τεκμηρίωση μέσα στην εφαρμογή.</p>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <div class="feature-card">
-                        <div class="feature-icon"><i class="fas fa-layer-group"></i></div>
-                        <h5>Πολλά αρχεία μαζί</h5>
-                        <p class="text-muted">Ανεβάστε περισσότερα τιμολόγια σε μία κίνηση από την εφαρμογή.</p>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <div class="feature-card">
-                        <div class="feature-icon"><i class="fas fa-users"></i></div>
-                        <h5>Λογαριασμός εταιρείας</h5>
-                        <p class="text-muted">Τα τιμολόγια ανήκουν στην εταιρεία σας και είναι διαχωρισμένα από άλλους πελάτες.</p>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <div class="feature-card">
-                        <div class="feature-icon"><i class="fas fa-chart-pie"></i></div>
-                        <h5>Έλεγχος χρήσης</h5>
-                        <p class="text-muted">Βλέπετε πόσα τιμολόγια έχετε χρησιμοποιήσει από το μηνιαίο όριο του πακέτου σας.</p>
-                    </div>
-                </div>
+                @endforeach
             </div>
             <p class="text-center text-muted small mb-0">
-                <i class="fas fa-info-circle mr-1"></i>
-                Τα αποτελέσματα παράγονται αυτόματα και πρέπει να ελέγχονται πριν από λογιστική ή φορολογική χρήση. Η υπηρεσία δεν εκδίδει παραστατικά και δεν διαβιβάζει στο myDATA.
+                <i class="fas fa-info-circle mr-1"></i> {{ __('landing.disclaimer') }}
             </p>
         </div>
     </section>
@@ -242,41 +193,39 @@
     <section id="pricing" class="pricing-section section-padding">
         <div class="container">
             <div class="text-center mb-5">
-                <h2 class="section-title">Τιμές</h2>
-                <p class="section-subtitle">Μηνιαία συνδρομή με όριο τιμολογίων ανά μήνα</p>
+                <h2 class="section-title">{{ __('landing.pricing_title') }}</h2>
+                <p class="section-subtitle">{{ __('landing.pricing_sub') }}</p>
             </div>
 
             @php
                 $plans = \App\Models\Plan::active()->ordered()->get();
-                $planBlurbs = [
-                    'starter' => 'Για μικρές επιχειρήσεις',
-                    'professional' => 'Για επιχειρήσεις σε ανάπτυξη',
-                    'enterprise' => 'Για μεγαλύτερο όγκο',
-                ];
             @endphp
 
             <div class="row justify-content-center">
                 @foreach($plans as $plan)
                 <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="pricing-card {{ $plan->isProfessional() ? 'featured' : '' }}">
+                    <div class="pricing-card {{ $plan->isProfessional() ? 'featured' : '' }}" @if($plan->isProfessional()) data-badge="{{ __('landing.badge') }}" @endif>
                         <h4 class="font-weight-bold">{{ $plan->name }}</h4>
-                        <p class="text-muted">{{ $planBlurbs[$plan->slug] ?? $plan->description }}</p>
+                        <p class="text-muted">{{ \Illuminate\Support\Facades\Lang::has('landing.blurb_'.$plan->slug) ? __('landing.blurb_'.$plan->slug) : $plan->description }}</p>
 
                         <div class="my-4">
                             <span class="price">{{ $plan->formatted_price }}</span>
-                            <span class="price-period">/μήνα</span>
+                            <span class="price-period">{{ __('landing.per_month') }}</span>
+                            @if(in_array($vatMode, ['included', 'excluded'], true))
+                                <div class="small text-muted mt-1" data-vat-mode="{{ $vatMode }}">{{ __('landing.vat_'.$vatMode) }}</div>
+                            @endif
                         </div>
 
                         <ul class="plan-features">
-                            <li><i class="fas fa-check"></i> <strong>{{ number_el($plan->invoice_limit) }}</strong> τιμολόγια/μήνα</li>
-                            <li><i class="fas fa-check"></i> Εξαγωγή με τεχνητή νοημοσύνη</li>
-                            <li><i class="fas fa-check"></i> Πρόσβαση στο REST API</li>
-                            <li><i class="fas fa-check"></i> Υποστήριξη μέσω email</li>
+                            <li><i class="fas fa-check"></i> <span>{!! __('landing.pf_limit', ['count' => '<strong>'.e(number_el($plan->invoice_limit)).'</strong>']) !!}</span></li>
+                            <li><i class="fas fa-check"></i> {{ __('landing.pf_ai') }}</li>
+                            <li><i class="fas fa-check"></i> {{ __('landing.pf_api') }}</li>
+                            <li><i class="fas fa-check"></i> {{ __('landing.pf_support') }}</li>
                         </ul>
 
                         <a href="{{ route('register', ['plan' => $plan->slug]) }}"
                            class="btn {{ $plan->isProfessional() ? 'btn-primary-gradient' : 'btn-outline-primary' }} btn-block">
-                            Επιλογή πακέτου
+                            {{ __('landing.choose_plan') }}
                         </a>
                     </div>
                 </div>
@@ -285,8 +234,7 @@
 
             <div class="text-center mt-4">
                 <p class="text-muted small mb-0">
-                    Πληρωμή με κάρτα μέσω Stripe· το τελικό ποσό εμφανίζεται πριν την επιβεβαίωση. Η συνδρομή ανανεώνεται μηνιαία και ακυρώνεται από τον λογαριασμό σας,
-                    με ισχύ στο τέλος της περιόδου. <a href="{{ route('legal.terms') }}">Όροι Χρήσης</a>
+                    {{ __('landing.pricing_note') }} <a href="{{ lroute('legal.terms') }}">{{ __('landing.terms') }}</a>
                 </p>
             </div>
         </div>
@@ -296,27 +244,17 @@
     <section class="section-padding" style="background: var(--bg-light);">
         <div class="container">
             <div class="text-center mb-5">
-                <h2 class="section-title">Συχνές ερωτήσεις</h2>
+                <h2 class="section-title">{{ __('landing.faq_title') }}</h2>
             </div>
             <div class="row justify-content-center">
                 <div class="col-lg-8">
-                    @php
-                        $faqs = [
-                            ['Ποιες μορφές αρχείων υποστηρίζονται;', 'PDF, JPG και PNG, έως 10 MB ανά αρχείο. Μπορεί να είναι ψηφιακά PDF, σαρωμένα έγγραφα ή φωτογραφίες· η ποιότητα του αρχείου επηρεάζει το αποτέλεσμα.'],
-                            ['Πόσο ακριβής είναι η εξαγωγή;', 'Εξαρτάται από την ποιότητα και τη μορφή του εγγράφου. Δεν υπόσχεται συγκεκριμένο ποσοστό ακρίβειας: ελέγχετε πάντα τα αποτελέσματα, ή αναθέστε τον έλεγχο στον λογιστή σας, πριν τα χρησιμοποιήσετε.'],
-                            ['Συνδέεται με το ERP μου;', 'Μέσω του REST API, που επιστρέφει τα δεδομένα σε JSON. Δεν υπάρχουν έτοιμοι connectors για συγκεκριμένα ERP· η διασύνδεση υλοποιείται μέσω του API.'],
-                            ['Πού επεξεργάζονται τα αρχεία μου;', 'Τα αρχεία και τα δεδομένα φιλοξενούνται σε διακομιστή στη Γερμανία. Για την εξαγωγή το περιεχόμενο αποστέλλεται στην Anthropic (ΗΠΑ). Λεπτομέρειες στην Πολιτική Απορρήτου.'],
-                            ['Μπορώ να διαγράψω τα δεδομένα μου;', 'Ναι. Κάθε τιμολόγιο διαγράφεται μαζί με το αρχείο του από τη λίστα τιμολογίων. Για πλήρη διαγραφή της εταιρείας σας στείλτε email στο ' . config('legal.company.support_email') . '.'],
-                            ['Πώς γίνεται η χρέωση;', 'Με μηνιαία συνδρομή μέσω Stripe. Ακυρώνετε από τη σελίδα «Χρεώσεις & χρήση» και η πρόσβαση συνεχίζεται ως το τέλος της πληρωμένης περιόδου.'],
-                        ];
-                    @endphp
-                    @foreach($faqs as [$q, $a])
+                    @foreach(__('landing.faqs') as [$q, $a])
                     <div class="faq-item">
                         <div class="faq-question" role="button" tabindex="0" onclick="toggleFaq(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFaq(this);}">
                             {{ $q }}
                             <i class="fas fa-chevron-down faq-icon"></i>
                         </div>
-                        <div class="faq-answer">{{ $a }}</div>
+                        <div class="faq-answer">{{ str_replace(':email', $legal['support_email'], $a) }}</div>
                     </div>
                     @endforeach
                 </div>
@@ -327,13 +265,11 @@
     <!-- Final CTA -->
     <section class="final-cta">
         <div class="container text-center text-white">
-            <h2 class="mb-4">Λιγότερη πληκτρολόγηση στα τιμολόγια</h2>
-            <p class="mb-4" style="opacity: 0.9; max-width: 600px; margin: 0 auto;">
-                Επιλέξτε πακέτο, ανεβάστε τα πρώτα σας τιμολόγια και ελέγξτε το αποτέλεσμα.
-            </p>
-            <a href="{{ route('register') }}" class="btn btn-light btn-lg">Δημιουργία λογαριασμού</a>
+            <h2 class="mb-4">{{ __('landing.final_title') }}</h2>
+            <p class="mb-4" style="opacity: 0.9; max-width: 600px; margin: 0 auto;">{{ __('landing.final_text') }}</p>
+            <a href="{{ route('register') }}" class="btn btn-light btn-lg">{{ __('landing.final_cta') }}</a>
             <p class="mt-3" style="opacity: 0.8;">
-                <small>Απορίες; <a href="mailto:{{ config('legal.company.info_email') }}" class="text-white"><u>{{ config('legal.company.info_email') }}</u></a></small>
+                <small>{{ __('landing.final_q') }} <a href="mailto:{{ $legal['info_email'] }}" class="text-white"><u>{{ $legal['info_email'] }}</u></a></small>
             </p>
         </div>
     </section>
@@ -344,34 +280,36 @@
             <div class="row">
                 <div class="col-lg-5 mb-4">
                     <img src="{{ asset('images/logo-white.svg') }}" alt="InvoiceAI" class="footer-logo">
-                    <p>Εξαγωγή δεδομένων τιμολογίων με τεχνητή νοημοσύνη. Μια υπηρεσία της
-                        <a href="{{ config('legal.company.website') }}" class="footer-link d-inline" rel="noopener" target="_blank">OBS Technologies</a>.</p>
+                    <p>{{ __('landing.footer_about') }}<br>
+                        InvoiceAI {{ __('landing.footer_by') }} <a href="https://obstechnologies.gr" class="footer-link d-inline" rel="noopener" target="_blank">OBS Technologies</a></p>
                 </div>
                 <div class="col-lg-2 col-md-4 mb-4">
-                    <h6 class="footer-heading">Υπηρεσία</h6>
-                    <a href="#how-it-works" class="footer-link">Πώς λειτουργεί</a>
-                    <a href="#pricing" class="footer-link">Τιμές</a>
+                    <h6 class="footer-heading">{{ __('landing.footer_service') }}</h6>
+                    <a href="#how-it-works" class="footer-link">{{ __('landing.cta_how') }}</a>
+                    <a href="#pricing" class="footer-link">{{ __('landing.footer_pricing') }}</a>
                     @auth
-                    <a href="{{ route('api.documentation') }}" class="footer-link">Τεκμηρίωση API</a>
+                    <a href="{{ route('api.documentation') }}" class="footer-link">{{ __('landing.footer_api') }}</a>
                     @endauth
-                    <a href="{{ route('login') }}" class="footer-link">Σύνδεση</a>
+                    <a href="{{ route('login') }}" class="footer-link">{{ __('landing.nav_login') }}</a>
                 </div>
                 <div class="col-lg-2 col-md-4 mb-4">
-                    <h6 class="footer-heading">Νομικά</h6>
-                    <a href="{{ route('legal.terms') }}" class="footer-link">Όροι Χρήσης</a>
-                    <a href="{{ route('legal.privacy') }}" class="footer-link">Πολιτική Απορρήτου</a>
-                    <a href="{{ route('legal.cookies') }}" class="footer-link">Πολιτική Cookies</a>
+                    <h6 class="footer-heading">{{ __('landing.footer_legal') }}</h6>
+                    <a href="{{ lroute('legal.terms') }}" class="footer-link">{{ __('landing.terms') }}</a>
+                    <a href="{{ lroute('legal.privacy') }}" class="footer-link">{{ __('landing.privacy') }}</a>
+                    <a href="{{ lroute('legal.cookies') }}" class="footer-link">{{ __('landing.cookies') }}</a>
                 </div>
                 <div class="col-lg-3 col-md-4 mb-4">
-                    <h6 class="footer-heading">Επικοινωνία</h6>
-                    <a href="mailto:{{ config('legal.company.support_email') }}" class="footer-link">{{ config('legal.company.support_email') }}</a>
-                    <a href="mailto:{{ config('legal.company.info_email') }}" class="footer-link">{{ config('legal.company.info_email') }}</a>
-                    <a href="{{ route('legal.contact') }}" class="footer-link">Στοιχεία εταιρείας</a>
+                    <h6 class="footer-heading">{{ __('landing.footer_contact') }}</h6>
+                    <a href="mailto:{{ $legal['support_email'] }}" class="footer-link">{{ $legal['support_email'] }}</a>
+                    <a href="mailto:{{ $legal['info_email'] }}" class="footer-link">{{ $legal['info_email'] }}</a>
+                    <a href="{{ lroute('legal.contact') }}" class="footer-link">{{ __('landing.footer_company') }}</a>
+                    @include('partials.lang-switch', ['class' => 'footer-link'])
                 </div>
             </div>
             <hr style="border-color: rgba(255,255,255,0.1);">
             <div class="text-center">
-                <small>&copy; {{ date('Y') }} InvoiceAI · {{ config('legal.company.name') }} · ΑΦΜ {{ config('legal.company.vat') }} · ΓΕΜΗ {{ config('legal.company.gemi') }} · {{ config('legal.company.address') }}</small>
+                <small>&copy; {{ date('Y') }} InvoiceAI {{ __('landing.footer_by') }} <a href="https://obstechnologies.gr" rel="noopener" target="_blank" class="text-white"><u>OBS Technologies</u></a>
+                    · {{ $legal['name'] }} · {{ __('landing.vat_label') }} {{ app()->getLocale() === 'en' ? $legal['vat_eu'] : $legal['vat'] }} · {{ __('landing.gemi_label') }} {{ $legal['gemi'] }} · {{ $legal['address'] }}</small>
             </div>
         </div>
     </footer>

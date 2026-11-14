@@ -64,3 +64,44 @@ if (!function_exists('date_el')) {
         return $carbon->format($withTime ? 'd/m/Y H:i' : 'd/m/Y');
     }
 }
+
+if (!function_exists('lroute')) {
+    /**
+     * Localized URL for a public route: "<name>.en" when the locale is English
+     * and such a route exists, otherwise the Greek/default "<name>".
+     */
+    function lroute(string $name, array $parameters = [], ?string $locale = null): string
+    {
+        $locale = $locale ?? app()->getLocale();
+        $base = preg_replace('/\.en$/', '', $name);
+
+        if ($locale === 'en' && \Illuminate\Support\Facades\Route::has($base . '.en')) {
+            return route($base . '.en', $parameters);
+        }
+
+        return route($base, $parameters);
+    }
+}
+
+if (!function_exists('locale_alternates')) {
+    /**
+     * el/en URLs of the current public page (for hreflang, canonical and the language switch).
+     * Returns null for routes without an English twin.
+     *
+     * @return array{el: string, en: string}|null
+     */
+    function locale_alternates(): ?array
+    {
+        $name = request()->route()?->getName();
+        if (!$name) {
+            return null;
+        }
+
+        $base = preg_replace('/\.en$/', '', $name);
+        if (!\Illuminate\Support\Facades\Route::has($base . '.en')) {
+            return null;
+        }
+
+        return ['el' => route($base), 'en' => route($base . '.en')];
+    }
+}

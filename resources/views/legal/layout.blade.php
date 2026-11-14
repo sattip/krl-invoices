@@ -3,8 +3,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title') - InvoiceAI</title>
-    <meta name="description" content="@yield('description', 'InvoiceAI από την OBS TECHNOLOGIES Ε.Ε.')">
+    @include('partials.seo-head', [
+        'title' => trim($__env->yieldContent('title')).' | InvoiceAI',
+        'description' => trim($__env->yieldContent('description')) ?: 'InvoiceAI · OBS Technologies',
+    ])
     <link rel="icon" type="image/svg+xml" href="{{ asset('images/favicon.svg') }}">
     <style>
         :root { --ink:#111827; --muted:#4b5563; --line:#e5e7eb; --brand:#4F46E5; }
@@ -30,13 +32,15 @@
 <body>
     <header class="legal-top">
         <div class="wrap">
-            <a href="{{ route('home') }}"><img src="{{ asset('images/logo-white.svg') }}" alt="InvoiceAI" height="32" style="display:block;"></a>
+            <a href="{{ lroute('home') }}"><img src="{{ asset('images/logo-white.svg') }}" alt="InvoiceAI" height="32" style="display:block;"></a>
+            @php($en = app()->getLocale() === 'en')
             <span>
+                @include('partials.lang-switch', ['style' => 'margin-right:14px;text-decoration:underline;'])
                 @auth
-                    <a href="{{ route('dashboard') }}">Πίνακας ελέγχου</a>
+                    <a href="{{ route('dashboard') }}">{{ $en ? 'Dashboard' : 'Πίνακας ελέγχου' }}</a>
                 @else
-                    <a href="{{ route('login') }}" style="margin-right:14px;">Σύνδεση</a>
-                    <a href="{{ route('register') }}">Εγγραφή</a>
+                    <a href="{{ route('login') }}" style="margin-right:14px;">{{ $en ? 'Log in' : 'Σύνδεση' }}</a>
+                    <a href="{{ route('register') }}">{{ $en ? 'Sign up' : 'Εγγραφή' }}</a>
                 @endauth
             </span>
         </div>

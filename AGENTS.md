@@ -19,7 +19,13 @@ Codebase facts for agents working on this repo (verified 2026-11-14).
 - Multi-tenant: `BelongsToCompany` trait + `CompanyScope` global scope on invoices.
 
 ## Conventions
-- UI language is Greek only. `config('app.locale')` is fixed to `el` (not env-driven). Translations: `lang/el/*.php`, `lang/el.json`, `lang/vendor/adminlte/el`.
+- Languages: Greek default at `/`, English at `/en` (public pages: home, terms, privacy, cookies, contact). English route = Greek route name + `.en`;
+  use `lroute()` for localized links and `locale_alternates()` / `partials/seo-head` for canonical + reciprocal hreflang.
+  `App\Http\Middleware\SetLocale`: route default `locale` wins and is remembered in session (guest auth pages follow it);
+  the logged-in app (AdminLTE) and emails are Greek-only and always render `el`.
+  Translations: `lang/{el,en}/landing.php`, `lang/en.json` (Greek source strings → English), `lang/el.json` (Breeze English keys → Greek), `lang/el/*.php`, `lang/vendor/adminlte/el`.
+- Prices: VAT wording is controlled by `config('legal.pricing.vat_mode')` (env `INVOICEAI_PRICE_VAT_MODE` = included|excluded); unset = no VAT statement.
+  Checkout passes no tax settings to Stripe; `StripeService::createProductAndPrice` still creates prices in **USD** (inconsistent with € display).
 - Formatting helpers (`app/helpers.php`): `money_el()`, `number_el()`, `date_el()` (Europe/Athens display, UTC storage).
 - Legal/corporate facts live in `config/legal.php` only. Legal pages: `resources/views/legal/*` (routes `legal.terms|privacy|cookies|contact`).
   Footer with legal links: `resources/views/partials/legal-links.blade.php` (used by landing, auth, Breeze layouts, AdminLTE footer).
@@ -27,7 +33,9 @@ Codebase facts for agents working on this repo (verified 2026-11-14).
   and `/api/invoices/{id}/file` (Sanctum). Legacy files on the `public` disk are still readable until `php artisan invoices:privatize-files --apply` is run.
 - Do not log invoice content or model responses (personal data).
 - Only strictly necessary cookies exist (session, XSRF-TOKEN, remember_web_*). Adding analytics/marketing requires an opt-in consent mechanism first.
-- Landing page must not contain unverified claims (accuracy %, customer counts, testimonials, guarantees, free trial, native ERP connectors).
+- Landing page must not contain unverified claims (accuracy %, customer counts, testimonials, guarantees, free trial, native ERP connectors, "Most Popular").
+  Plan feature lists are fixed in the views; the DB `plans.features` column holds legacy English marketing items and is not displayed.
+- Screenshots/QA: `public` served with `php -S`, Playwright (`playwright-core` from the OpenClaw install + system Chrome); AdminLTE pages need a tall viewport, not fullPage.
 
 ## Tests
 - `php artisan test`. Known pre-existing failures (also on 9632f01): PasswordResetTest ×3 (custom notification class), RegistrationTest (Stripe flow), ExampleTest (no DB).

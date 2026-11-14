@@ -50,6 +50,72 @@ class GreekLegalTest extends TestCase
         }
     }
 
+    public function test_greek_home_has_localized_seo_and_reciprocal_hreflang(): void
+    {
+        $el = $this->get('/');
+        $el->assertOk()
+            ->assertSee('<title>Αυτόματη καταχώρηση τιμολογίων με AI | InvoiceAI</title>', false)
+            ->assertSee('<link rel="canonical" href="'.url('/').'">', false)
+            ->assertSee('<link rel="alternate" hreflang="el" href="'.url('/').'">', false)
+            ->assertSee('<link rel="alternate" hreflang="en" href="'.url('/en').'">', false)
+            ->assertSee('<link rel="alternate" hreflang="x-default" href="'.url('/').'">', false)
+            ->assertSee('από την <a href="https://obstechnologies.gr"', false);
+
+        $en = $this->get('/en');
+        $en->assertOk()
+            ->assertSee('<html lang="en">', false)
+            ->assertSee('<title>Automated invoice data entry with AI | InvoiceAI</title>', false)
+            ->assertSee('<link rel="canonical" href="'.url('/en').'">', false)
+            ->assertSee('<link rel="alternate" hreflang="el" href="'.url('/').'">', false)
+            ->assertSee('<link rel="alternate" hreflang="en" href="'.url('/en').'">', false)
+            ->assertSee('InvoiceAI by <a href="https://obstechnologies.gr"', false)
+            ->assertSee(url('/en/terms'), false)
+            ->assertDontSee('Αυτόματη καταχώρηση');
+
+        foreach (['99.5%', '10,000', '500+', 'Maria K.', 'George P.', 'Alex N.', 'money-back', 'Free Trial'] as $claim) {
+            $en->assertDontSee($claim, false);
+        }
+    }
+
+    public function test_english_legal_pages_and_hreflang(): void
+    {
+        foreach (['terms' => 'Terms of Use', 'privacy' => 'Privacy Policy', 'cookies' => 'Cookie Policy', 'contact' => 'Contact'] as $page => $heading) {
+            $this->get('/en/'.$page)->assertOk()
+                ->assertSee('<html lang="en">', false)
+                ->assertSee($heading)
+                ->assertSee('<link rel="canonical" href="'.url('/en/'.$page).'">', false)
+                ->assertSee('<link rel="alternate" hreflang="el" href="'.url('/'.$page).'">', false)
+                ->assertSee('EL801807920');
+
+            $this->get('/'.$page)->assertOk()
+                ->assertSee('<link rel="alternate" hreflang="en" href="'.url('/en/'.$page).'">', false);
+        }
+    }
+
+    public function test_auth_pages_follow_chosen_language(): void
+    {
+        $this->get('/en');
+        $this->get('/login')->assertOk()->assertSee('<html lang="en">', false)
+            ->assertSee('Sign in to your account')->assertSee(url('/en/privacy'), false);
+        $this->get('/register')->assertOk()->assertSee('I accept the');
+
+        $this->get('/lang/el')->assertRedirect();
+        $this->get('/login')->assertSee('<html lang="el">', false)->assertSee('Συνδεθείτε στον λογαριασμό σας');
+
+        $this->get('/lang/xx')->assertNotFound();
+    }
+
+    public function test_vat_label_only_when_configured(): void
+    {
+        $this->plan();
+        $this->get('/')->assertDontSee('data-vat-mode', false);
+
+        config(['legal.pricing.vat_mode' => 'included']);
+        $this->get('/')->assertSee('Η τιμή περιλαμβάνει ΦΠΑ');
+        $this->get('/en')->assertSee('Price includes VAT');
+        $this->get('/register')->assertSee('data-vat-mode="included"', false);
+    }
+
     public function test_auth_pages_are_greek_and_link_legal_pages(): void
     {
         $this->get('/login')->assertOk()->assertSee('<html lang="el">', false)

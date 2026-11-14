@@ -12,17 +12,26 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+// Public pages: Greek (default) at /, English under /en.
+// Each English route is the Greek route name + ".en" (see lroute() in app/helpers.php).
+Route::view('/', 'welcome')->name('home')->defaults('locale', 'el');
+Route::view('/en', 'welcome')->name('home.en')->defaults('locale', 'en');
 
-// Legal / information pages (public)
-Route::view('/terms', 'legal.terms')->name('legal.terms');
-Route::view('/privacy', 'legal.privacy')->name('legal.privacy');
-Route::view('/cookies', 'legal.cookies')->name('legal.cookies');
-Route::view('/contact', 'legal.contact')->name('legal.contact');
+foreach (['terms', 'privacy', 'cookies', 'contact'] as $page) {
+    Route::view('/'.$page, 'legal.'.$page)->name('legal.'.$page)->defaults('locale', 'el');
+    Route::view('/en/'.$page, 'legal.en.'.$page)->name('legal.'.$page.'.en')->defaults('locale', 'en');
+}
+
 Route::permanentRedirect('/oroi-xrisis', '/terms');
 Route::permanentRedirect('/politiki-aporritou', '/privacy');
+
+// Language switch for non-localized pages (auth); public pages switch via their /en twin.
+Route::get('/lang/{locale}', function (string $locale) {
+    abort_unless(in_array($locale, \App\Http\Middleware\SetLocale::SUPPORTED, true), 404);
+    session(['locale' => $locale]);
+
+    return redirect()->back(fallback: $locale === 'en' ? route('home.en') : route('home'));
+})->name('locale.switch');
 
 Route::get('/dashboard', function () {
     return view('dashboard');

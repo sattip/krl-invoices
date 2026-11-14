@@ -16,6 +16,14 @@ Production `.env` (Forge → site → Environment). Values read on 2026-11-14 vi
 | `LOG_STACK` / `LOG_LEVEL` | `single` / `debug` | `daily` / `warning`, `LOG_DAILY_DAYS=14` | Bounded log retention (Privacy Policy says logs are kept only as long as needed). |
 | `APP_LOCALE` | `en` | `el` (optional) | Code now forces `el`; env value is ignored. |
 
+## 0b. Blocking facts before showing prices with VAT wording
+- The code adds **no tax** at Stripe Checkout (no `automatic_tax`, no `tax_rates`): the customer pays the Stripe price as-is.
+- The live Stripe price objects (`plans.stripe_price_id`) could not be inspected (Stripe credentials are in the production DB, not read).
+  `StripeService::createProductAndPrice()` creates prices in **USD** although the site shows €: if "Sync plans" was used, checkout may charge USD.
+- Owner must confirm (a) live price currency/amount in the Stripe Dashboard and (b) whether 29/79/199 € include 24% VAT.
+  Then set `INVOICEAI_PRICE_VAT_MODE=included` (or `excluded` — only if checkout is also changed to add VAT) in `.env` and run `php artisan config:cache`.
+  Until then no VAT statement is shown (preview omits the unverified claim).
+
 ## 1. Backup (before deploy)
 On the server (forge user), keep outside the web root:
 ```bash
@@ -40,6 +48,7 @@ readlink current   # note the current release dir for rollback
 
 ## 3. Verify (read-only)
 - `/`, `/terms`, `/privacy`, `/cookies`, `/contact`, `/login`, `/register` → 200, `<html lang="el">`, footer with Terms/Privacy/Cookies.
+- `/en`, `/en/terms`, `/en/privacy`, `/en/cookies`, `/en/contact` → 200, `<html lang="en">`; canonical = own URL; reciprocal `hreflang` el/en/x-default.
 - `/oroi-xrisis` → 301 `/terms`, `/politiki-aporritou` → 301 `/privacy`.
 - Logged-in: dashboard, invoices list/show (PDF preview loads via `/invoices/{id}/file`), billing, profile, API docs.
 - `curl -I https://invoiceai.gr/storage/invoices/<known old file>` → 404 after `--apply`.

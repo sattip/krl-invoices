@@ -3,7 +3,7 @@
 @section('content')
 <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
     <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
-        <h2 class="text-2xl font-bold text-center mb-6">Ολοκλήρωση εγγραφής</h2>
+        <h2 class="text-2xl font-bold text-center mb-6">{{ __('Ολοκλήρωση εγγραφής') }}</h2>
 
         @if(session('error'))
             <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
@@ -18,31 +18,31 @@
         @endif
 
         <div class="mb-6">
-            <h3 class="text-lg font-semibold mb-4">Σύνοψη συνδρομής</h3>
+            <h3 class="text-lg font-semibold mb-4">{{ __('Σύνοψη συνδρομής') }}</h3>
 
             <div class="bg-gray-50 p-4 rounded-lg">
                 <div class="flex justify-between items-center mb-2">
-                    <span class="font-medium">Πακέτο {{ $plan->name }}</span>
-                    <span class="font-bold">{{ $plan->formatted_price }}/μήνα</span>
+                    <span class="font-medium">{{ __('Πακέτο') }} {{ $plan->name }}</span>
+                    <span class="font-bold text-right">{{ $plan->formatted_price }}{{ __('/μήνα') }}@include('partials.vat-note', ['class' => 'text-xs font-normal text-gray-500'])</span>
                 </div>
 
                 <div class="text-sm text-gray-600 mb-2">
-                    <span class="inline-block w-4">✓</span> {{ number_el($plan->invoice_limit) }} τιμολόγια/μήνα
+                    <span class="inline-block w-4">✓</span> {{ number_el($plan->invoice_limit) }} {{ __('τιμολόγια/μήνα') }}
                 </div>
                 <div class="text-sm text-gray-600 mb-2">
-                    <span class="inline-block w-4">✓</span> Εξαγωγή δεδομένων με τεχνητή νοημοσύνη
+                    <span class="inline-block w-4">✓</span> {{ __('Εξαγωγή δεδομένων με τεχνητή νοημοσύνη') }}
                 </div>
                 <div class="text-sm text-gray-600 mb-2">
-                    <span class="inline-block w-4">✓</span> Πρόσβαση στο REST API
+                    <span class="inline-block w-4">✓</span> {{ __('Πρόσβαση στο REST API') }}
                 </div>
 
                 <hr class="my-4">
 
                 <div class="text-sm text-gray-600">
-                    <strong>Λογαριασμός:</strong> {{ $registration['email'] }}
+                    <strong>{{ __('Λογαριασμός:') }}</strong> {{ $registration['email'] }}
                 </div>
                 <div class="text-sm text-gray-600">
-                    <strong>Εταιρεία:</strong> {{ $registration['company_name'] }}
+                    <strong>{{ __('Εταιρεία:') }}</strong> {{ $registration['company_name'] }}
                 </div>
             </div>
         </div>
@@ -53,17 +53,17 @@
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
                 </svg>
-                Μετάβαση στην πληρωμή
+                {{ __('Μετάβαση στην πληρωμή') }}
             </button>
         </form>
 
         <p class="text-xs text-gray-500 text-center mt-4">
-            Θα μεταφερθείτε στη σελίδα πληρωμής της Stripe. Η συνδρομή ανανεώνεται μηνιαία μέχρι να την ακυρώσετε. Τα στοιχεία της κάρτας σας τα επεξεργάζεται η Stripe· δεν αποθηκεύονται στο InvoiceAI. Οι τιμές εμφανίζονται όπως ορίζονται στο Stripe Checkout, όπου θα δείτε και το τελικό ποσό πριν την πληρωμή.
+            {{ __('Θα μεταφερθείτε στη σελίδα πληρωμής της Stripe. Η συνδρομή ανανεώνεται μηνιαία μέχρι να την ακυρώσετε. Τα στοιχεία της κάρτας σας τα επεξεργάζεται η Stripe· δεν αποθηκεύονται στο InvoiceAI. Οι τιμές εμφανίζονται όπως ορίζονται στο Stripe Checkout, όπου θα δείτε και το τελικό ποσό πριν την πληρωμή.') }}
         </p>
 
         <div class="mt-6 text-center">
             <a href="{{ route('register') }}" class="text-sm text-indigo-600 hover:text-indigo-500">
-                ← Επιστροφή στην εγγραφή
+                {{ __('← Επιστροφή στην εγγραφή') }}
             </a>
         </div>
     </div>
