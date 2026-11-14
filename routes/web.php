@@ -14,7 +14,15 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('home');
+
+// Legal / information pages (public)
+Route::view('/terms', 'legal.terms')->name('legal.terms');
+Route::view('/privacy', 'legal.privacy')->name('legal.privacy');
+Route::view('/cookies', 'legal.cookies')->name('legal.cookies');
+Route::view('/contact', 'legal.contact')->name('legal.contact');
+Route::permanentRedirect('/oroi-xrisis', '/terms');
+Route::permanentRedirect('/politiki-aporritou', '/privacy');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -30,6 +38,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/invoices/create', [InvoiceController::class, 'create'])->name('invoices.create');
     Route::post('/invoices', [InvoiceController::class, 'store'])->name('invoices.store');
     Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
+    Route::get('/invoices/{invoice}/file', [InvoiceController::class, 'file'])->name('invoices.file');
     Route::delete('/invoices/{invoice}', [InvoiceController::class, 'destroy'])->name('invoices.destroy');
 
     // API Token routes

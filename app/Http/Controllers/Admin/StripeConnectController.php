@@ -36,7 +36,7 @@ class StripeConnectController extends Controller
         
         if (!$clientId) {
             return redirect()->route('admin.stripe.setup')
-                ->with('error', 'Stripe Client ID is not configured. Please add STRIPE_CLIENT_ID to your .env file.');
+                ->with('error', 'Το Stripe Client ID δεν έχει ρυθμιστεί. Προσθέστε το STRIPE_CLIENT_ID στο αρχείο .env.');
         }
 
         $params = http_build_query([
@@ -56,13 +56,13 @@ class StripeConnectController extends Controller
     {
         if ($request->has('error')) {
             return redirect()->route('admin.stripe.setup')
-                ->with('error', $request->error_description ?? 'Authorization was cancelled or failed.');
+                ->with('error', $request->error_description ?? 'Η εξουσιοδότηση ακυρώθηκε ή απέτυχε.');
         }
 
         $code = $request->code;
         if (!$code) {
             return redirect()->route('admin.stripe.setup')
-                ->with('error', 'No authorization code received from Stripe.');
+                ->with('error', 'Δεν ελήφθη κωδικός εξουσιοδότησης από το Stripe.');
         }
 
         // Exchange code for access token
@@ -73,7 +73,7 @@ class StripeConnectController extends Controller
         ]);
 
         if (!$response->successful()) {
-            $error = $response->json('error_description') ?? 'Failed to connect to Stripe.';
+            $error = $response->json('error_description') ?? 'Η σύνδεση με το Stripe απέτυχε.';
             return redirect()->route('admin.stripe.setup')
                 ->with('error', $error);
         }
@@ -112,7 +112,7 @@ class StripeConnectController extends Controller
         }
 
         return redirect()->route('admin.stripe.setup')
-            ->with('success', 'Stripe connected successfully via OAuth!');
+            ->with('success', 'Η σύνδεση με το Stripe μέσω OAuth ολοκληρώθηκε επιτυχώς.');
     }
 
     /**
@@ -140,7 +140,7 @@ class StripeConnectController extends Controller
 
         if (!$testResult['success']) {
             $settings->update(['is_connected' => false]);
-            return back()->with('error', 'Failed to connect to Stripe: ' . $testResult['message']);
+            return back()->with('error', 'Η σύνδεση με το Stripe απέτυχε: ' . $testResult['message']);
         }
 
         // Update account details
@@ -151,7 +151,7 @@ class StripeConnectController extends Controller
             ],
         ]);
 
-        return back()->with('success', 'Stripe connected successfully!');
+        return back()->with('success', 'Η σύνδεση με το Stripe ολοκληρώθηκε επιτυχώς.');
     }
 
     /**
@@ -187,7 +187,7 @@ class StripeConnectController extends Controller
             'account_details' => null,
         ]);
 
-        return back()->with('success', 'Stripe disconnected successfully.');
+        return back()->with('success', 'Η σύνδεση με το Stripe αποσυνδέθηκε επιτυχώς.');
     }
 
     /**
@@ -222,7 +222,7 @@ class StripeConnectController extends Controller
             ]);
         }
 
-        return back()->with('success', 'Plans updated successfully.');
+        return back()->with('success', 'Τα πακέτα ενημερώθηκαν επιτυχώς.');
     }
 
     /**
@@ -233,7 +233,7 @@ class StripeConnectController extends Controller
         $stripeService = new StripeService();
 
         if (!$stripeService->isConfigured()) {
-            return back()->with('error', 'Stripe is not configured. Please add your credentials first.');
+            return back()->with('error', 'Το Stripe δεν έχει ρυθμιστεί. Προσθέστε πρώτα τα διαπιστευτήριά σας.');
         }
 
         $plans = Plan::whereNull('stripe_price_id')->orWhere('stripe_price_id', '')->get();
@@ -245,14 +245,14 @@ class StripeConnectController extends Controller
                 $plan->update(['stripe_price_id' => $priceId]);
                 $synced++;
             } catch (\Exception $e) {
-                return back()->with('error', "Failed to sync plan '{$plan->name}': " . $e->getMessage());
+                return back()->with('error', "Ο συγχρονισμός του πακέτου «{$plan->name}» απέτυχε: " . $e->getMessage());
             }
         }
 
         if ($synced === 0) {
-            return back()->with('info', 'All plans are already synced with Stripe.');
+            return back()->with('info', 'Όλα τα πακέτα είναι ήδη συγχρονισμένα με το Stripe.');
         }
 
-        return back()->with('success', "{$synced} plan(s) synced with Stripe successfully.");
+        return back()->with('success', "Συγχρονίστηκαν επιτυχώς με το Stripe {$synced} πακέτα.");
     }
 }

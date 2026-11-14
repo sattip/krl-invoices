@@ -78,11 +78,15 @@ return [
     |
     */
 
-    'locale' => env('APP_LOCALE', 'en'),
+    // Greek-only service: locale is fixed (an APP_LOCALE=en left in a server .env must not switch the UI back).
+    'locale' => 'el',
 
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 
-    'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
+    'faker_locale' => env('APP_FAKER_LOCALE', 'el_GR'),
+
+    // Display timezone for dates shown to users (storage stays UTC).
+    'display_timezone' => 'Europe/Athens',
 
     /*
     |--------------------------------------------------------------------------

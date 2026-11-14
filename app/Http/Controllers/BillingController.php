@@ -24,7 +24,7 @@ class BillingController extends Controller
         $company = current_company();
 
         if (!$company) {
-            abort(403, 'You must be assigned to a company to access billing. Please contact an administrator.');
+            abort(403, 'Για πρόσβαση στη χρέωση, ο λογαριασμός σας πρέπει να είναι συνδεδεμένος με εταιρεία. Παρακαλούμε επικοινωνήστε με τον διαχειριστή.');
         }
 
         return $company;
@@ -74,13 +74,13 @@ class BillingController extends Controller
         $plan = Plan::findOrFail($request->plan_id);
 
         if (!$this->stripeService->isConfigured()) {
-            return back()->with('error', 'Payment system is not configured. Please contact support.');
+            return back()->with('error', 'Το σύστημα πληρωμών δεν έχει ρυθμιστεί. Παρακαλούμε επικοινωνήστε με την υποστήριξη.');
         }
 
         // Check if company already has a subscription
         if ($company->hasActiveSubscription()) {
             return redirect()->route('billing.plans')
-                ->with('error', 'You already have an active subscription. Please upgrade or downgrade instead.');
+                ->with('error', 'Έχετε ήδη ενεργή συνδρομή. Χρησιμοποιήστε την αναβάθμιση ή την υποβάθμιση πακέτου.');
         }
 
         // Get or create Stripe customer
@@ -119,14 +119,14 @@ class BillingController extends Controller
 
         if (!$sessionId) {
             return redirect()->route('billing.index')
-                ->with('error', 'Invalid checkout session.');
+                ->with('error', 'Μη έγκυρη συνεδρία πληρωμής.');
         }
 
         // The webhook will handle creating the subscription
         // Here we just show a success message
 
         return redirect()->route('billing.index')
-            ->with('success', 'Subscription activated successfully! Welcome aboard.');
+            ->with('success', 'Η πληρωμή ολοκληρώθηκε. Η συνδρομή σας ενεργοποιείται — καλώς ήρθατε στο InvoiceAI!');
     }
 
     /**
@@ -135,7 +135,7 @@ class BillingController extends Controller
     public function checkoutCancel()
     {
         return redirect()->route('billing.plans')
-            ->with('info', 'Checkout was canceled. You can try again when ready.');
+            ->with('info', 'Η διαδικασία πληρωμής ακυρώθηκε. Μπορείτε να δοκιμάσετε ξανά όποτε θέλετε.');
     }
 
     /**
@@ -152,23 +152,23 @@ class BillingController extends Controller
         $newPlan = Plan::findOrFail($request->plan_id);
 
         if (!$subscription || !$subscription->isActive()) {
-            return back()->with('error', 'No active subscription found.');
+            return back()->with('error', 'Δεν βρέθηκε ενεργή συνδρομή.');
         }
 
         $currentPlan = $subscription->plan;
 
         // Validate it's actually an upgrade
         if ($newPlan->price <= $currentPlan->price) {
-            return back()->with('error', 'Please use the downgrade option for lower-priced plans.');
+            return back()->with('error', 'Για φθηνότερα πακέτα χρησιμοποιήστε την επιλογή υποβάθμισης.');
         }
 
         try {
             $this->stripeService->updateSubscription($subscription, $newPlan, true);
 
             return redirect()->route('billing.index')
-                ->with('success', "Successfully upgraded to {$newPlan->name}! Prorated charges have been applied.");
+                ->with('success', "Η αναβάθμιση σε {$newPlan->name} ολοκληρώθηκε. Εφαρμόστηκε αναλογική χρέωση.");
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to upgrade: ' . $e->getMessage());
+            return back()->with('error', 'Η αναβάθμιση απέτυχε: ' . $e->getMessage());
         }
     }
 
@@ -186,14 +186,14 @@ class BillingController extends Controller
         $newPlan = Plan::findOrFail($request->plan_id);
 
         if (!$subscription || !$subscription->isActive()) {
-            return back()->with('error', 'No active subscription found.');
+            return back()->with('error', 'Δεν βρέθηκε ενεργή συνδρομή.');
         }
 
         $currentPlan = $subscription->plan;
 
         // Validate it's actually a downgrade
         if ($newPlan->price >= $currentPlan->price) {
-            return back()->with('error', 'Please use the upgrade option for higher-priced plans.');
+            return back()->with('error', 'Για ακριβότερα πακέτα χρησιμοποιήστε την επιλογή αναβάθμισης.');
         }
 
         try {
@@ -201,9 +201,9 @@ class BillingController extends Controller
             $this->stripeService->updateSubscription($subscription, $newPlan, false);
 
             return redirect()->route('billing.index')
-                ->with('success', "Your plan will change to {$newPlan->name} at the end of your current billing period.");
+                ->with('success', "Το πακέτο σας άλλαξε σε {$newPlan->name}. Η νέα τιμή θα χρεωθεί από την επόμενη περίοδο χρέωσης.");
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to downgrade: ' . $e->getMessage());
+            return back()->with('error', 'Η υποβάθμιση απέτυχε: ' . $e->getMessage());
         }
     }
 
@@ -216,16 +216,16 @@ class BillingController extends Controller
         $subscription = $company->subscription;
 
         if (!$subscription || !$subscription->isActive()) {
-            return back()->with('error', 'No active subscription found.');
+            return back()->with('error', 'Δεν βρέθηκε ενεργή συνδρομή.');
         }
 
         try {
             $this->stripeService->cancelSubscription($subscription);
 
             return redirect()->route('billing.index')
-                ->with('success', 'Your subscription will be canceled at the end of the current billing period.');
+                ->with('success', 'Η συνδρομή σας θα ακυρωθεί στο τέλος της τρέχουσας περιόδου χρέωσης.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to cancel subscription: ' . $e->getMessage());
+            return back()->with('error', 'Η ακύρωση της συνδρομής απέτυχε: ' . $e->getMessage());
         }
     }
 
@@ -238,16 +238,16 @@ class BillingController extends Controller
         $subscription = $company->subscription;
 
         if (!$subscription || !$subscription->isCanceled()) {
-            return back()->with('error', 'No canceled subscription found to resume.');
+            return back()->with('error', 'Δεν βρέθηκε ακυρωμένη συνδρομή προς επανενεργοποίηση.');
         }
 
         try {
             $this->stripeService->resumeSubscription($subscription);
 
             return redirect()->route('billing.index')
-                ->with('success', 'Your subscription has been resumed.');
+                ->with('success', 'Η συνδρομή σας επανενεργοποιήθηκε.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to resume subscription: ' . $e->getMessage());
+            return back()->with('error', 'Η επανενεργοποίηση της συνδρομής απέτυχε: ' . $e->getMessage());
         }
     }
 
@@ -260,7 +260,7 @@ class BillingController extends Controller
         $customerId = $company->stripeCustomerId();
 
         if (!$customerId) {
-            return back()->with('error', 'No billing account found.');
+            return back()->with('error', 'Δεν βρέθηκε λογαριασμός χρέωσης.');
         }
 
         try {
@@ -271,7 +271,7 @@ class BillingController extends Controller
 
             return redirect($url);
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to access billing portal: ' . $e->getMessage());
+            return back()->with('error', 'Δεν ήταν δυνατή η πρόσβαση στην πύλη χρέωσης: ' . $e->getMessage());
         }
     }
 

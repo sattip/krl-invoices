@@ -32,7 +32,7 @@ class PaymentSucceeded extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Payment Received - InvoiceAI')
+            ->subject('Η πληρωμή σας ελήφθη – InvoiceAI')
             ->view('emails.billing.payment-succeeded', [
                 'amount' => $this->amount,
                 'planName' => $this->planName,

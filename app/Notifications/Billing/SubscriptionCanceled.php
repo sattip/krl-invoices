@@ -29,7 +29,7 @@ class SubscriptionCanceled extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Subscription Canceled - InvoiceAI')
+            ->subject('Ακύρωση συνδρομής – InvoiceAI')
             ->view('emails.billing.subscription-canceled', [
                 'plan' => $this->plan,
                 'endDate' => $this->endDate,

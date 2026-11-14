@@ -55,7 +55,7 @@ class InvoiceController extends Controller
         if ($company && !$request->user()->is_super_admin) {
             if (!$company->hasActiveSubscription()) {
                 return redirect()->route('billing.plans')
-                    ->with('error', 'Please subscribe to a plan to upload invoices.');
+                    ->with('error', 'Επιλέξτε πακέτο συνδρομής για να ανεβάσετε τιμολόγια.');
             }
 
             $files = $request->file('invoice_files');
@@ -64,9 +64,9 @@ class InvoiceController extends Controller
             if (count($files) > $remaining) {
                 $plan = $company->currentPlan();
                 return back()->with('error',
-                    "You can only upload {$remaining} more invoice(s) this month. " .
-                    "Your {$plan->name} plan allows {$plan->invoice_limit} invoices per month. " .
-                    "Please upgrade your plan for more capacity."
+                    "Αυτόν τον μήνα μπορείτε να ανεβάσετε ακόμη {$remaining} τιμολόγιο/α. " .
+                    "Το πακέτο {$plan->name} περιλαμβάνει {$plan->invoice_limit} τιμολόγια τον μήνα. " .
+                    "Αναβαθμίστε το πακέτο σας για περισσότερα."
                 );
             }
         }
@@ -78,10 +78,10 @@ class InvoiceController extends Controller
 
         foreach ($files as $file) {
             $originalFilename = $file->getClientOriginalName();
-            $path = $file->store('invoices', 'public');
+            $path = $file->store('invoices', Invoice::FILE_DISK);
 
             try {
-                $extractedData = $extractor->extract($path);
+                $extractedData = $extractor->extract($path, Invoice::FILE_DISK);
 
                 $invoice = DB::transaction(function () use ($extractedData, $path, $originalFilename, $request) {
                     $invoice = Invoice::create([
@@ -148,7 +148,7 @@ class InvoiceController extends Controller
                 }
 
             } catch (Exception $e) {
-                Storage::disk('public')->delete($path);
+                Storage::disk(Invoice::FILE_DISK)->delete($path);
                 $errors[] = "{$originalFilename}: {$e->getMessage()}";
 
                 Log::error('Invoice processing failed', [
@@ -161,15 +161,15 @@ class InvoiceController extends Controller
         if ($processedCount === 0) {
             return back()
                 ->withInput()
-                ->withErrors(['invoice_files' => 'Failed to process any invoices. ' . implode('; ', $errors)]);
+                ->withErrors(['invoice_files' => 'Δεν ήταν δυνατή η επεξεργασία κανενός αρχείου. ' . implode('; ', $errors)]);
         }
 
         $message = $processedCount === 1
-            ? 'Invoice parsed and saved successfully!'
-            : "{$processedCount} invoices parsed and saved successfully!";
+            ? 'Το τιμολόγιο επεξεργάστηκε και αποθηκεύτηκε. Ελέγξτε τα στοιχεία πριν τα χρησιμοποιήσετε.'
+            : "Επεξεργάστηκαν και αποθηκεύτηκαν {$processedCount} τιμολόγια. Ελέγξτε τα στοιχεία πριν τα χρησιμοποιήσετε.";
 
         if (!empty($errors)) {
-            $message .= ' Some files failed: ' . implode('; ', $errors);
+            $message .= ' Ορισμένα αρχεία απέτυχαν: ' . implode('; ', $errors);
         }
 
         if ($processedCount === 1 && $lastInvoice) {
@@ -202,14 +202,30 @@ class InvoiceController extends Controller
     {
         // Global scope ensures invoice belongs to current company
         // Delete the file
-        if ($invoice->file_path) {
-            Storage::disk('public')->delete($invoice->file_path);
-        }
+        $invoice->deleteStoredFile();
 
         $invoice->delete();
 
         return redirect()
             ->route('invoices.index')
-            ->with('success', 'Invoice deleted successfully!');
+            ->with('success', 'Το τιμολόγιο και το αρχείο του διαγράφηκαν.');
+    }
+
+    /**
+     * Stream the original file to an authenticated user of the owning company.
+     * (Route-model binding applies the company global scope, so other companies get 404.)
+     */
+    public function file(Request $request, Invoice $invoice)
+    {
+        $disk = $invoice->fileDisk();
+
+        abort_if($disk === null, 404);
+
+        $name = $invoice->original_filename ?: basename($invoice->file_path);
+
+        return Storage::disk($disk)->response($invoice->file_path, $name, [
+            'Cache-Control' => 'private, no-store',
+            'X-Content-Type-Options' => 'nosniff',
+        ], 'inline');
     }
 }

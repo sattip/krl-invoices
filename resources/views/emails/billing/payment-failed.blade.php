@@ -1,40 +1,40 @@
 @extends('emails.layouts.base')
 
-@section('title', 'Payment Failed')
+@section('title', 'Αποτυχία πληρωμής')
 
 @section('content')
-    <div class="greeting">Payment Failed</div>
+    <div class="greeting">Αποτυχία πληρωμής</div>
     
-    <p>We were unable to process your payment for your InvoiceAI subscription.</p>
+    <p>Δεν ήταν δυνατή η επεξεργασία της πληρωμής για τη συνδρομή σας στο InvoiceAI.</p>
     
     <div class="info-box danger">
-        <h4>Action Required</h4>
-        <p>Please update your payment method to avoid service interruption. Your subscription will remain active for {{ config('subscription.grace_period_days', 3) }} more days.</p>
+        <h4>Απαιτείται ενέργεια</h4>
+        <p>Παρακαλούμε ενημερώστε τον τρόπο πληρωμής σας, ώστε να αποφευχθεί διακοπή της υπηρεσίας. Η συνδρομή σας θα παραμείνει ενεργή για {{ config('subscription.grace_period_days', 3) }} ακόμη ημέρες.</p>
     </div>
     
     <div class="credentials-box">
-        <h4>Payment Details</h4>
+        <h4>Στοιχεία πληρωμής</h4>
         <table class="details-table">
             <tr>
-                <th>Amount Due</th>
+                <th>Οφειλόμενο ποσό</th>
                 <td><strong>{{ $amount }}</strong></td>
             </tr>
             <tr>
-                <th>Plan</th>
+                <th>Πακέτο</th>
                 <td>{{ $planName }}</td>
             </tr>
             <tr>
-                <th>Attempt Date</th>
-                <td>{{ $date }}</td>
+                <th>Ημερομηνία προσπάθειας</th>
+                <td>{{ date_el($date) }}</td>
             </tr>
         </table>
     </div>
     
     <div class="text-center mb-6">
-        <a href="{{ url('/billing') }}" class="button button-danger">Update Payment Method</a>
+        <a href="{{ url('/billing') }}" class="button button-danger">Ενημέρωση τρόπου πληρωμής</a>
     </div>
     
-    <p class="text-muted text-small">Common reasons for payment failure include expired cards, insufficient funds, or outdated billing information.</p>
+    <p class="text-muted text-small">Συνήθεις αιτίες αποτυχίας πληρωμής είναι η ληγμένη κάρτα, το ανεπαρκές υπόλοιπο ή τα μη ενημερωμένα στοιχεία χρέωσης.</p>
     
-    <p class="text-muted text-small">If you believe this is an error or need assistance, please contact our support team.</p>
+    <p class="text-muted text-small">Αν πιστεύετε ότι πρόκειται για λάθος ή χρειάζεστε βοήθεια, επικοινωνήστε μαζί μας στο <a href="mailto:support@obstechnologies.com">support@obstechnologies.com</a>.</p>
 @endsection

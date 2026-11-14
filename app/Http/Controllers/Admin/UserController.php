@@ -86,7 +86,7 @@ class UserController extends Controller
         $user->update($updateData);
 
         return redirect()->route('admin.users.index')
-            ->with('success', "User '{$user->name}' updated successfully.");
+            ->with('success', "Ο χρήστης «{$user->name}» ενημερώθηκε επιτυχώς.");
     }
 
     /**
@@ -96,12 +96,12 @@ class UserController extends Controller
     {
         // Can't impersonate yourself
         if ($user->id === Auth::id()) {
-            return back()->with('error', 'You cannot impersonate yourself.');
+            return back()->with('error', 'Δεν μπορείτε να συνδεθείτε ως ο εαυτός σας.');
         }
 
         // Can't impersonate another super admin
         if ($user->is_super_admin) {
-            return back()->with('error', 'You cannot impersonate another super admin.');
+            return back()->with('error', 'Δεν μπορείτε να συνδεθείτε ως άλλος super admin.');
         }
 
         // Store original user ID in session
@@ -112,7 +112,7 @@ class UserController extends Controller
         Auth::login($user);
 
         return redirect()->route('dashboard')
-            ->with('success', "Now impersonating {$user->name}.");
+            ->with('success', "Είστε πλέον συνδεδεμένοι ως {$user->name}.");
     }
 
     /**
@@ -124,14 +124,14 @@ class UserController extends Controller
 
         if (!$impersonatorId) {
             return redirect()->route('dashboard')
-                ->with('error', 'You are not impersonating anyone.');
+                ->with('error', 'Δεν είστε συνδεδεμένοι ως άλλος χρήστης.');
         }
 
         $originalUser = User::find($impersonatorId);
 
         if (!$originalUser) {
             return redirect()->route('dashboard')
-                ->with('error', 'Original user not found.');
+                ->with('error', 'Ο αρχικός χρήστης δεν βρέθηκε.');
         }
 
         // Clear impersonation session
@@ -142,6 +142,6 @@ class UserController extends Controller
         Auth::login($originalUser);
 
         return redirect()->route('admin.users.index')
-            ->with('success', 'Stopped impersonating.');
+            ->with('success', 'Επιστρέψατε στον δικό σας λογαριασμό.');
     }
 }

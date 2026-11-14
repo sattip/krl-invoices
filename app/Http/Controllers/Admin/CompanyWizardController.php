@@ -57,7 +57,7 @@ class CompanyWizardController extends Controller
         
         if (empty($wizardData['company_name'])) {
             return redirect()->route('admin.companies.wizard.step1')
-                ->with('error', 'Please complete step 1 first.');
+                ->with('error', 'Παρακαλούμε ολοκληρώστε πρώτα το βήμα 1.');
         }
 
         return view('admin.companies.wizard.step2', [
@@ -101,7 +101,7 @@ class CompanyWizardController extends Controller
         
         if (empty($wizardData['owner_email'])) {
             return redirect()->route('admin.companies.wizard.step2')
-                ->with('error', 'Please complete step 2 first.');
+                ->with('error', 'Παρακαλούμε ολοκληρώστε πρώτα το βήμα 2.');
         }
 
         $plans = Plan::active()->ordered()->get();
@@ -126,7 +126,7 @@ class CompanyWizardController extends Controller
         
         if (empty($wizardData['owner_email'])) {
             return redirect()->route('admin.companies.wizard.step1')
-                ->with('error', 'Session expired. Please start again.');
+                ->with('error', 'Η συνεδρία έληξε. Παρακαλούμε ξεκινήστε από την αρχή.');
         }
 
         $wizardData = array_merge($wizardData, $validated);
@@ -193,7 +193,7 @@ class CompanyWizardController extends Controller
             return redirect()->route('admin.companies.wizard.complete');
 
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to create company: ' . $e->getMessage());
+            return back()->with('error', 'Η δημιουργία της εταιρείας απέτυχε: ' . $e->getMessage());
         }
     }
 
@@ -206,7 +206,7 @@ class CompanyWizardController extends Controller
         
         if (!$result) {
             return redirect()->route('admin.companies.index')
-                ->with('error', 'No wizard data found.');
+                ->with('error', 'Δεν βρέθηκαν στοιχεία του οδηγού δημιουργίας.');
         }
 
         // Clear result from session after displaying
@@ -231,6 +231,6 @@ class CompanyWizardController extends Controller
         session()->forget('company_wizard_result');
         
         return redirect()->route('admin.companies.index')
-            ->with('info', 'Company creation cancelled.');
+            ->with('info', 'Η δημιουργία εταιρείας ακυρώθηκε.');
     }
 }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="el">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -251,10 +251,16 @@
             
             <!-- Footer -->
             <div class="footer">
-                <p>&copy; {{ date('Y') }} InvoiceAI. All rights reserved.</p>
+                <p>Με εκτίμηση,<br>Η ομάδα του InvoiceAI — OBS TECHNOLOGIES Ε.Ε.</p>
+                <p style="margin-top: 8px;">Επικοινωνία: <a href="mailto:support@obstechnologies.com">support@obstechnologies.com</a></p>
                 <p style="margin-top: 8px;">
-                    <a href="{{ url('/') }}">Visit Website</a>
+                    <a href="{{ url('/') }}">invoiceai.gr</a>
+                    &nbsp;·&nbsp;
+                    <a href="{{ url('/terms') }}">Όροι Χρήσης</a>
+                    &nbsp;·&nbsp;
+                    <a href="{{ url('/privacy') }}">Πολιτική Απορρήτου</a>
                 </p>
+                <p style="margin-top: 8px;">&copy; {{ date('Y') }} OBS TECHNOLOGIES Ε.Ε.</p>
             </div>
         </div>
     </div>

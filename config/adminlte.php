@@ -48,7 +48,7 @@ return [
     */
 
     'google_fonts' => [
-        'allowed' => true,
+        'allowed' => false, // no Google Fonts request (avoids third-party IP transfer)
     ],
 
     /*
@@ -307,78 +307,78 @@ return [
 
         // Sidebar items:
         [
-            'text' => 'Dashboard',
+            'text' => 'Πίνακας ελέγχου',
             'route' => 'dashboard',
             'icon' => 'fas fa-fw fa-tachometer-alt',
         ],
-        ['header' => 'INVOICE MANAGEMENT'],
+        ['header' => 'ΤΙΜΟΛΟΓΙΑ'],
         [
-            'text' => 'All Invoices',
+            'text' => 'Όλα τα τιμολόγια',
             'route' => 'invoices.index',
             'icon' => 'fas fa-fw fa-file-invoice',
         ],
         [
-            'text' => 'Upload Invoice',
+            'text' => 'Μεταφόρτωση τιμολογίου',
             'route' => 'invoices.create',
             'icon' => 'fas fa-fw fa-upload',
         ],
-        ['header' => 'API & INTEGRATIONS'],
+        ['header' => 'API & ΔΙΑΣΥΝΔΕΣΕΙΣ'],
         [
-            'text' => 'API Documentation',
+            'text' => 'Τεκμηρίωση API',
             'route' => 'api.documentation',
             'icon' => 'fas fa-fw fa-book',
         ],
         [
-            'text' => 'API Tokens',
+            'text' => 'API tokens',
             'route' => 'api.tokens.index',
             'icon' => 'fas fa-fw fa-key',
         ],
-        ['header' => 'SUBSCRIPTION'],
+        ['header' => 'ΣΥΝΔΡΟΜΗ'],
         [
-            'text' => 'Billing & Usage',
+            'text' => 'Χρεώσεις & χρήση',
             'route' => 'billing.index',
             'icon' => 'fas fa-fw fa-credit-card',
         ],
         [
-            'text' => 'View Plans',
+            'text' => 'Πακέτα',
             'route' => 'billing.plans',
             'icon' => 'fas fa-fw fa-tags',
         ],
-        ['header' => 'ACCOUNT'],
+        ['header' => 'ΛΟΓΑΡΙΑΣΜΟΣ'],
         [
-            'text' => 'Company Settings',
+            'text' => 'Ρυθμίσεις εταιρείας',
             'route' => 'company.settings',
             'icon' => 'fas fa-fw fa-building',
         ],
         [
-            'text' => 'Profile',
+            'text' => 'Προφίλ',
             'route' => 'profile.edit',
             'icon' => 'fas fa-fw fa-user',
         ],
         [
-            'header' => 'ADMINISTRATION',
+            'header' => 'ΔΙΑΧΕΙΡΙΣΗ',
             'can' => 'super-admin',
         ],
         [
-            'text' => 'Manage Companies',
+            'text' => 'Εταιρείες',
             'route' => 'admin.companies.index',
             'icon' => 'fas fa-fw fa-city',
             'can' => 'super-admin',
         ],
         [
-            'text' => 'Manage Users',
+            'text' => 'Χρήστες',
             'route' => 'admin.users.index',
             'icon' => 'fas fa-fw fa-users',
             'can' => 'super-admin',
         ],
         [
-            'text' => 'Stripe Settings',
+            'text' => 'Ρυθμίσεις Stripe',
             'route' => 'admin.stripe.setup',
             'icon' => 'fab fa-fw fa-stripe',
             'can' => 'super-admin',
         ],
         [
-            'text' => 'Manage Plans',
+            'text' => 'Πακέτα συνδρομής',
             'route' => 'admin.stripe.plans',
             'icon' => 'fas fa-fw fa-tags',
             'can' => 'super-admin',

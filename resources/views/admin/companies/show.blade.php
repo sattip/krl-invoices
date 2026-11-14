@@ -7,10 +7,10 @@
         <h1>{{ $company->name }}</h1>
         <div>
             <a href="{{ route('admin.companies.edit', $company) }}" class="btn btn-warning">
-                <i class="fas fa-edit mr-2"></i> Edit
+                <i class="fas fa-edit mr-2"></i> Επεξεργασία
             </a>
             <a href="{{ route('admin.companies.index') }}" class="btn btn-default">
-                <i class="fas fa-arrow-left mr-2"></i> Back
+                <i class="fas fa-arrow-left mr-2"></i> Επιστροφή
             </a>
         </div>
     </div>
@@ -28,11 +28,11 @@
         <div class="col-md-4">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Company Details</h3>
+                    <h3 class="card-title">Στοιχεία εταιρείας</h3>
                 </div>
                 <div class="card-body">
                     <dl>
-                        <dt>Name</dt>
+                        <dt>Επωνυμία</dt>
                         <dd>{{ $company->name }}</dd>
 
                         <dt>Slug</dt>
@@ -41,26 +41,26 @@
                         <dt>Email</dt>
                         <dd>{{ $company->email ?? '-' }}</dd>
 
-                        <dt>Phone</dt>
+                        <dt>Τηλέφωνο</dt>
                         <dd>{{ $company->phone ?? '-' }}</dd>
 
-                        <dt>Address</dt>
+                        <dt>Διεύθυνση</dt>
                         <dd>{{ $company->address ?? '-' }}</dd>
 
-                        <dt>VAT Number</dt>
+                        <dt>ΑΦΜ</dt>
                         <dd>{{ $company->vat_number ?? '-' }}</dd>
 
-                        <dt>Status</dt>
+                        <dt>Κατάσταση</dt>
                         <dd>
                             @if($company->is_active)
-                                <span class="badge badge-success">Active</span>
+                                <span class="badge badge-success">Ενεργή</span>
                             @else
-                                <span class="badge badge-danger">Inactive</span>
+                                <span class="badge badge-danger">Ανενεργή</span>
                             @endif
                         </dd>
 
-                        <dt>Created</dt>
-                        <dd>{{ $company->created_at->format('M d, Y H:i') }}</dd>
+                        <dt>Δημιουργία</dt>
+                        <dd>{{ date_el($company->created_at, true) }}</dd>
                     </dl>
                 </div>
             </div>
@@ -69,16 +69,16 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Users ({{ $company->users->count() }})</h3>
+                    <h3 class="card-title">Χρήστες ({{ $company->users->count() }})</h3>
                 </div>
                 <div class="card-body p-0">
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Name</th>
+                                <th>Όνομα</th>
                                 <th>Email</th>
-                                <th>Role</th>
-                                <th>Joined</th>
+                                <th>Ρόλος</th>
+                                <th>Εγγραφή</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -88,14 +88,14 @@
                                     <td>{{ $user->email }}</td>
                                     <td>
                                         <span class="badge badge-{{ $user->role === 'owner' ? 'success' : ($user->role === 'admin' ? 'warning' : 'secondary') }}">
-                                            {{ ucfirst($user->role) }}
+                                            {{ ['owner' => 'Ιδιοκτήτης', 'admin' => 'Διαχειριστής', 'member' => 'Μέλος'][$user->role] ?? $user->role }}
                                         </span>
                                     </td>
-                                    <td>{{ $user->created_at->format('M d, Y') }}</td>
+                                    <td>{{ date_el($user->created_at) }}</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="text-center py-3">No users found.</td>
+                                    <td colspan="4" class="text-center py-3">Δεν βρέθηκαν χρήστες.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -105,29 +105,29 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Recent Invoices</h3>
+                    <h3 class="card-title">Πρόσφατα τιμολόγια</h3>
                 </div>
                 <div class="card-body p-0">
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Invoice #</th>
-                                <th>Issuer</th>
-                                <th>Amount</th>
-                                <th>Date</th>
+                                <th>Αρ. τιμολογίου</th>
+                                <th>Εκδότης</th>
+                                <th>Ποσό</th>
+                                <th>Ημερομηνία</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($company->invoices as $invoice)
                                 <tr>
-                                    <td>{{ $invoice->invoice_number ?? 'N/A' }}</td>
+                                    <td>{{ $invoice->invoice_number ?? '—' }}</td>
                                     <td>{{ $invoice->issuer_name }}</td>
-                                    <td>{{ $invoice->currency }} {{ number_format($invoice->grand_total, 2) }}</td>
-                                    <td>{{ $invoice->created_at->format('M d, Y') }}</td>
+                                    <td>{{ money_el($invoice->grand_total, $invoice->currency) }}</td>
+                                    <td>{{ date_el($invoice->created_at) }}</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="text-center py-3">No invoices found.</td>
+                                    <td colspan="4" class="text-center py-3">Δεν βρέθηκαν τιμολόγια.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -138,7 +138,7 @@
             <!-- Assign User Form -->
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Assign Existing User</h3>
+                    <h3 class="card-title">Αντιστοίχιση υπάρχοντος χρήστη</h3>
                 </div>
                 <form action="{{ route('admin.companies.assign-user', $company) }}" method="POST">
                     @csrf
@@ -148,14 +148,14 @@
                         @endphp
 
                         @if($unassignedUsers->isEmpty())
-                            <p class="text-muted mb-0">No unassigned users available.</p>
+                            <p class="text-muted mb-0">Δεν υπάρχουν διαθέσιμοι χρήστες για αντιστοίχιση.</p>
                         @else
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group mb-0">
-                                        <label for="user_id">Select User</label>
+                                        <label for="user_id">Επιλογή χρήστη</label>
                                         <select class="form-control" name="user_id" id="user_id" required>
-                                            <option value="">-- Select User --</option>
+                                            <option value="">-- Επιλέξτε χρήστη --</option>
                                             @foreach($unassignedUsers as $user)
                                                 <option value="{{ $user->id }}">
                                                     {{ $user->name }} ({{ $user->email }})
@@ -166,16 +166,16 @@
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-group mb-0">
-                                        <label for="role">Role</label>
+                                        <label for="role">Ρόλος</label>
                                         <select class="form-control" name="role" id="role" required>
-                                            <option value="member">Member</option>
-                                            <option value="admin">Admin</option>
-                                            <option value="owner">Owner</option>
+                                            <option value="member">Μέλος</option>
+                                            <option value="admin">Διαχειριστής</option>
+                                            <option value="owner">Ιδιοκτήτης</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-md-2 d-flex align-items-end">
-                                    <button type="submit" class="btn btn-primary btn-block">Assign</button>
+                                    <button type="submit" class="btn btn-primary btn-block">Αντιστοίχιση</button>
                                 </div>
                             </div>
                         @endif

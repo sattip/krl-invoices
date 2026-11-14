@@ -1,12 +1,12 @@
 @extends('adminlte::page')
 
-@section('title', 'Manage Plans')
+@section('title', 'Διαχείριση πακέτων')
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Manage Subscription Plans</h1>
+        <h1>Διαχείριση πακέτων συνδρομής</h1>
         <a href="{{ route('admin.stripe.setup') }}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left mr-1"></i> Back to Settings
+            <i class="fas fa-arrow-left mr-1"></i> Επιστροφή στις ρυθμίσεις
         </a>
     </div>
 @stop
@@ -36,18 +36,18 @@
     <!-- Sync with Stripe -->
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">Stripe Sync</h3>
+            <h3 class="card-title">Συγχρονισμός με Stripe</h3>
         </div>
         <div class="card-body">
-            <p>If you haven't created products in Stripe yet, you can automatically sync your plans:</p>
+            <p>Αν δεν έχετε δημιουργήσει ακόμη προϊόντα στο Stripe, μπορείτε να συγχρονίσετε αυτόματα τα πακέτα σας:</p>
             <form action="{{ route('admin.stripe.sync-plans') }}" method="POST" class="d-inline">
                 @csrf
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-sync mr-1"></i> Sync Plans to Stripe
+                    <i class="fas fa-sync mr-1"></i> Συγχρονισμός πακέτων με Stripe
                 </button>
             </form>
             <small class="d-block mt-2 text-muted">
-                This will create products and prices in Stripe for plans that don't have a Stripe Price ID.
+                Θα δημιουργηθούν προϊόντα και τιμές στο Stripe για τα πακέτα που δεν έχουν Stripe Price ID.
             </small>
         </div>
     </div>
@@ -57,17 +57,17 @@
         @csrf
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Subscription Plans</h3>
+                <h3 class="card-title">Πακέτα συνδρομής</h3>
             </div>
             <div class="card-body p-0">
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>Plan</th>
-                            <th>Price (USD/mo)</th>
-                            <th>Invoice Limit</th>
+                            <th>Πακέτο</th>
+                            <th>Τιμή (€/μήνα)</th>
+                            <th>Όριο τιμολογίων</th>
                             <th>Stripe Price ID</th>
-                            <th>Active</th>
+                            <th>Ενεργό</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -105,11 +105,11 @@
                                            style="width: 250px;">
                                     @if($plan->stripe_price_id)
                                         <small class="text-success">
-                                            <i class="fas fa-check"></i> Synced
+                                            <i class="fas fa-check"></i> Συγχρονισμένο
                                         </small>
                                     @else
                                         <small class="text-warning">
-                                            <i class="fas fa-exclamation-triangle"></i> Not synced
+                                            <i class="fas fa-exclamation-triangle"></i> Μη συγχρονισμένο
                                         </small>
                                     @endif
                                 </td>
@@ -131,7 +131,7 @@
             </div>
             <div class="card-footer">
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save mr-1"></i> Save Changes
+                    <i class="fas fa-save mr-1"></i> Αποθήκευση αλλαγών
                 </button>
             </div>
         </div>
@@ -140,7 +140,7 @@
     <!-- Plan Features Info -->
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">Plan Features</h3>
+            <h3 class="card-title">Χαρακτηριστικά πακέτων</h3>
         </div>
         <div class="card-body">
             <div class="row">
@@ -152,9 +152,9 @@
                             </span>
                             <div class="info-box-content">
                                 <span class="info-box-text">{{ $plan->name }}</span>
-                                <span class="info-box-number">{{ $plan->formatted_price }}/mo</span>
+                                <span class="info-box-number">{{ $plan->formatted_price }}/μήνα</span>
                                 <span class="progress-description">
-                                    {{ number_format($plan->invoice_limit) }} invoices/month
+                                    {{ $plan->invoice_limit == -1 ? 'Απεριόριστα' : number_el($plan->invoice_limit) }} τιμολόγια/μήνα
                                 </span>
                             </div>
                         </div>

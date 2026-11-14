@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Create Company - Step 3')
+@section('title', 'Δημιουργία εταιρείας – Βήμα 3')
 
 @section('content_header')
-    <h1>Create Company</h1>
+    <h1>Δημιουργία εταιρείας</h1>
 @stop
 
 @section('content')
@@ -17,21 +17,21 @@
                         <div class="step completed">
                             <button type="button" class="step-trigger" disabled>
                                 <span class="bs-stepper-circle bg-success"><i class="fas fa-check"></i></span>
-                                <span class="bs-stepper-label">Company Info</span>
+                                <span class="bs-stepper-label">Στοιχεία εταιρείας</span>
                             </button>
                         </div>
                         <div class="line bg-success"></div>
                         <div class="step completed">
                             <button type="button" class="step-trigger" disabled>
                                 <span class="bs-stepper-circle bg-success"><i class="fas fa-check"></i></span>
-                                <span class="bs-stepper-label">Owner Account</span>
+                                <span class="bs-stepper-label">Λογαριασμός ιδιοκτήτη</span>
                             </button>
                         </div>
                         <div class="line bg-success"></div>
                         <div class="step active">
                             <button type="button" class="step-trigger" disabled>
                                 <span class="bs-stepper-circle bg-primary">3</span>
-                                <span class="bs-stepper-label">Plan & Grace Period</span>
+                                <span class="bs-stepper-label">Πακέτο και περίοδος δωρεάν πρόσβασης</span>
                             </button>
                         </div>
                     </div>
@@ -42,7 +42,7 @@
         <!-- Step 3 Form -->
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Step 3: Plan & Grace Period</h3>
+                <h3 class="card-title">Βήμα 3: Πακέτο και περίοδος δωρεάν πρόσβασης</h3>
             </div>
             <form action="{{ route('admin.companies.wizard.store-step3') }}" method="POST">
                 @csrf
@@ -53,22 +53,22 @@
 
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle mr-2"></i>
-                        Assigning plan for: <strong>{{ $wizardData['company_name'] }}</strong> 
-                        (Owner: {{ $wizardData['owner_email'] }})
+                        Ανάθεση πακέτου στην εταιρεία: <strong>{{ $wizardData['company_name'] }}</strong>
+                        (Ιδιοκτήτης: {{ $wizardData['owner_email'] }})
                     </div>
 
                     <div class="form-group">
-                        <label for="plan_id">Select Plan <span class="text-danger">*</span></label>
+                        <label for="plan_id">Επιλογή πακέτου <span class="text-danger">*</span></label>
                         <select class="form-control @error('plan_id') is-invalid @enderror" 
                                 id="plan_id" name="plan_id" required>
-                            <option value="">-- Select a Plan --</option>
+                            <option value="">-- Επιλέξτε πακέτο --</option>
                             @foreach($plans as $plan)
                                 <option value="{{ $plan->id }}" 
                                         {{ old('plan_id', $wizardData['plan_id'] ?? '') == $plan->id ? 'selected' : '' }}
                                         data-price="{{ $plan->price }}"
                                         data-limit="{{ $plan->invoice_limit }}">
-                                    {{ $plan->name }} - €{{ number_format($plan->price, 2) }}/mo 
-                                    ({{ $plan->invoice_limit == -1 ? 'Unlimited' : $plan->invoice_limit }} invoices)
+                                    {{ $plan->name }} – {{ money_el($plan->price) }}/μήνα
+                                    ({{ $plan->invoice_limit == -1 ? 'απεριόριστα' : number_el($plan->invoice_limit) }} τιμολόγια)
                                 </option>
                             @endforeach
                         </select>
@@ -78,7 +78,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="grace_period_end">Grace Period End Date <span class="text-danger">*</span></label>
+                        <label for="grace_period_end">Λήξη περιόδου δωρεάν πρόσβασης <span class="text-danger">*</span></label>
                         <input type="date" class="form-control @error('grace_period_end') is-invalid @enderror" 
                                id="grace_period_end" name="grace_period_end" 
                                value="{{ old('grace_period_end', $wizardData['grace_period_end'] ?? date('Y-m-d', strtotime('+30 days'))) }}"
@@ -87,28 +87,28 @@
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
                         <small class="form-text text-muted">
-                            The company will have full access until this date without payment.
+                            Η εταιρεία θα έχει πλήρη πρόσβαση έως την ημερομηνία αυτή χωρίς πληρωμή.
                         </small>
                     </div>
 
                     <div class="card bg-light">
                         <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-info-circle text-info mr-2"></i>Summary</h5>
+                            <h5 class="card-title"><i class="fas fa-info-circle text-info mr-2"></i>Σύνοψη</h5>
                             <ul class="mb-0">
-                                <li><strong>Company:</strong> {{ $wizardData['company_name'] }}</li>
-                                <li><strong>Owner:</strong> {{ $wizardData['owner_name'] }} ({{ $wizardData['owner_email'] }})</li>
-                                <li><strong>Plan:</strong> <span id="selected_plan">Not selected</span></li>
-                                <li><strong>Access Until:</strong> <span id="grace_display">{{ date('F j, Y', strtotime('+30 days')) }}</span></li>
+                                <li><strong>Εταιρεία:</strong> {{ $wizardData['company_name'] }}</li>
+                                <li><strong>Ιδιοκτήτης:</strong> {{ $wizardData['owner_name'] }} ({{ $wizardData['owner_email'] }})</li>
+                                <li><strong>Πακέτο:</strong> <span id="selected_plan">Δεν έχει επιλεγεί</span></li>
+                                <li><strong>Πρόσβαση έως:</strong> <span id="grace_display">{{ date_el(old('grace_period_end', $wizardData['grace_period_end'] ?? date('Y-m-d', strtotime('+30 days')))) }}</span></li>
                             </ul>
                         </div>
                     </div>
                 </div>
                 <div class="card-footer">
                     <a href="{{ route('admin.companies.wizard.step2') }}" class="btn btn-default">
-                        <i class="fas fa-arrow-left mr-1"></i> Back
+                        <i class="fas fa-arrow-left mr-1"></i> Πίσω
                     </a>
                     <button type="submit" class="btn btn-success float-right">
-                        <i class="fas fa-check mr-1"></i> Create Company
+                        <i class="fas fa-check mr-1"></i> Δημιουργία εταιρείας
                     </button>
                 </div>
             </form>
@@ -180,15 +180,15 @@
             if (selectedOption.value) {
                 selectedPlanSpan.textContent = selectedOption.text;
             } else {
-                selectedPlanSpan.textContent = 'Not selected';
+                selectedPlanSpan.textContent = 'Δεν έχει επιλεγεί';
             }
             
             if (graceDateInput.value) {
                 var date = new Date(graceDateInput.value);
-                graceDisplaySpan.textContent = date.toLocaleDateString('en-US', { 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
+                graceDisplaySpan.textContent = date.toLocaleDateString('el-GR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
                 });
             }
         }

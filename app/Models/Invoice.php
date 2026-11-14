@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class Invoice extends Model
 {
@@ -108,5 +109,46 @@ class Invoice extends Model
     {
         $calculated = $this->calculated_subtotal - $this->total_discounts + $this->total_other_charges + $this->vat_total;
         return abs($calculated - $this->grand_total) < 0.01;
+    }
+
+    /**
+     * Disk for newly uploaded invoice files: private (storage/app/private), never web-served.
+     * Older uploads may still live on the legacy "public" disk until
+     * `php artisan invoices:privatize-files` has been run.
+     */
+    public const FILE_DISK = 'local';
+
+    public const LEGACY_FILE_DISK = 'public';
+
+    /**
+     * The disk that currently holds this invoice's file, or null if missing.
+     */
+    public function fileDisk(): ?string
+    {
+        if (empty($this->file_path)) {
+            return null;
+        }
+
+        foreach ([self::FILE_DISK, self::LEGACY_FILE_DISK] as $disk) {
+            if (Storage::disk($disk)->exists($this->file_path)) {
+                return $disk;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Delete the stored file from every disk it may live on.
+     */
+    public function deleteStoredFile(): void
+    {
+        if (empty($this->file_path)) {
+            return;
+        }
+
+        foreach ([self::FILE_DISK, self::LEGACY_FILE_DISK] as $disk) {
+            Storage::disk($disk)->delete($this->file_path);
+        }
     }
 }

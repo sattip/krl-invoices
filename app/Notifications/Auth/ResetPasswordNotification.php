@@ -32,7 +32,7 @@ class ResetPasswordNotification extends Notification implements ShouldQueue
         ], false));
 
         return (new MailMessage)
-            ->subject('Reset Your Password - InvoiceAI')
+            ->subject('Επαναφορά κωδικού πρόσβασης – InvoiceAI')
             ->view('emails.auth.reset-password', ['url' => $url]);
     }
 }

@@ -1,31 +1,31 @@
 @extends('emails.layouts.base')
 
-@section('title', 'Welcome to InvoiceAI')
+@section('title', 'Καλώς ορίσατε στο InvoiceAI')
 
 @section('content')
-    <div class="greeting">Welcome to InvoiceAI, {{ $user->name }}!</div>
+    <div class="greeting">Καλώς ορίσατε στο InvoiceAI, {{ $user->name }}!</div>
     
-    <p>Thank you for joining InvoiceAI! Your account has been successfully created and you're ready to start extracting data from your invoices.</p>
+    <p>Σας ευχαριστούμε που επιλέξατε το InvoiceAI. Ο λογαριασμός σας δημιουργήθηκε επιτυχώς και μπορείτε πλέον να ξεκινήσετε την εξαγωγή δεδομένων από τα τιμολόγιά σας.</p>
     
     <div class="info-box success">
-        <h4>What's Next?</h4>
-        <p>Upload your first invoice and watch our AI extract all the important data automatically!</p>
+        <h4>Επόμενο βήμα</h4>
+        <p>Ανεβάστε το πρώτο σας τιμολόγιο και το InvoiceAI θα εξαγάγει αυτόματα τα βασικά του στοιχεία. Σας προτείνουμε να ελέγχετε πάντα τα εξαγόμενα δεδομένα πριν από τη χρήση τους.</p>
     </div>
     
     <div class="credentials-box">
-        <h4>Your Account</h4>
+        <h4>Ο λογαριασμός σας</h4>
         <table class="details-table">
             <tr>
                 <th>Email</th>
                 <td>{{ $user->email }}</td>
             </tr>
             <tr>
-                <th>Company</th>
+                <th>Εταιρεία</th>
                 <td>{{ $company->name }}</td>
             </tr>
             @if($plan)
             <tr>
-                <th>Plan</th>
+                <th>Πακέτο</th>
                 <td>{{ $plan->name }}</td>
             </tr>
             @endif
@@ -33,9 +33,9 @@
     </div>
     
     <div class="text-center mb-6">
-        <a href="{{ url('/dashboard') }}" class="button">Go to Dashboard</a>
-        <a href="{{ url('/invoices/create') }}" class="button button-success" style="margin-left: 8px;">Upload Invoice</a>
+        <a href="{{ url('/dashboard') }}" class="button">Μετάβαση στον πίνακα ελέγχου</a>
+        <a href="{{ url('/invoices/create') }}" class="button button-success" style="margin-left: 8px;">Ανέβασμα τιμολογίου</a>
     </div>
     
-    <p class="text-muted text-small">Need help getting started? Check out our documentation or contact our support team.</p>
+    <p class="text-muted text-small">Χρειάζεστε βοήθεια για να ξεκινήσετε; Επικοινωνήστε μαζί μας στο <a href="mailto:support@obstechnologies.com">support@obstechnologies.com</a>.</p>
 @endsection

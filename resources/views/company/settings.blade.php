@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Company Settings')
+@section('title', 'Ρυθμίσεις εταιρείας')
 
 @section('content_header')
-    <h1>Company Settings</h1>
+    <h1>Ρυθμίσεις εταιρείας</h1>
 @stop
 
 @section('content')
@@ -25,14 +25,14 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Company Information</h3>
+                    <h3 class="card-title">Στοιχεία εταιρείας</h3>
                 </div>
                 <form action="{{ route('company.settings.update') }}" method="POST">
                     @csrf
                     @method('PUT')
                     <div class="card-body">
                         <div class="form-group">
-                            <label for="name">Company Name <span class="text-danger">*</span></label>
+                            <label for="name">Επωνυμία εταιρείας <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('name') is-invalid @enderror"
                                    id="name" name="name" value="{{ old('name', $company->name) }}" required>
                             @error('name')
@@ -41,7 +41,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="email">Company Email</label>
+                            <label for="email">Email εταιρείας</label>
                             <input type="email" class="form-control @error('email') is-invalid @enderror"
                                    id="email" name="email" value="{{ old('email', $company->email) }}">
                             @error('email')
@@ -50,7 +50,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="phone">Phone</label>
+                            <label for="phone">Τηλέφωνο</label>
                             <input type="text" class="form-control @error('phone') is-invalid @enderror"
                                    id="phone" name="phone" value="{{ old('phone', $company->phone) }}">
                             @error('phone')
@@ -59,7 +59,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="address">Address</label>
+                            <label for="address">Διεύθυνση</label>
                             <textarea class="form-control @error('address') is-invalid @enderror"
                                       id="address" name="address" rows="3">{{ old('address', $company->address) }}</textarea>
                             @error('address')
@@ -68,7 +68,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="vat_number">VAT Number</label>
+                            <label for="vat_number">ΑΦΜ</label>
                             <input type="text" class="form-control @error('vat_number') is-invalid @enderror"
                                    id="vat_number" name="vat_number" value="{{ old('vat_number', $company->vat_number) }}">
                             @error('vat_number')
@@ -79,12 +79,12 @@
                     <div class="card-footer">
                         @if(auth()->user()->isAdmin())
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save mr-2"></i> Save Changes
+                                <i class="fas fa-save mr-2"></i> Αποθήκευση αλλαγών
                             </button>
                         @else
                             <p class="text-muted mb-0">
                                 <i class="fas fa-info-circle mr-1"></i>
-                                Only company administrators can update settings.
+                                Μόνο οι διαχειριστές της εταιρείας μπορούν να τροποποιήσουν τις ρυθμίσεις.
                             </p>
                         @endif
                     </div>
@@ -95,21 +95,21 @@
         <div class="col-md-4">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Company Stats</h3>
+                    <h3 class="card-title">Στατιστικά εταιρείας</h3>
                 </div>
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Total Users
-                            <span class="badge badge-primary badge-pill">{{ $company->users->count() }}</span>
+                            Σύνολο χρηστών
+                            <span class="badge badge-primary badge-pill">{{ number_el($company->users->count()) }}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Total Invoices
-                            <span class="badge badge-info badge-pill">{{ $company->invoices->count() }}</span>
+                            Σύνολο παραστατικών
+                            <span class="badge badge-info badge-pill">{{ number_el($company->invoices->count()) }}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Created
-                            <span class="text-muted">{{ $company->created_at->format('M d, Y') }}</span>
+                            Ημερομηνία δημιουργίας
+                            <span class="text-muted">{{ date_el($company->created_at) }}</span>
                         </li>
                     </ul>
                 </div>
@@ -117,12 +117,12 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Your Role</h3>
+                    <h3 class="card-title">Ο ρόλος σας</h3>
                 </div>
                 <div class="card-body">
                     <p class="mb-0">
                         <span class="badge badge-{{ auth()->user()->role === 'owner' ? 'success' : (auth()->user()->role === 'admin' ? 'warning' : 'secondary') }}">
-                            {{ ucfirst(auth()->user()->role) }}
+                            {{ match(auth()->user()->role) { 'owner' => 'Ιδιοκτήτης', 'admin' => 'Διαχειριστής', 'member' => 'Μέλος', default => ucfirst((string) auth()->user()->role) } }}
                         </span>
                     </p>
                 </div>

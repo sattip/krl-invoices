@@ -43,12 +43,12 @@ class EnsureActiveSubscription
 
         if (!$company) {
             return redirect()->route('dashboard')
-                ->with('error', 'No company associated with your account.');
+                ->with('error', 'Ο λογαριασμός σας δεν είναι συνδεδεμένος με κάποια εταιρεία.');
         }
 
         if (!$company->hasActiveSubscription()) {
             return redirect()->route('billing.plans')
-                ->with('warning', 'Please subscribe to a plan to access this feature.');
+                ->with('warning', 'Εγγραφείτε σε κάποιο πακέτο για να αποκτήσετε πρόσβαση σε αυτή τη λειτουργία.');
         }
 
         return $next($request);
