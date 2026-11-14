@@ -20,13 +20,14 @@ Production `.env` (Forge → site → Environment). Values read on 2026-11-14 vi
 | `LOG_STACK` / `LOG_LEVEL` | `single` / `debug` | `daily` / `warning`, `LOG_DAILY_DAYS=14` | Bounded log retention (Privacy Policy says logs are kept only as long as needed). |
 | `APP_LOCALE` | `en` | `el` (optional) | Code now forces `el`; env value is ignored. |
 
-## 0b. Blocking facts before showing prices with VAT wording
+## 0b. Confirmed VAT policy and outstanding Stripe verification
+George confirmed on 2026-11-14 at 18:31 Athens that **29/79/199 EUR include VAT**. The code defaults to `included`; set `INVOICEAI_PRICE_VAT_MODE=included` explicitly in production as well. Do not add VAT a second time. Currency/amount verification below remains a launch gate.
+
+### Historical pre-confirmation findings
 - The code adds **no tax** at Stripe Checkout (no `automatic_tax`, no `tax_rates`): the customer pays the Stripe price as-is.
 - The live Stripe price objects (`plans.stripe_price_id`) could not be inspected (Stripe credentials are in the production DB, not read).
-  `StripeService::createProductAndPrice()` creates prices in **USD** although the site shows €: if "Sync plans" was used, checkout may charge USD.
-- Owner must confirm (a) live price currency/amount in the Stripe Dashboard and (b) whether 29/79/199 € include 24% VAT.
-  Then set `INVOICEAI_PRICE_VAT_MODE=included` (or `excluded` — only if checkout is also changed to add VAT) in `.env` and run `php artisan config:cache`.
-  Until then no VAT statement is shown (preview omits the unverified claim).
+  The former production `StripeService::createProductAndPrice()` created prices in **USD** although the site shows €: if "Sync plans" was used, checkout may charge USD. The candidate fixes new prices to EUR but does not mutate existing prices.
+- Verify live price currency/amount using read-only access. The owner-confirmed VAT policy is inclusive. Run `php artisan config:cache` after the scoped environment merge. The final release must display VAT inclusion on both languages and all pricing surfaces.
 
 ### Currency fix — migration implications
 - `StripeService::createProductAndPrice` now creates **EUR** prices (was hard-coded USD). It runs only for plans **without** `stripe_price_id`

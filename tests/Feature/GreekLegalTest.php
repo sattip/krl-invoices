@@ -117,6 +117,11 @@ class GreekLegalTest extends TestCase
     public function test_vat_label_only_when_configured(): void
     {
         $this->plan();
+        $this->assertSame('included', config('legal.pricing.vat_mode'));
+        $this->get('/')->assertSee('Η τιμή περιλαμβάνει ΦΠΑ');
+        $this->get('/en')->assertSee('Price includes VAT');
+
+        config(['legal.pricing.vat_mode' => null]);
         $this->get('/')->assertDontSee('data-vat-mode', false);
 
         config(['legal.pricing.vat_mode' => 'included']);

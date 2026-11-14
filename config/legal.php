@@ -37,15 +37,13 @@ return [
     ],
 
     /*
-     | VAT presentation next to prices: null (not stated), 'included' or 'excluded'.
-     | Left null on purpose: the code passes no tax settings to Stripe Checkout
-     | (no automatic_tax / tax_rates), so the amount charged is the Stripe price
-     | as-is, and the currency/amount of the live Stripe prices could not be
-     | verified (StripeService::createProductAndPrice creates them in USD).
-     | The owner must confirm before this is set. See docs/INVOICEAI_RELEASE.md.
+     | George confirmed on 2026-11-14 that 29/79/199 EUR INCLUDE VAT.
+     | These are gross totals: do not add VAT again at checkout.
+     | Live Stripe price amounts/currency must still be verified before launch.
+     | Explicit deployment override is available for future approved policy changes.
      */
     'pricing' => [
-        'vat_mode' => env('INVOICEAI_PRICE_VAT_MODE'),
+        'vat_mode' => env('INVOICEAI_PRICE_VAT_MODE', 'included'),
     ],
 
     'terms_version' => '2026-11-14',
