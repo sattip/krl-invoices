@@ -49,7 +49,7 @@ class WhatsAppSettings extends Model
         $this->attributes['api_key'] = $value ? Crypt::encryptString($value) : null;
     }
 
-    public function getApiKeyAttribute(?$value): ?string
+    public function getApiKeyAttribute(?string $value): ?string
     {
         if (!$value) return null;
         try {
@@ -65,7 +65,7 @@ class WhatsAppSettings extends Model
         $this->attributes['webhook_secret'] = $value ? Crypt::encryptString($value) : null;
     }
 
-    public function getWebhookSecretAttribute(?$value): ?string
+    public function getWebhookSecretAttribute(?string $value): ?string
     {
         if (!$value) return null;
         try {
