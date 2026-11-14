@@ -1,5 +1,11 @@
 # Release Notes
 
+## 2026-11-14 — reconcile onto live 9559c32
+- Merged Greek/OBS legal release onto the actual production commit 9559c32 (WhatsApp/WaSenderAPI kept) + server accessor fix.
+- Fixed WhatsApp table name and notification fields; WaSenderAPI disclosed in privacy policy (el/en).
+- invoices:privatize-files fails closed on collisions, rolls back unverified copies, counts remaining public copies.
+- Security lock updates within majors (composer audit 0, npm audit 0).
+
 ## [Unreleased](https://github.com/laravel/laravel/compare/v12.10.0...12.x)
 
 ## [v12.10.0](https://github.com/laravel/laravel/compare/v12.9.1...v12.10.0) - 2025-11-04

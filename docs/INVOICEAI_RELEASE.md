@@ -1,6 +1,8 @@
 # InvoiceAI — Greek UI + OBS legal pages: release / backup / rollback
 
-Branch: `feat/el-obs-legal-20261114` (base `9632f01` = what production runs, Forge deployment 59520543).
+Branch: `feat/el-obs-reconcile-9559-20261114` (base **`9559c32`** = what production actually runs, release dir `releases/59520543`).
+`9632f01` is NOT the production baseline: production runs server-only commit `9559c32` (WhatsApp/WaSenderAPI, not on GitHub `main`)
+plus uncommitted server edits (see §0c). The earlier branch `feat/el-obs-legal-20261114` (a83c5e7) is merged into this branch; do not deploy it alone.
 Nothing has been pushed. **Forge Quick Deploy is ON for `main`: merging/pushing to `main` deploys immediately.**
 
 ## Confirmed corporate address
@@ -38,7 +40,22 @@ George confirmed on 2026-11-14 at 18:31 Athens that **29/79/199 EUR include VAT*
   (`stripe_settings`), there is no SSH access, the only local Stripe key is a test-mode key, and Forge site commands would execute code on production.
   Check in Stripe Dashboard → Product catalogue → each InvoiceAI price: currency, amount, tax behaviour.
 
+## 0c. Actual live baseline (read-only capture 2026-11-14)
+- HEAD `9559c326db1a040348dcb048e411fa1c90fda69d` (parent 9632f01): WhatsApp settings page/routes (`company.whatsapp*`), WaSenderAPI service,
+  notification channel + 5 notifications, `whatsapp_settings` migration (already ran in prod, batch 5), Stripe webhook payment notifications.
+- Dirty tracked edits on the server: (1) `WhatsAppSettings` accessors `?$value` → `?string $value` (the committed file is a PHP parse error) —
+  **carried into this branch**; (2) `composer.json` adds path repo `./packages/obstechnologies/invoiceai` + `obstechnologies/invoiceai:*` —
+  **not carried**: `composer.lock` was never updated and `vendor/` has no such package, so it is not loaded in production today;
+  a fresh Forge release would not contain the untracked `packages/` dir and `composer install` would stop on a lock mismatch.
+  The package (22 files, own routes `api/invoiceai/*`, own migrations) needs a separate owner decision/review before it is activated.
+  Protected source snapshot (no .git) is kept outside the repo by obs-dev.
+- Fixed in this branch (live bugs): model table name `whatsapp_settings` (Eloquent defaulted to `whats_app_settings`, so the live settings page
+  and notifications fail), `InvoiceProcessed` message fields (`issuer_name`/`grand_total`).
+- Security: lock-only updates within majors (composer audit 56 → 0, npm audit 14 → 0 at 2026-11-14); `composer.json`/`package.json` unchanged.
+- The server's Git remote URL contains an inline credential; prefer a Forge deploy key and rotate that token (owner action).
+
 ## 1. Backup (before deploy)
+Protected verified backup already exists: `/home/forge/.obs-backups/invoiceai-20261114-phase1` (site + DB + env + live-drift patch).
 On the server (forge user), keep outside the web root:
 ```bash
 cd /home/forge/invoiceai.gr
@@ -49,7 +66,7 @@ readlink current   # note the current release dir for rollback
 ```
 
 ## 2. Deploy
-1. Review the diff (`git diff 9632f01...feat/el-obs-legal-20261114`), push the branch, merge to `main` (Quick Deploy runs the standard script:
+1. Review the diff (`git diff 9559c32...feat/el-obs-reconcile-9559-20261114`; note the live server edits in §0c), push the branch, merge to `main` (Quick Deploy runs the standard script:
    composer, `npm ci && npm run build`, `optimize`, `storage:link`, `migrate --force`).
 2. Migration in this release (additive only): `2026_11_14_000001_add_terms_acceptance_to_users_table` → nullable `users.terms_accepted_at`, `users.terms_version`.
 3. After deploy, move legacy invoice files out of the public web path (dry-run first):
@@ -69,7 +86,10 @@ readlink current   # note the current release dir for rollback
 - No requests to fonts.googleapis.com / fonts.bunny.net in the browser network tab.
 
 ## 4. Rollback
-- Code: Forge → Deployments → redeploy commit `9632f01` (or `git revert` the merge on `main`; Quick Deploy redeploys).
+- Code: **do not redeploy 9632f01** (it would drop the live WhatsApp feature). The exact previous state (9559c32 + server edits) only exists in
+  release dir `releases/59520543` (and the protected backup), so roll back by switching the symlink, not by a Git redeploy:
+  `ln -s /home/forge/invoiceai.gr/releases/59520543 /home/forge/invoiceai.gr/current.rollback && mv -Tf /home/forge/invoiceai.gr/current.rollback /home/forge/invoiceai.gr/current`
+  Keep that release dir (check Forge release retention before deploying). Then rebuild caches from that release only (`php8.3 artisan config:cache` etc.).
   The added columns are nullable and unused by the old code — no DB rollback needed. (`php artisan migrate:rollback --step=1` only if explicitly wanted.)
 - Files: if old code is restored after `--apply`, old `Storage::url()` previews break for moved files. Restore with
   `rsync -a storage/app/private/invoices/ storage/app/public/invoices/` (copies back; nothing is deleted).

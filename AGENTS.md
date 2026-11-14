@@ -11,6 +11,12 @@ Codebase facts for agents working on this repo (verified 2026-11-14).
   So every new migration runs automatically on deploy.
 - PHP 8.3 on server, MySQL 8. Local dev may use PHP 8.5 (only deprecation notices).
 
+- **Actual production baseline is `9559c32` (server-only commit, WhatsApp/WaSenderAPI) + server edits, not GitHub `main`/9632f01.**
+  See docs/INVOICEAI_RELEASE.md §0c. Rollback = symlink to the previous release dir, never a redeploy of 9632f01.
+- WhatsApp: per-company `whatsapp_settings` (API key/webhook secret encrypted), `App\Services\WhatsAppService` → api.wasenderapi.com,
+  `App\Notifications\Channels\WhatsAppChannel`. Never send raw exception text or invoice content beyond the documented summary.
+- `packages/obstechnologies/invoiceai` exists only untracked on the server and is NOT installed; don't add it to composer.json without review.
+
 ## Stack
 - Laravel 12, Breeze (auth controllers), AdminLTE (`jeroennoten/laravel-adminlte`) for the logged-in area, Tailwind for auth pages,
   Bootstrap/AdminLTE CSS for the landing page (`public/css/landing.css`).
@@ -30,7 +36,7 @@ Codebase facts for agents working on this repo (verified 2026-11-14).
   the logged-in app (AdminLTE) and emails are Greek-only and always render `el`.
   Translations: `lang/{el,en}/landing.php`, `lang/en.json` (Greek source strings → English), `lang/el.json` (Breeze English keys → Greek), `lang/el/*.php`, `lang/vendor/adminlte/el`.
 - Prices: VAT wording is controlled by `config('legal.pricing.vat_mode')` (env `INVOICEAI_PRICE_VAT_MODE` = included|excluded); unset = no VAT statement.
-  Checkout passes no tax settings to Stripe; `StripeService::createProductAndPrice` still creates prices in **USD** (inconsistent with € display).
+  Checkout passes no tax settings to Stripe.
 - Formatting helpers (`app/helpers.php`): `money_el()`, `number_el()`, `date_el()` (Europe/Athens display, UTC storage).
 - Legal/corporate facts live in `config/legal.php` only. Legal pages: `resources/views/legal/*` (routes `legal.terms|privacy|cookies|contact`).
   Footer with legal links: `resources/views/partials/legal-links.blade.php` (used by landing, auth, Breeze layouts, AdminLTE footer).
@@ -43,5 +49,5 @@ Codebase facts for agents working on this repo (verified 2026-11-14).
 - Screenshots/QA: `public` served with `php -S`, Playwright (`playwright-core` from the OpenClaw install + system Chrome); AdminLTE pages need a tall viewport, not fullPage.
 
 ## Tests
-- `php artisan test`. Known pre-existing failures (also on 9632f01): PasswordResetTest ×3 (custom notification class), RegistrationTest (Stripe flow), ExampleTest (no DB).
+- `vendor/bin/phpunit` (PHP 8.3). Known pre-existing failures (identical on the live baseline 9559c32, 2026-11-14): PasswordResetTest ×3 (custom notification class), RegistrationTest (Stripe flow), ExampleTest (no DB).
 - `tests/Feature/GreekLegalTest.php` covers legal pages, Greek UI, terms acceptance, private file access, deletion and the privatize command.
