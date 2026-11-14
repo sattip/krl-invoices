@@ -23,8 +23,8 @@ class InvoiceProcessed extends Notification
     public function toWhatsApp(object $notifiable): string
     {
         $invoiceNumber = $this->invoice->invoice_number ?? 'N/A';
-        $vendor = $this->invoice->vendor_name ?? 'Unknown';
-        $total = number_format($this->invoice->total_amount ?? 0, 2) . ' €';
+        $vendor = $this->invoice->issuer_name ?? 'Unknown';
+        $total = number_format((float) ($this->invoice->grand_total ?? 0), 2) . ' ' . ($this->invoice->currency ?: '€');
         
         return "✅ *Invoice Processed*\n\n" .
                "Invoice: #{$invoiceNumber}\n" .

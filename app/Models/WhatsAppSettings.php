@@ -11,6 +11,9 @@ class WhatsAppSettings extends Model
 {
     use HasFactory;
 
+    // The live migration creates `whatsapp_settings`; Eloquent's default would be `whats_app_settings`.
+    protected $table = 'whatsapp_settings';
+
     protected $fillable = [
         'company_id',
         'api_key',

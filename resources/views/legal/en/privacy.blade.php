@@ -30,6 +30,7 @@
     <tr><td>Subscription and payments</td><td>Stripe customer and subscription identifiers, plan, status, billing period, monthly usage. You enter card details directly with Stripe; we do <strong>not</strong> receive or store them.</td>
         <td>Charging the subscription: performance of contract; keeping accounting records: legal obligation (Art. 6(1)(c)).</td></tr>
     <tr><td>Technical data</td><td>IP address and browser in the login session, server and application error logs.</td><td>Security, abuse prevention and troubleshooting: legitimate interest (Art. 6(1)(f)).</td></tr>
+    <tr><td>WhatsApp notifications (optional)</td><td>If a company administrator enables them: the WaSenderAPI account API key and webhook secret (stored encrypted), the recipient phone number and notification settings. Messages contain details such as invoice number and issuer, amounts, file name, or subscription payment amount and status.</td><td>Notifications you requested: performance of contract.</td></tr>
     <tr><td>Communication</td><td>Whatever you send us by email.</td><td>Replying and support: performance of contract or legitimate interest.</td></tr>
     </tbody>
 </table>
@@ -50,6 +51,7 @@
     <tr><td>Hetzner Online GmbH</td><td>Hosting of the server, database and invoice files.</td><td>Germany (Falkenstein data centre)</td></tr>
     <tr><td>Anthropic PBC</td><td>AI model used to extract data from invoices.</td><td>USA</td></tr>
     <tr><td>Stripe</td><td>Payments and subscription management; receives name, email, company name and the payment details you enter on its page. For some processing (e.g. fraud prevention) it acts as an independent controller.</td><td>EU / USA</td></tr>
+    <tr><td>WaSenderAPI (only if WhatsApp notifications are enabled)</td><td>Sends WhatsApp notifications through the WaSenderAPI account your company connects; receives the recipient number and the message text, which is delivered via WhatsApp.</td><td>As per the provider's terms</td></tr>
     <tr><td>Laravel (Forge)</td><td>Server management and deployment tool with technical access to the server.</td><td>USA</td></tr>
     </tbody>
 </table>

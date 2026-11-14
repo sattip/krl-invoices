@@ -257,6 +257,56 @@ class GreekLegalTest extends TestCase
         $this->assertSame('%PDF-old', Storage::disk('local')->get('invoices/old-synthetic.pdf'));
     }
 
+    public function test_privatize_command_fails_closed_on_collision(): void
+    {
+        Storage::fake('local');
+        Storage::fake('public');
+
+        [$owner] = $this->invoiceFor('Synthetic Ε', withInvoice: false);
+        Storage::disk('public')->put('invoices/clash.pdf', '%PDF-public');
+        Storage::disk('local')->put('invoices/clash.pdf', '%PDF-private-different');
+        Invoice::withoutGlobalScopes()->create([
+            'user_id' => $owner->id, 'company_id' => $owner->company_id,
+            'issuer_name' => 'Synthetic clash', 'file_path' => 'invoices/clash.pdf',
+        ]);
+
+        $this->artisan('invoices:privatize-files')->assertFailed();
+        $this->artisan('invoices:privatize-files', ['--apply' => true])->assertFailed();
+        $this->assertSame('%PDF-public', Storage::disk('public')->get('invoices/clash.pdf'));
+        $this->assertSame('%PDF-private-different', Storage::disk('local')->get('invoices/clash.pdf'));
+    }
+
+    public function test_privatize_command_rolls_back_unverified_copy(): void
+    {
+        Storage::fake('local');
+        Storage::fake('public');
+
+        [$owner] = $this->invoiceFor('Synthetic Ζ', withInvoice: false);
+        Storage::disk('public')->put('invoices/rollback.pdf', '%PDF-rollback');
+        Invoice::withoutGlobalScopes()->create([
+            'user_id' => $owner->id, 'company_id' => $owner->company_id,
+            'issuer_name' => 'Synthetic rollback', 'file_path' => 'invoices/rollback.pdf',
+        ]);
+
+        $this->app->bind(\App\Console\Commands\PrivatizeInvoiceFiles::class, fn () => new class extends \App\Console\Commands\PrivatizeInvoiceFiles
+        {
+            protected function verifyCopy($disk, string $path, string $hash): bool
+            {
+                return false;
+            }
+        });
+
+        $this->artisan('invoices:privatize-files', ['--apply' => true])->assertFailed();
+        $this->assertSame('%PDF-rollback', Storage::disk('public')->get('invoices/rollback.pdf'));
+        Storage::disk('local')->assertMissing('invoices/rollback.pdf');
+    }
+
+    public function test_privacy_pages_disclose_optional_whatsapp_provider(): void
+    {
+        $this->get('/privacy')->assertOk()->assertSee('WaSenderAPI');
+        $this->get('/en/privacy')->assertOk()->assertSee('WaSenderAPI');
+    }
+
     public function test_greek_money_and_date_helpers(): void
     {
         $this->assertSame('1.234,50 €', money_el(1234.5));
